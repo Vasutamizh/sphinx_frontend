@@ -1,0 +1,22 @@
+let KKR_URL = "https://192.168.29.124:8443/Sphinx/api";
+let LOCAL_URL = "https://localhost:8443/Sphinx/api";
+
+export async function apiPost(endpoint, data) {
+  console.log("Request Data => ", data);
+
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+
+    return result;
+  } catch (err) {
+    return err;
+  }
+}

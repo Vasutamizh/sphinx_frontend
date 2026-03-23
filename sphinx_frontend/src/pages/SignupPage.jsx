@@ -3,12 +3,24 @@ import { Link } from "react-router-dom";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
-import { loginFormValidator } from "../services/ValidationService";
-import { ErrorBox, FormErrorMessage, TextInput } from "../styles/common.styles";
+import { signupFormValidator } from "../services/ValidationService";
+import {
+  ErrorBox,
+  FormDiv,
+  FormErrorMessage,
+  MandatoryInp,
+  TextInput,
+} from "../styles/common.styles";
 
-export default function LoginPage() {
-  const [userId, setUserId] = useState("");
+export default function SignupPage() {
+  const [userName, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [mobileNo, setMobileNo] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  //   role
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [responseError, setResponseError] = useState("");
@@ -26,16 +38,21 @@ export default function LoginPage() {
     setIsLoading(true);
 
     let formData = {
-      userName: userId,
-      password: password,
+      userName,
+      firstName,
+      lastName,
+      mobileNo,
+      email,
+      password,
+      confirmPassword,
+      role: "user",
     };
 
-    let errors = loginFormValidator(formData);
+    let errors = signupFormValidator(formData);
 
-    if (Object.keys(errors) === 0) {
+    if (Object.keys(errors).length === 0) {
       try {
-        const response = await apiPost("/auth/login", formData);
-
+        const response = await apiPost("/auth/signup", formData);
         if (response.error) {
           setResponseError(response.error);
         }
@@ -49,8 +66,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <FormDiv>
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
@@ -72,7 +89,7 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-2xl font-bold mb-1 tracking-tight">
-          Sign in to your account
+          Create new account
         </h1>
 
         {responseError && <ErrorBox>{responseError}</ErrorBox>}
@@ -83,18 +100,94 @@ export default function LoginPage() {
               htmlFor="userId"
               className="text-xs font-semibold uppercase tracking-widest text-slate-400"
             >
-              User Login ID
+              User Name (used in app) <MandatoryInp>*</MandatoryInp>
             </label>
             <TextInput
-              id="userId"
+              id="userName"
               type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Enter your user ID"
-              autoComplete="username"
+              value={userName}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your user name"
             />
-            {formErrors.username && (
-              <FormErrorMessage>{formErrors.username}</FormErrorMessage>
+            {formErrors.userName && (
+              <FormErrorMessage>{formErrors.userName}</FormErrorMessage>
+            )}
+          </div>
+
+          <div className="flex flex-row gap-5">
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="firstName"
+                className="text-xs font-semibold uppercase tracking-widest text-slate-400"
+              >
+                First Name <MandatoryInp>*</MandatoryInp>
+              </label>
+              <TextInput
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Enter your first name"
+              />
+              {formErrors.firstName && (
+                <FormErrorMessage>{formErrors.firstName}</FormErrorMessage>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="lastName"
+                className="text-xs font-semibold uppercase tracking-widest text-slate-400"
+              >
+                Last Name <MandatoryInp>*</MandatoryInp>
+              </label>
+              <TextInput
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Enter your last name"
+              />
+              {formErrors.lastName && (
+                <FormErrorMessage>{formErrors.lastName}</FormErrorMessage>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="mobileNo"
+              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
+            >
+              Mobile Number <MandatoryInp>*</MandatoryInp>
+            </label>
+            <TextInput
+              id="mobileNo"
+              type="text"
+              value={mobileNo}
+              onChange={(e) => setMobileNo(e.target.value)}
+              placeholder="Enter your mobile number"
+            />
+            {formErrors.mobileNo && (
+              <FormErrorMessage>{formErrors.mobileNo}</FormErrorMessage>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="email"
+              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
+            >
+              Email <MandatoryInp>*</MandatoryInp>
+            </label>
+            <TextInput
+              id="email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
+            />
+            {formErrors.email && (
+              <FormErrorMessage>{formErrors.email}</FormErrorMessage>
             )}
           </div>
 
@@ -103,7 +196,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="text-xs font-semibold uppercase tracking-widest text-slate-400"
             >
-              Password
+              Password <MandatoryInp>*</MandatoryInp>
             </label>
             <div className="relative">
               <TextInput
@@ -130,24 +223,25 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-1">
-            {/* <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 accent-indigo-500 cursor-pointer rounded"
-              />
-              <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
-                Remember me
-              </span>
-            </label> */}
-            <a
-              href="#"
-              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="confirmPassword"
+              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
             >
-              Forgot password?
-            </a>
+              Confirm Password <MandatoryInp>*</MandatoryInp>
+            </label>
+            <div>
+              <TextInput
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Enter your confirm password"
+              />
+            </div>
+            {formErrors.confirmPassword && (
+              <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
+            )}
           </div>
 
           <button
@@ -182,10 +276,10 @@ export default function LoginPage() {
                     d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
                   />
                 </svg>
-                Signing in...
+                creating account ....
               </span>
             ) : (
-              "Sign In"
+              "Create Account"
             )}
           </button>
         </form>
@@ -199,9 +293,10 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-slate-400">
-          Don't have an account? <Link to="/signup">Create one</Link>
+          Already have an account? <Link to="/login">Login here</Link>
+          {/* <StyledLink to="#">Login here.</StyledLink> */}
         </p>
-      </div>
+      </FormDiv>
     </div>
   );
 }
