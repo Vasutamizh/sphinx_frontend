@@ -20,3 +20,17 @@ export async function apiPost(endpoint, data) {
     return err;
   }
 }
+
+export async function apiGet(endpoint) {
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "GET",
+    });
+
+    const result = await response.json();
+
+    return result;
+  } catch (err) {
+    return err;
+  }
+}

@@ -64,3 +64,18 @@ h3{
   font-family: 'Inter-SemiBold', sans-serif;
 }
 
+body {
+  min-height: 100vh;
+
+  background: linear-gradient(
+    135deg,
+    #eef2ff 0%,
+    #f5f3ff 40%,
+    #ffffff 100%
+  );
+
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
+  width: 100%;
+}

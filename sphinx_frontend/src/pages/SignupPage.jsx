@@ -5,10 +5,14 @@ import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
 import { signupFormValidator } from "../services/ValidationService";
 import {
+  BorderedFlexDiv,
   ErrorBox,
+  FlexDiv,
   FormDiv,
   FormErrorMessage,
+  InputLabel,
   MandatoryInp,
+  PasswordInput,
   TextInput,
 } from "../styles/common.styles";
 
@@ -33,8 +37,22 @@ export default function SignupPage() {
     });
   }, [responseError]);
 
+  const clearForm = () => {
+    setUsername("");
+    setFirstName("");
+    setLastName("");
+    setMobileNo("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setShowPassword(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let errors = {};
+    setFormErrors({});
+    setResponseError("");
     setIsLoading(true);
 
     let formData = {
@@ -48,7 +66,9 @@ export default function SignupPage() {
       role: "user",
     };
 
-    let errors = signupFormValidator(formData);
+    errors = signupFormValidator(formData);
+
+    console.log("errors => ", errors);
 
     if (Object.keys(errors).length === 0) {
       try {
@@ -58,6 +78,7 @@ export default function SignupPage() {
         }
       } finally {
         setIsLoading(false);
+        clearForm();
       }
     } else {
       setFormErrors(errors);
@@ -96,12 +117,9 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="userId"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              User Name (used in app) <MandatoryInp>*</MandatoryInp>
-            </label>
+            <InputLabel htmlFor="userName">
+              User Name (unique name for you) <MandatoryInp>*</MandatoryInp>
+            </InputLabel>
             <TextInput
               id="userName"
               type="text"
@@ -114,14 +132,11 @@ export default function SignupPage() {
             )}
           </div>
 
-          <div className="flex flex-row gap-5">
+          <FlexDiv>
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="firstName"
-                className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-              >
+              <InputLabel htmlFor="firstName">
                 First Name <MandatoryInp>*</MandatoryInp>
-              </label>
+              </InputLabel>
               <TextInput
                 id="firstName"
                 type="text"
@@ -135,12 +150,9 @@ export default function SignupPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="lastName"
-                className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-              >
+              <InputLabel htmlFor="lastName">
                 Last Name <MandatoryInp>*</MandatoryInp>
-              </label>
+              </InputLabel>
               <TextInput
                 id="lastName"
                 type="text"
@@ -152,14 +164,11 @@ export default function SignupPage() {
                 <FormErrorMessage>{formErrors.lastName}</FormErrorMessage>
               )}
             </div>
-          </div>
+          </FlexDiv>
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="mobileNo"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
+            <InputLabel htmlFor="mobileNo">
               Mobile Number <MandatoryInp>*</MandatoryInp>
-            </label>
+            </InputLabel>
             <TextInput
               id="mobileNo"
               type="text"
@@ -173,12 +182,9 @@ export default function SignupPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="email"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
+            <InputLabel htmlFor="email">
               Email <MandatoryInp>*</MandatoryInp>
-            </label>
+            </InputLabel>
             <TextInput
               id="email"
               type="text"
@@ -191,58 +197,57 @@ export default function SignupPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="password"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              Password <MandatoryInp>*</MandatoryInp>
-            </label>
-            <div className="relative">
-              <TextInput
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400
+          <FlexDiv>
+            <div className="flex flex-col gap-1.5">
+              <InputLabel htmlFor="password">
+                Password <MandatoryInp>*</MandatoryInp>
+              </InputLabel>
+              <BorderedFlexDiv>
+                <PasswordInput
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                />
+                {/* absolute right-3 top-1/2 -translate-y-1/2 */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className=" text-slate-400
                            hover:text-indigo-400 transition-colors duration-200
                            p-1 rounded-lg hover:bg-indigo-500/10 focus:outline-none cursor-pointer"
-              >
-                {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-              </button>
+                >
+                  {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
+                </button>
+              </BorderedFlexDiv>
+              {formErrors.password && (
+                <FormErrorMessage>{formErrors.password}</FormErrorMessage>
+              )}
             </div>
-            {formErrors.password && (
-              <FormErrorMessage>{formErrors.password}</FormErrorMessage>
-            )}
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="confirmPassword"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              Confirm Password <MandatoryInp>*</MandatoryInp>
-            </label>
-            <div>
-              <TextInput
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Enter your confirm password"
-              />
+            <div className="flex flex-col gap-1.5">
+              <InputLabel htmlFor="confirmPassword">
+                Confirm Password <MandatoryInp>*</MandatoryInp>
+              </InputLabel>
+              <div>
+                <TextInput
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Enter your confirm password"
+                />
+              </div>
+              {formErrors.confirmPassword && (
+                <FormErrorMessage>
+                  {formErrors.confirmPassword}
+                </FormErrorMessage>
+              )}
             </div>
-            {formErrors.confirmPassword && (
-              <FormErrorMessage>{formErrors.confirmPassword}</FormErrorMessage>
-            )}
-          </div>
+          </FlexDiv>
 
           <button
             type="submit"

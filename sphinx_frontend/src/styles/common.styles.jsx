@@ -1,18 +1,173 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+export const InputLabel = styled.label`
+  color: #708090;
+  font-weight: 600;
+`;
+
+export const BlackInputLabel = styled(InputLabel)`
+  color: black;
+`;
+
 export const TextInput = styled.input`
   width: 100%;
   height: 50px;
   border-radius: 5px;
   box-shadow: none;
   border: 1px solid #ced6e0;
-  font-size: 18px;
+  font-size: 16px;
   padding: 5px 15px;
-  background: none;
+  background-color: white;
   color: #15314d;
-  font-family: "Source Sans Pro", sans-serif;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
   outline: none;
+
+  &:hover {
+    background: white;
+    border-color: #3e3e50;
+  }
+
+  &:focus {
+    border-color: #7c6af7;
+    box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.25);
+    background: white;
+  }
+`;
+
+export const StyledSelect = styled.select`
+  width: 100%;
+  appearance: none;
+  background: white;
+  border: 1.5px solid #ced6e0;
+  border-radius: 5px;
+  color: #15314d;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 11px 40px 11px 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+  outline: none;
+
+  &:hover {
+    background: white;
+    border-color: #3e3e50;
+  }
+
+  &:focus {
+    border-color: #7c6af7;
+    box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.25);
+    background: white;
+  }
+
+  option {
+    background: white;
+    color: black;
+  }
+`;
+
+export const StyledButton = styled.button`
+  min-width: fit-content;
+  background-color: #ffffff;
+  border: 0;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  text-decoration: none #d1d5db solid;
+  text-decoration-thickness: auto;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  word-wrap: no-wrap;
+
+  :&hover {
+    background-color: rgb(249, 250, 251);
+  }
+
+  :&focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  :&focus-visible {
+    box-shadow: none;
+  }
+`;
+export const RadioWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  justify-content: center;
+`;
+
+export const HiddenRadio = styled.input.attrs({ type: "radio" })`
+  clip: rect(0 0 0 0);
+  clip-path: inset(100%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+
+  &:focus + span {
+    outline: 0;
+    border-color: #2260ff;
+    box-shadow: 0 0 0 4px #b5c9fc;
+  }
+
+  &:checked + span {
+    box-shadow: 0 0 0 0.0625em #0043ed;
+    background-color: #dee7ff;
+    z-index: 1;
+    color: #0043ed;
+  }
+`;
+
+export const RadioLabel = styled.label`
+  display: inline-block;
+
+  &:first-child span {
+    border-radius: 0.375em 0 0 0.375em;
+  }
+
+  &:last-child span {
+    border-radius: 0 0.375em 0.375em 0;
+  }
+`;
+
+export const RadioButton = styled.span`
+  display: block;
+  cursor: pointer;
+  padding: 0.375em 0.75em;
+  position: relative;
+  margin-left: 0.0625em;
+  letter-spacing: 0.05em;
+  text-align: center;
+  transition: background-color 0.5s ease;
+  background-color: ${({ active }) => (active ? "#dee7ff" : "#fff")};
+  color: ${({ active }) => (active ? "#0043ed" : "#3e4963")};
+  box-shadow: ${({ active }) =>
+    active ? "0 0 0 0.0625em #0043ed" : "0 0 0 0.0625em #b5bfd9"};
+`;
+
+export const PasswordInput = styled(TextInput)`
+  border: none;
+  height: 47px;
 `;
 
 export const StyledLink = styled(Link)`
@@ -57,5 +212,64 @@ export const FormErrorMessage = styled.span`
 `;
 
 export const FormDiv = styled.div`
-  max-width: 500px;
+  max-width: 890px;
+`;
+
+export const FlexDiv = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+`;
+
+export const BorderedFlexDiv = styled(FlexDiv)`
+  border-radius: 5px;
+  box-shadow: none;
+  border: 1px solid #ced6e0;
+  background: white;
+  padding-right: 5px;
+`;
+
+export const Section = styled.div`
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f8faff;
+  border: 1px solid #e2e8f0;
+`;
+
+export const OptionRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.75rem;
+`;
+
+export const StyledTextarea = styled.textarea`
+  width: 100%;
+  min-height: 120px;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  resize: vertical;
+`;
+
+export const LayoutContainer = styled.div`
+  width: 100%;
+`;
+
+export const LayoutContentContainer = styled.div`
+  max-width: 900px;
+  margin: 20px auto;
+`;
+
+export const HelperText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: gray;
+  margin-right: 20px;
+`;
+
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;

@@ -4,7 +4,13 @@ import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
 import { loginFormValidator } from "../services/ValidationService";
-import { ErrorBox, FormErrorMessage, TextInput } from "../styles/common.styles";
+import {
+  ErrorBox,
+  FormDiv,
+  FormErrorMessage,
+  InputLabel,
+  TextInput,
+} from "../styles/common.styles";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
@@ -21,8 +27,16 @@ export default function LoginPage() {
     });
   }, [responseError]);
 
+  const clearForm = () => {
+    setUserId("");
+    setPassword("");
+    setShowPassword(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors({});
+    setResponseError("");
     setIsLoading(true);
 
     let formData = {
@@ -32,7 +46,7 @@ export default function LoginPage() {
 
     let errors = loginFormValidator(formData);
 
-    if (Object.keys(errors) === 0) {
+    if (Object.keys(errors).length === 0) {
       try {
         const response = await apiPost("/auth/login", formData);
 
@@ -41,6 +55,7 @@ export default function LoginPage() {
         }
       } finally {
         setIsLoading(false);
+        clearForm();
       }
     } else {
       setFormErrors(errors);
@@ -50,7 +65,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div>
+      <FormDiv>
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
@@ -79,12 +94,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="userId"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              User Login ID
-            </label>
+            <InputLabel htmlFor="userId">User Login ID</InputLabel>
             <TextInput
               id="userId"
               type="text"
@@ -93,18 +103,13 @@ export default function LoginPage() {
               placeholder="Enter your user ID"
               autoComplete="username"
             />
-            {formErrors.username && (
-              <FormErrorMessage>{formErrors.username}</FormErrorMessage>
+            {formErrors.userName && (
+              <FormErrorMessage>{formErrors.userName}</FormErrorMessage>
             )}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="password"
-              className="text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              Password
-            </label>
+            <InputLabel htmlFor="password">Password</InputLabel>
             <div className="relative">
               <TextInput
                 id="password"
@@ -201,7 +206,7 @@ export default function LoginPage() {
         <p className="text-center text-sm text-slate-400">
           Don't have an account? <Link to="/signup">Create one</Link>
         </p>
-      </div>
+      </FormDiv>
     </div>
   );
 }

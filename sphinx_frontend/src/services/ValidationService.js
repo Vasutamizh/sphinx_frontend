@@ -8,19 +8,20 @@ export const emailValidator = (value) => {
 
 export const passwordValidator = (value) => {
   if (
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"|,.<>/?]).{8,}$/.test(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
       value,
     )
   ) {
     return "";
   } else {
+    console.log("Password validation failed => ", value);
+
     return "Password should contain 1 Uppercase, 1 Lowercase, 1 Special Character, 1 Numeric and 8-16 characters long.";
   }
 };
 
 export const signupFormValidator = (formData) => {
   const errors = {};
-
   // Username validation
   if (!formData.userName) {
     errors.userName = "Username is required";
@@ -57,7 +58,7 @@ export const signupFormValidator = (formData) => {
   }
 
   // password validation
-  msg = passwordValidator(formData.email);
+  msg = passwordValidator(formData.password);
 
   if (!formData.password) {
     errors.password = "Password is required";
@@ -77,8 +78,8 @@ export const signupFormValidator = (formData) => {
 export const loginFormValidator = (formData) => {
   let errors = {};
 
-  if (!formData.userLoginId) {
-    errors.username = "User Login Id is required";
+  if (!formData.userName) {
+    errors.userName = "User Login Id is required";
   }
 
   if (!formData.password) {
