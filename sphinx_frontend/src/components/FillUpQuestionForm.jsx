@@ -1,4 +1,5 @@
 import {
+  BlackInputLabel,
   FormErrorMessage,
   MandatoryInp,
   Section,
@@ -6,21 +7,24 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function FillUpQuestionForm({ fillAnswer, setFillAnswer, errors }) {
+function FillUpQuestionForm({ answerValue, setAnswerValue, errors }) {
   return (
     <div>
-      <FormHint>Enter the correct answer in below textbox</FormHint>
+      <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
+      <FormHint>
+        <strong>Tip - </strong> Enter the correct answer in below textbox
+      </FormHint>
       <Section>
         <label>
           Correct Answer <MandatoryInp>*</MandatoryInp>
         </label>
         <TextInput
-          value={fillAnswer}
-          onChange={(e) => setFillAnswer(e.target.value)}
+          value={answerValue}
+          onChange={(e) => setAnswerValue(e.target.value)}
           placeholder="Enter correct answer"
         />
-        {errors.fillAnswer && (
-          <FormErrorMessage>{errors.fillAnswer}</FormErrorMessage>
+        {errors.answerValue && (
+          <FormErrorMessage>{errors.answerValue}</FormErrorMessage>
         )}
       </Section>
     </div>

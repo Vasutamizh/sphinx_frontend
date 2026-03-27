@@ -273,3 +273,16 @@ export const Form = styled.form`
   flex-direction: column;
   gap: 8px;
 `;
+
+export const LoaderBackdrop = styled.div`
+  width: 100%;
+  min-height: 100%;
+  position: fixed;
+  z-index: 999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+`;

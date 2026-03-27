@@ -2,34 +2,23 @@ import { useState } from "react";
 import {
   BlackInputLabel,
   FormErrorMessage,
-  HelperText,
-  MandatoryInp,
   OptionRow,
   Section,
   TextInput,
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function SingleChoiceQuestionForm({
-  options,
-  setOptions,
-  setSingleAnswer,
-  errors,
-}) {
+function TrueFalseQuestionForm({ errors, setSingleAnswer }) {
+  const options = ["True", "False"];
   const [isChecked, setIsChecked] = useState("");
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
       <FormHint>
-        <strong>Tip -</strong> Enter all options and mark the correct answer by
-        clicking it.
+        <strong>Tip -</strong> Select the true or false as answer
       </FormHint>
-
       <Section>
-        <h4>
-          Options <MandatoryInp>*</MandatoryInp>
-          <HelperText>All options are mandatory</HelperText>
-        </h4>
+        <label>Select One Answer</label>
 
         {options.map((opt, idx) => (
           <div>
@@ -38,34 +27,27 @@ function SingleChoiceQuestionForm({
                 type="radio"
                 name="singleAnswer"
                 checked={isChecked === idx}
-                style={{ cursor: "pointer" }}
                 onChange={() => {
                   setSingleAnswer(options[idx]);
                   setIsChecked(idx);
                 }}
+                style={{ cursor: "pointer" }}
               />
 
-              <TextInput
-                value={opt}
-                onChange={(e) => {
-                  const newOptions = [...options];
-                  newOptions[idx] = e.target.value;
-                  setOptions(newOptions);
-                }}
-                placeholder={`Option ${idx + 1}`}
-              />
+              <TextInput value={opt} readOnly={true} disabled={true} />
             </OptionRow>
             {errors[`option_${idx}`] && (
               <FormErrorMessage>{errors[`option_${idx}`]}</FormErrorMessage>
             )}
           </div>
         ))}
+
+        {errors.answerValue && (
+          <FormErrorMessage>{errors.answerValue}</FormErrorMessage>
+        )}
       </Section>
-      {errors.singleAnswer && (
-        <FormErrorMessage>{errors.singleAnswer}</FormErrorMessage>
-      )}
     </div>
   );
 }
 
-export default SingleChoiceQuestionForm;
+export default TrueFalseQuestionForm;

@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import {
+  BlackInputLabel,
   FormErrorMessage,
   HelperText,
   MandatoryInp,
@@ -11,14 +13,30 @@ import FormHint from "./FormHint";
 function MultipleChoicQuestionForm({
   options,
   setOptions,
-  singleAnswer,
+  selectedAnswers,
   setSelectedAnswers,
   errors,
 }) {
+  const handleCheck = (idx) => {
+    setSelectedAnswers((prev) => {
+      if (prev.includes(idx)) {
+        return prev.filter((i) => i !== idx);
+      } else {
+        return [...prev, idx];
+      }
+    });
+  };
+
+  useEffect(() => {
+    console.log("selectedAnswers => ", selectedAnswers);
+  }, [selectedAnswers]);
+
   return (
     <div>
+      <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
       <FormHint>
-        Enter all options and mark the correct answer(s) using the checkbox.
+        <strong>Tip - </strong> Enter all options and mark the correct answer(s)
+        using the checkbox.
       </FormHint>
       <Section>
         <h4>
@@ -27,20 +45,13 @@ function MultipleChoicQuestionForm({
         </h4>
 
         {options.map((opt, idx) => (
-          <div>
+          <div key={idx}>
             <OptionRow key={idx}>
               <input
                 type="checkbox"
-                name={idx}
-                checked={singleAnswer === idx}
-                onChange={() => {
-                  setSelectedAnswers(
-                    (prev) =>
-                      prev.includes(idx)
-                        ? prev.filter((i) => i !== idx) // remove if already selected
-                        : [...prev, idx], // add if not selected
-                  );
-                }}
+                name="check"
+                checked={selectedAnswers.includes(idx) === true}
+                onChange={() => handleCheck(idx)}
               />
 
               <TextInput
@@ -59,7 +70,7 @@ function MultipleChoicQuestionForm({
           </div>
         ))}
       </Section>
-      {errors.answer && <FormErrorMessage>{errors.answer}</FormErrorMessage>}
+      {errors.answers && <FormErrorMessage>{errors.answers}</FormErrorMessage>}
     </div>
   );
 }

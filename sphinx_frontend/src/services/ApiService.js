@@ -34,3 +34,33 @@ export async function apiGet(endpoint) {
     return err;
   }
 }
+
+export async function apiFileGet(endpoint) {
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "GET",
+    });
+
+    const result = await response.blob();
+
+    return result;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function apiFilePost(endpoint, formData) {
+  console.log("Request Data => ", formData);
+
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    return err;
+  }
+}

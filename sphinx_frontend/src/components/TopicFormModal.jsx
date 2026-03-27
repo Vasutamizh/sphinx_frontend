@@ -19,6 +19,7 @@ export default function TopicModal({ isOpen, onSave, onClose }) {
     if (!topicName.trim()) return;
     onSave(topicName);
     setTopicName("");
+    onClose();
   };
 
   console.log("Modal rendered");

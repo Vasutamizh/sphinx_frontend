@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DescriptiveQuestionForm from "../components/DescriptiveQuestionForm";
 import FillUpQuestionForm from "../components/FillUpQuestionForm";
+import Loader from "../components/Loader";
 import MultipleChoicQuestionForm from "../components/MultipleChoicQuestionForm";
 import SingleChoiceQuestionForm from "../components/SingleChoiceQuestionForm";
 import TopicModal from "../components/TopicFormModal";
+import TrueFalseQuestionForm from "../components/TrueFalseQuestionForm";
 import { apiGet, apiPost } from "../services/ApiService";
 import {
   BlackInputLabel,
@@ -23,70 +25,116 @@ import {
 
 function AddQuestionPage() {
   const [responseError, setResponseError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [topics, setTopics] = useState(() => {});
-  // [
-  //   { enumId: "MULTIPLE_CHOICE", description: "Multiple Choice" },
-  //   { enumId: "SINGLE_CHOICE", description: "Single Choice" },
-  //   { enumId: "FILL_UP", description: "Fill Ups" },
-  //   { enumId: "DETAILED_ANSWER", description: "Descriptive Answer" },
-  // ]
+
   const [questioTypes, setQuestionTypes] = useState(() => {});
   const [currentTab, setCurrentTab] = useState(null);
 
   const [selectedTopic, setSelectedTopic] = useState("");
   const [questionText, setQuestionText] = useState("");
+  const [difficultyLevel, setDifficultyLevel] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
-  const [singleAnswer, setSingleAnswer] = useState("");
   const [selectedAnswers, setSelectedAnswers] = useState([]);
-  const [fillAnswer, setFillAnswer] = useState("");
-  const [descriptiveAnswer, setDescriptiveAnswer] = useState("");
+  const [answerValue, setAnswerValue] = useState("");
   const [isAddTopic, setIsAddTopic] = useState(false);
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    const formData = {
+      questionDetail: questionText,
+      questionType: currentTab,
+      topicId: selectedTopic,
+      optionA: options[0],
+      optionB: options[1],
+      optionC: options[2],
+      optionD: options[3],
+      answer: answerValue,
+      numAnswers: selectedAnswers.length,
+      difficultyLevel,
+      answerValue,
+    };
+    console.log("formData", formData);
+  }, [
+    selectedAnswers,
+    questionText,
+    currentTab,
+    selectedTopic,
+    options,
+    answerValue,
+    difficultyLevel,
+  ]);
+
+  useEffect(() => {
     const getAllQuestionTypes = async () => {
+      setIsLoading(true);
       const response = await apiGet("/questions/questionTypes");
       if (response.responseMessage && response.responseMessage === "success") {
         setQuestionTypes(response.data);
       } else {
         setResponseError(response.errorMessage);
         setQuestionTypes([]);
+        toast.error("Failed to get question types from server", {
+          position: "top-right",
+        });
       }
+      setIsLoading(false);
     };
 
     getAllQuestionTypes();
 
     const getAllTopics = async () => {
+      setIsLoading(true);
       const response = await apiGet("/topics");
       if (response.responseMessage && response.responseMessage === "success") {
         setTopics(response.topicList);
       } else {
         setResponseError(response.errorMessage);
-        toast.error("API Call was unsuccessful", { position: "top-center" });
+        toast.error("Failed to get topics from server", {
+          position: "top-right",
+        });
         setTopics([]);
       }
+      setIsLoading(false);
     };
 
     getAllTopics();
   }, []);
 
+  useEffect(() => {
+    setAnswerValue("");
+  }, [currentTab]);
+
+  useEffect(() => {
+    if (!topics || topics.length <= 0) {
+      return;
+    } else {
+      setSelectedTopic(topics[0].topicId);
+    }
+
+    setDifficultyLevel("Easy");
+  }, [topics]);
+
   const createTopic = async (topicName) => {
+    setIsLoading(true);
     const response = await apiPost("/topics", { topicName });
     if (response.responseMessage && response.responseMessage === "success") {
       toast.success(response.successMessage, { position: "top-right" });
     } else {
       toast.success(response.errorMessage, { position: "top-right" });
     }
+    setIsLoading(false);
   };
 
   // Validation
 
   const validateForm = () => {
+    setErrors({});
     const newErrors = {};
 
-    if (!questionText.trim()) {
+    if (!questionText || !questionText.trim()) {
       newErrors.questionText = "Question is required";
     }
 
@@ -94,43 +142,55 @@ function AddQuestionPage() {
       newErrors.topic = "Please select a topic";
     }
 
+    if (!currentTab) {
+      newErrors.questionType = "Please select one topic!";
+    }
     // MCQ (both single & multi)
-    if (currentTab === "SINGLE_CHOICE" || currentTab === "MULTI_CHOICE") {
+    if (currentTab === "SINGLE_CHOICE" || currentTab === "MULTIPLE_CHOICE") {
       options.forEach((opt, idx) => {
         if (!opt.trim()) {
           newErrors[`option_${idx}`] = `Option ${idx + 1} is required`;
         }
       });
 
-      if (currentTab === "MCQ_SINGLE" && singleAnswer === "") {
+      if (currentTab === "SINGLE_CHOICE" && answerValue === "") {
         newErrors.singleAnswer = "Select the correct answer";
       }
 
-      if (currentTab === "MCQ_MULTI" && options.length === 0) {
+      if (currentTab === "MULTIPLE_CHOICE" && selectedAnswers.length === 0) {
         newErrors.answers = "Select at least one correct answer";
       }
     }
 
     // Fill up
-    if (currentTab === "FILL_UP" && !fillAnswer.trim()) {
-      newErrors.fillAnswer = "Answer is required";
-    }
-
-    // Descriptive
-    if (currentTab === "DETAILED_ANSWER" && !descriptiveAnswer.trim()) {
-      newErrors.descriptiveAnswer = "Answer is required";
+    if (
+      currentTab === "FILL_UP" ||
+      currentTab === "DETAILED_ANSWER" ||
+      currentTab === "TRUE_FALSE"
+    ) {
+      if (!answerValue && !answerValue.trim()) {
+        newErrors.answerValue = "Answer is required";
+      }
     }
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length === 0) {
+      // combine options into single string with comma seperated.
+      if (currentTab === "MULTIPLE_CHOICE") {
+        setAnswerValue((prev) => selectedAnswers.join(","));
+      }
+
+      return true;
+    } else {
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!validateForm()) return;
-    setErrors({});
+    if (!validateForm()) return;
 
     const formData = {
       questionDetail: questionText,
@@ -140,22 +200,35 @@ function AddQuestionPage() {
       optionB: options[1],
       optionC: options[2],
       optionD: options[3],
-      answer: fillAnswer,
-      numAnswers: `${selectedAnswers.length}`,
-      difficultyLevel: "2",
-      answerValue: fillAnswer,
+      answer: answerValue,
+      numAnswers: selectedAnswers.length,
+      difficultyLevel,
+      answerValue,
     };
 
+    setIsLoading(true);
     const response = await apiPost("/questions", formData);
     if (response.responseMessage && response.responseMessage === "success") {
       toast.success(response.successMessage, { position: "top-right" });
     } else {
       toast.error(response.errorMessage, { position: "top-right" });
     }
+
+    setIsLoading(false);
+  };
+
+  const clearForm = () => {
+    setOptions(["", "", "", ""]);
+    setSelectedAnswers([]);
+    setQuestionText("");
+    setSelectedTopic("");
+    setCurrentTab("");
+    setAnswerValue("");
   };
 
   return (
     <div>
+      {isLoading && <Loader />}
       {isAddTopic && (
         <TopicModal
           isOpen={isAddTopic}
@@ -172,10 +245,18 @@ function AddQuestionPage() {
             Select Topic <MandatoryInp>*</MandatoryInp>
           </BlackInputLabel>
           <div className="flex gap-5 items-center">
-            <StyledSelect onChange={(e) => setSelectedTopic(e.target.value)}>
+            <StyledSelect
+              value={selectedTopic}
+              onChange={(e) => setSelectedTopic(e.target.value)}
+            >
+              <option value={""}>Select any topic</option>
               {topics &&
                 topics.map((item, idx) => (
-                  <option value={item.topicId} key={idx}>
+                  <option
+                    selected={idx === 0 ? true : false}
+                    value={item.topicId}
+                    key={idx}
+                  >
                     {item.topicName}
                   </option>
                 ))}
@@ -205,6 +286,9 @@ function AddQuestionPage() {
                 </RadioLabel>
               ))}
           </RadioWrapper>
+          {errors.questionType && (
+            <FormErrorMessage>{errors.questionType}</FormErrorMessage>
+          )}
         </div>
 
         {/* Question */}
@@ -225,8 +309,13 @@ function AddQuestionPage() {
             <BlackInputLabel>
               Select the Difficulty Level <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
-            <StyledSelect>
-              <option value="Easy">Easy</option>
+            <StyledSelect
+              onChange={(e) => setDifficultyLevel(e.target.value)}
+              value={difficultyLevel}
+            >
+              <option value="Easy" selected={true}>
+                Easy
+              </option>
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
             </StyledSelect>
@@ -235,14 +324,12 @@ function AddQuestionPage() {
 
         {/* Difficulty Level */}
 
-        <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
-
         {/* form based on the tab selection  */}
         {currentTab === "MULTIPLE_CHOICE" && (
           <MultipleChoicQuestionForm
             options={options}
             setOptions={setOptions}
-            singleAnswer={singleAnswer}
+            selectedAnswers={selectedAnswers}
             setSelectedAnswers={setSelectedAnswers}
             errors={errors}
           />
@@ -251,28 +338,36 @@ function AddQuestionPage() {
           <SingleChoiceQuestionForm
             options={options}
             setOptions={setOptions}
-            singleAnswer={singleAnswer}
-            setSingleAnswer={setSingleAnswer}
+            setSingleAnswer={setAnswerValue}
             errors={errors}
           />
         )}
         {currentTab === "FILL_UP" && (
           <FillUpQuestionForm
-            fillAnswer={fillAnswer}
-            setFillAnswer={setFillAnswer}
+            answerValue={answerValue}
+            setAnswerValue={setAnswerValue}
             errors={errors}
           />
         )}
         {currentTab === "DETAILED_ANSWER" && (
           <DescriptiveQuestionForm
-            descriptiveAnswer={descriptiveAnswer}
-            setDescriptiveAnswer={setDescriptiveAnswer}
+            descriptiveAnswer={answerValue}
+            setDescriptiveAnswer={setAnswerValue}
             errors={errors}
           />
         )}
 
+        {currentTab === "TRUE_FALSE" && (
+          <TrueFalseQuestionForm
+            errors={errors}
+            setSingleAnswer={setAnswerValue}
+          />
+        )}
+
         <div className="flex gap-5 mt-5">
-          <StyledButton type="button">Clear</StyledButton>
+          <StyledButton type="button" onClick={clearForm}>
+            Clear
+          </StyledButton>
           <StyledButton type="button" onClick={handleSubmit}>
             Submit
           </StyledButton>

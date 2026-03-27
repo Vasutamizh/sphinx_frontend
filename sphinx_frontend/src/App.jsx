@@ -3,6 +3,7 @@ import "./App.css";
 import Layout from "./components/Layout";
 import AddQuestionPage from "./pages/AddQuestionPage";
 import LoginPage from "./pages/LoginPage";
+import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
             <Route path="/login" Component={LoginPage} />
             <Route path="/signup" Component={SignupPage} />
             <Route path="/addQuestion" Component={AddQuestionPage} />
+            <Route path="/uploadQuestions" Component={QuestionUploadPage} />
           </Routes>
         </Layout>
       </BrowserRouter>

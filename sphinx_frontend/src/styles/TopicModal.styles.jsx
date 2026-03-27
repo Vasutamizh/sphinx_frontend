@@ -25,6 +25,7 @@ export const Content = styled.div`
 export const Title = styled.h2`
   margin: 0;
   font-size: 1.25rem;
+  color: black;
 `;
 
 export const Description = styled.p`
