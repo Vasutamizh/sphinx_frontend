@@ -88,3 +88,35 @@ export const loginFormValidator = (formData) => {
 
   return errors;
 };
+
+export const ExamFormValidation = (formData) => {
+  let errors = {};
+  if (!formData.examName) {
+    errors.examName = "Exam Name  is required";
+  }
+  if (!formData.description) {
+    errors.description = "Exam Description is required";
+  }
+  if (!formData.noOfQuestions) {
+    errors.noOfQuestions = "Number of question is required";
+  }
+  if (!formData.duration) {
+    errors.duration = "Exam Duration is required ";
+  }
+  if (!formData.passPercentage) {
+    errors.passPercentage = "Exam Pass Percentage is required ";
+  }
+  if (!formData.questionsRandomized) {
+    errors.questionsRandomized = "Question Random option is required ";
+  }
+  if (!formData.answersMust) {
+    errors.answersMust = "Minimun Answers to attend is required";
+  }
+  if (!formData.allowNegativeMarks) {
+    errors.allowNegativeMarks = "Negative Marks is required ";
+  }
+  if (!formData.negativeMarkValue) {
+    errors.negativeMarkValue = "Negative Marks is required ";
+  }
+  return errors;
+};

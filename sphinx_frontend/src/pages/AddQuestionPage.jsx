@@ -312,7 +312,7 @@ function AddQuestionPage() {
             <StyledSelect
               onChange={(e) => setDifficultyLevel(e.target.value)}
               value={difficultyLevel}
-            >
+            > 
               <option value="Easy" selected={true}>
                 Easy
               </option>
