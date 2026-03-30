@@ -4,7 +4,9 @@ import {
   ErrorBox,
   FormErrorMessage,
   InputLabel,
+  MandatoryInp,
   StyledSelect,
+  TextArea,
   TextInput,
 } from "../styles/common.styles";
 import { apiPost } from "../services/ApiService";
@@ -61,7 +63,7 @@ function ExamCreationPage() {
     <>
       {responseError && <ErrorBox>{responseError}</ErrorBox>}
       <form onSubmit={handleSubmit}>
-        <BlackInputLabel htmlFor="examName"> Exam name </BlackInputLabel>
+        <BlackInputLabel htmlFor="examName"> Exam name <MandatoryInp>*</MandatoryInp> </BlackInputLabel>
         <TextInput
           id="examName"
           type="text"
@@ -75,7 +77,7 @@ function ExamCreationPage() {
         <BlackInputLabel htmlFor="description">
           Exam Description
         </BlackInputLabel>
-        <TextInput
+        <TextArea
           id="description"
           type="text"
           onChange={(e) => setDescription(e.target.value)}
@@ -85,103 +87,136 @@ function ExamCreationPage() {
         {formError.description && (
           <FormErrorMessage>{formError.description}</FormErrorMessage>
         )}
+        <br />
+        <br />
 
-        <BlackInputLabel htmlFor="noOfQuestions">
-          Enter Total Nuber Of Questions
-        </BlackInputLabel>
-        <TextInput
-          id="noOfQuestions"
-          type="number"
-          onChange={(e) => setNoOfQuestions(e.target.value)}
-          value={noOfQuestions}
-          placeholder="Enter No Of Questions"
-        />
-        {formError.noOfQuestions && (
-          <FormErrorMessage>{formError.noOfQuestions}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="duration">Exam Duration</BlackInputLabel>
-        <TextInput
-          id="duration"
-          type="number"
-          onChange={(e) => setDuration(e.target.value)}
-          value={duration}
-          placeholder="Enter Exam Duration"
-        />
-        {formError.duration && (
-          <FormErrorMessage>{formError.duration}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="passPercentage">
-          Exam Pass Percentage
-        </BlackInputLabel>
-        <TextInput
-          id="passPercentage"
-          type="number"
-          onChange={(e) => setPassPercentage(e.target.value)}
-          value={passPercentage}
-          placeholder="Enter Exam Pass Percentage"
-        />
-        {formError.passPercentage && (
-          <FormErrorMessage>{formError.passPercentage}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="randomQuestion">
-          Select Question Visibility{" "}
-        </BlackInputLabel>
-        <StyledSelect onChange={(e) => setQuestionsRandomized(e.target.value)}>
-          <option value="0">Random Order</option>
-          <option value="1">Same Order</option>
-        </StyledSelect>
-        {formError.questionsRandomized && (
-          <FormErrorMessage>{formError.questionsRandomized}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="mustAnser">
-          Minimun Questions To Attend{" "}
-        </BlackInputLabel>
-        <TextInput
-          id="mustAnswer"
-          type="number"
-          onChange={(e) => setAnswersMust(e.target.value)}
-          value={answersMust}
-          placeholder="Enter the Minimum questions to attend "
-        />
-        {formError.answersMust && (
-          <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="negativeMarks">
-          Allow Negative marks
-        </BlackInputLabel>
-        <StyledSelect onChange={(e) => setAllowNegativeMarks(e.target.value)}>
-          <option value="0" selected={true}>
-            No
-          </option>
-          <option value="1">Yes</option>
-        </StyledSelect>
-
-        {formError.allowNegativeMarks && (
-          <FormErrorMessage>{formError.allowNegativeMarks}</FormErrorMessage>
-        )}
-        {allowNegativeMarks == "1" && (
-          <>
-            <BlackInputLabel htmlFor="negativeMarkValue">
-              Negative Marks value{" "}
+        <div className="flex flex-colum gap-3">
+          <div>
+            <BlackInputLabel htmlFor="noOfQuestions">
+              Total Nuber Of Questions <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <TextInput
-              id="negativeMarkValue"
+              id="noOfQuestions"
               type="number"
-              onChange={(e) => setNegativeMarkValue(e.target.value)}
-              value={negativeMarkValue}
-              placeholder="Enter Negative Marks "
+              onChange={(e) => setNoOfQuestions(e.target.value)}
+              value={noOfQuestions}
+              placeholder="Enter No Of Questions"
             />
-            {formError.negativeMarkValue && (
-              <FormErrorMessage>{formError.negativeMarkValue}</FormErrorMessage>
+            {formError.noOfQuestions && (
+              <FormErrorMessage>{formError.noOfQuestions}</FormErrorMessage>
             )}
-          </>
-        )}
+          </div>
+          <div>
+            <BlackInputLabel htmlFor="duration">Exam Duration(In Minutes) <MandatoryInp>*</MandatoryInp></BlackInputLabel>
+        
+            <TextInput
+              id="duration"
+              type="number"
+              onChange={(e) => setDuration(e.target.value)}
+              value={duration}
+              placeholder="Enter Exam Duration"
+            />
+            
+            {formError.duration && (
+              <FormErrorMessage>{formError.duration}</FormErrorMessage>
+            )}
+          </div>
 
+          <div>
+            <BlackInputLabel htmlFor="passPercentage">
+              Exam Pass Percentage (%) <MandatoryInp>*</MandatoryInp>
+            </BlackInputLabel>
+            <TextInput
+              id="passPercentage"
+              type="number"
+              onChange={(e) => setPassPercentage(e.target.value)}
+              value={passPercentage}
+              placeholder="Enter Exam Pass Percentage"
+            />
+            {formError.passPercentage && (
+              <FormErrorMessage>{formError.passPercentage}</FormErrorMessage>
+            )}
+          </div>
+        </div>
+        <br />
+
+        <div className="flex flex-colum gap-25">
+          <div>
+            <BlackInputLabel htmlFor="randomQuestion">
+              Select Question Visibility <MandatoryInp>*</MandatoryInp>
+            </BlackInputLabel>
+            <StyledSelect
+              onChange={(e) => setQuestionsRandomized(e.target.value)}
+            >
+              <option value="0">Random Order</option>
+              <option value="1">Same Order</option>
+            </StyledSelect>
+            {formError.questionsRandomized && (
+              <FormErrorMessage>
+                {formError.questionsRandomized}
+              </FormErrorMessage>
+            )}
+          </div>
+
+          <div>
+            <BlackInputLabel htmlFor="mustAnser">
+              Minimun Questions To Attend <MandatoryInp>*</MandatoryInp>
+            </BlackInputLabel>
+            <TextInput
+              id="mustAnswer"
+              type="number"
+              onChange={(e) => setAnswersMust(e.target.value)}
+              value={answersMust}
+              placeholder="Enter the Minimum questions to attend "
+            />
+            {formError.answersMust && (
+              <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
+            )}
+          </div>
+        </div>
+        <br />
+        <div className="flex flex-colum gap-70">
+          <div>
+            <BlackInputLabel htmlFor="negativeMarks">
+              Allow Negative marks <MandatoryInp>*</MandatoryInp>
+            </BlackInputLabel>
+            <StyledSelect
+              onChange={(e) => setAllowNegativeMarks(e.target.value)}
+            >
+              <option value="0" selected={true}>
+                No
+              </option>
+              <option value="1">Yes</option>
+            </StyledSelect>
+            {formError.allowNegativeMarks && (
+              <FormErrorMessage>
+                {formError.allowNegativeMarks}
+              </FormErrorMessage>
+            )}
+          </div>
+
+          <div>
+            {allowNegativeMarks == "1" && (
+              <>
+                <BlackInputLabel htmlFor="negativeMarkValue">
+                  Negative Marks value <MandatoryInp>*</MandatoryInp>
+                </BlackInputLabel>
+                <TextInput
+                  id="negativeMarkValue"
+                  type="number"
+                  onChange={(e) => setNegativeMarkValue(e.target.value)}
+                  value={negativeMarkValue}
+                  placeholder="Enter Negative Marks "
+                />
+                {formError.negativeMarkValue && (
+                  <FormErrorMessage>
+                    {formError.negativeMarkValue}
+                  </FormErrorMessage>
+                )}
+              </>
+            )}
+          </div>
+        </div>
         <button
           type="submit"
           disabled={isLoading}
