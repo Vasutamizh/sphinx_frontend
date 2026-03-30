@@ -27,7 +27,7 @@ function AddQuestionPage() {
   const [responseError, setResponseError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [topics, setTopics] = useState(() => {});
+  const [topics, setTopics] = useState([]);
 
   const [questioTypes, setQuestionTypes] = useState(() => {});
   const [currentTab, setCurrentTab] = useState(null);
@@ -121,9 +121,16 @@ function AddQuestionPage() {
     setIsLoading(true);
     const response = await apiPost("/topics", { topicName });
     if (response.responseMessage && response.responseMessage === "success") {
+      // set locally the responded topic
+      setTopics((prev) => {
+        return [
+          ...prev,
+          { topicName: response.topicName, topicId: response.topicId },
+        ];
+      });
       toast.success(response.successMessage, { position: "top-right" });
     } else {
-      toast.success(response.errorMessage, { position: "top-right" });
+      toast.error(response.errorMessage, { position: "top-right" });
     }
     setIsLoading(false);
   };
@@ -178,7 +185,7 @@ function AddQuestionPage() {
     if (Object.keys(newErrors).length === 0) {
       // combine options into single string with comma seperated.
       if (currentTab === "MULTIPLE_CHOICE") {
-        setAnswerValue((prev) => selectedAnswers.join(","));
+        setAnswerValue(selectedAnswers.join(","));
       }
 
       return true;
@@ -221,7 +228,6 @@ function AddQuestionPage() {
     setOptions(["", "", "", ""]);
     setSelectedAnswers([]);
     setQuestionText("");
-    setSelectedTopic("");
     setCurrentTab("");
     setAnswerValue("");
   };
@@ -312,7 +318,7 @@ function AddQuestionPage() {
             <StyledSelect
               onChange={(e) => setDifficultyLevel(e.target.value)}
               value={difficultyLevel}
-            > 
+            >
               <option value="Easy" selected={true}>
                 Easy
               </option>

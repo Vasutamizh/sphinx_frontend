@@ -55,8 +55,11 @@ const QuestionUploadPage = () => {
     const formData = new FormData();
     if (!file) {
       setError("File not present, Please re upload.");
+      return;
     }
     formData.append("file", file);
+
+    console.log("File type:", typeof file, file instanceof File, file); // must show File object
 
     const response = await apiFilePost("/questions/upload", formData);
     setIsLoading(false);
@@ -72,7 +75,7 @@ const QuestionUploadPage = () => {
     <div>
       {isLoading && <Loader />}
       <div className="flex justify-between items-center">
-        <h2>Excel Upload</h2>
+        <h1>Excel Upload</h1>
         <StyledButton onClick={downloadTemplate}>
           Download Sample Template
         </StyledButton>
