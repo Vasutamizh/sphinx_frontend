@@ -112,11 +112,13 @@ export const ExamFormValidation = (formData) => {
   if (!formData.answersMust) {
     errors.answersMust = "Minimun Answers to attend is required";
   }
+  if (formData.allowNegativeMarks && formData.allowNegativeMarks === "1") {
+    if (!formData.negativeMarkValue) {
+      errors.negativeMarkValue = "Negative Marks is required ";
+    }
+  }
   if (!formData.allowNegativeMarks) {
     errors.allowNegativeMarks = "Negative Marks is required ";
-  }
-  if (!formData.negativeMarkValue) {
-    errors.negativeMarkValue = "Negative Marks is required ";
   }
   return errors;
 };

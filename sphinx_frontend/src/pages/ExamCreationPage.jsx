@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { apiPost } from "../services/ApiService";
+import { ExamFormValidation } from "../services/ValidationService";
 import {
   BlackInputLabel,
   ErrorBox,
   FormErrorMessage,
-  InputLabel,
   StyledSelect,
   TextInput,
 } from "../styles/common.styles";
-import { apiPost } from "../services/ApiService";
-import { ExamFormValidation } from "../services/ValidationService";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");
@@ -41,24 +41,29 @@ function ExamCreationPage() {
       allowNegativeMarks: allowNegativeMarks,
       negativeMarkValue: negativeMarkValue,
     };
+
     let errors = ExamFormValidation(formData);
 
     if (Object.keys(errors).length === 0) {
-      try {
-        const response = await apiPost("/exam", formData);
-        if (response.error) {
-          setResponseError(response.error);
-        }
-      } finally {
-        setIsLoading(false);
+      const response = await apiPost("/exam", formData);
+      if (response.responseMessage && response.responseMessage === "success") {
+        toast.success(response.successMessage, { position: "top-right" });
+      } else {
+        setResponseError(response.errorMessage);
+        toast.error(response.errorMessage, { position: "top-right" });
       }
     } else {
       setFormError(errors);
     }
+
+    setIsLoading(false);
+
+    console.log("errors => ", errors);
   };
 
   return (
     <>
+      <h1>Exam Creation Screen</h1>
       {responseError && <ErrorBox>{responseError}</ErrorBox>}
       <form onSubmit={handleSubmit}>
         <BlackInputLabel htmlFor="examName"> Exam name </BlackInputLabel>

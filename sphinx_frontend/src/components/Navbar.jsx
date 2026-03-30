@@ -17,6 +17,7 @@ function Navbar() {
     { name: "Dashboard", path: "/" },
     { name: "Questions", path: "/questions" },
     { name: "Add Questions", path: "/addQuestion" },
+    { name: "Upload File", path: "/uploadQuestions" },
     { name: "Create Exam", path: "/createExam" },
   ];
 
