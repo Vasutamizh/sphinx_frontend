@@ -24,40 +24,38 @@ function ExamCreationPage() {
   const [formError, setFormError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setFormError({});
-      setResponseError("");
-      setIsLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError({});
+    setResponseError("");
+    setIsLoading(true);
 
-      let formData = {
-        examName: examName,
-        description: description,
-        noOfQuestions: noOfQuestions,
-        duration: duration,
-        passPercentage: passPercentage,
-        questionsRandomized: questionsRandomized,
-        answersMust: answersMust,
-        allowNegativeMarks: allowNegativeMarks,
-        negativeMarkValue: negativeMarkValue,
-      };
-      let errors = ExamFormValidation(formData);
-
-      if (Object.keys(errors).length === 0) {
-        try {
-          const response = await apiPost("/exam", formData);
-          if (response.error) {
-            setResponseError(response.error);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setFormError(errors);
-      }
+    let formData = {
+      examName: examName,
+      description: description,
+      noOfQuestions: noOfQuestions,
+      duration: duration,
+      passPercentage: passPercentage,
+      questionsRandomized: questionsRandomized,
+      answersMust: answersMust,
+      allowNegativeMarks: allowNegativeMarks,
+      negativeMarkValue: negativeMarkValue,
     };
-  }, []);
+    let errors = ExamFormValidation(formData);
+
+    if (Object.keys(errors).length === 0) {
+      try {
+        const response = await apiPost("/exam", formData);
+        if (response.error) {
+          setResponseError(response.error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setFormError(errors);
+    }
+  };
 
   return (
     <>
