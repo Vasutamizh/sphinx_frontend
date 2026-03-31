@@ -35,6 +35,44 @@ export async function apiGet(endpoint) {
   }
 }
 
+export async function apiDelete(endpoint, data) {
+  console.log("DELETE Request Data => ", data);
+
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "DELETE",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function apiPut(endpoint, data) {
+  console.log("PUT Request Data => ", data);
+
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    return err;
+  }
+}
+
 export async function apiFileGet(endpoint) {
   try {
     const response = await fetch(LOCAL_URL + endpoint, {

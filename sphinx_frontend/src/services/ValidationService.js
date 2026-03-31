@@ -122,3 +122,19 @@ export const ExamFormValidation = (formData) => {
   }
   return errors;
 };
+
+export const validateTopicForm = () => {
+  const errors = {};
+  if (!selectedTopicId) errors.selectedTopicId = "Please select a topic.";
+  if (!percentage || percentage <= 0 || percentage > 100)
+    errors.percentage = "Enter a valid percentage (1–100).";
+
+  // check total % doesn't exceed 100
+  const othersTotal = examTopics
+    .filter((t) => t.topicId !== editTopicId)
+    .reduce((sum, t) => sum + Number(t.percentage), 0);
+  if (!errors.percentage && othersTotal + Number(percentage) > 100)
+    errors.percentage = `Only ${100 - othersTotal}% remaining.`;
+
+  return errors;
+};
