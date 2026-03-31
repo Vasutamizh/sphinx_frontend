@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import DescriptiveQuestionForm from "../components/DescriptiveQuestionForm";
 import FillUpQuestionForm from "../components/FillUpQuestionForm";
@@ -37,10 +37,14 @@ function AddQuestionPage() {
   const [difficultyLevel, setDifficultyLevel] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
+
   const [answerValue, setAnswerValue] = useState("");
   const [isAddTopic, setIsAddTopic] = useState(false);
 
   const [errors, setErrors] = useState({});
+
+  // for storing the multiple choice answers
+  const multipleChoiceAnswers = useRef(null);
 
   useEffect(() => {
     const formData = {
@@ -182,22 +186,21 @@ function AddQuestionPage() {
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      // combine options into single string with comma seperated.
-      if (currentTab === "MULTIPLE_CHOICE") {
-        setAnswerValue(selectedAnswers.join(","));
-      }
-
-      return true;
-    } else {
-      return false;
-    }
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
+
+    let localAnswerValue;
+    if (currentTab === "MULTIPLE_CHOICE") {
+      // setAnswerValue(selectedAnswers.join(",")); // moved to ref for immediate change.
+      localAnswerValue = selectedAnswers.join(",");
+    } else {
+      localAnswerValue = answerValue;
+    }
 
     const formData = {
       questionDetail: questionText,
@@ -207,10 +210,10 @@ function AddQuestionPage() {
       optionB: options[1],
       optionC: options[2],
       optionD: options[3],
-      answer: answerValue,
-      numAnswers: selectedAnswers.length,
+      answer: localAnswerValue,
+      numAnswers: multipleChoiceAnswers.current.length,
       difficultyLevel,
-      answerValue,
+      answerValue: localAnswerValue,
     };
 
     setIsLoading(true);

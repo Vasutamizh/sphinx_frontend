@@ -53,7 +53,7 @@ const QuestionUploadPage = () => {
   const uploadFile = async () => {
     setIsLoading(true);
     const formData = new FormData();
-    if (!file) {
+    if (!file && !(file instanceof File)) {
       setError("File not present, Please re upload.");
       return;
     }
