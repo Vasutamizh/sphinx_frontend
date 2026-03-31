@@ -123,7 +123,7 @@ export const ExamFormValidation = (formData) => {
   return errors;
 };
 
-export const validateTopicForm = () => {
+export const validateTopicForm = (selectedTopicId, percentage, examTopics, editTopicId) => {
   const errors = {};
   if (!selectedTopicId) errors.selectedTopicId = "Please select a topic.";
   if (!percentage || percentage <= 0 || percentage > 100)
