@@ -38,6 +38,37 @@ export const TextInput = styled.input`
   }
 `;
 
+export const TextArea = styled.textarea`
+  width: 100%;
+  min-height: 120px;
+  border-radius: 5px;
+  box-shadow: none;
+  border: 1px solid #ced6e0;
+  font-size: 16px;
+  padding: 10px 15px;
+  background-color: white;
+  color: #15314d;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+
+  &:hover {
+    background: white;
+    border-color: #3e3e50;
+  }
+
+  &:focus {
+    border-color: #7c6af7;
+    box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.25);
+    background: white;
+  }
+`;
+
 export const StyledSelect = styled.select`
   width: 100%;
   appearance: none;

@@ -2,27 +2,23 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { apiPost } from "../services/ApiService";
 import { ExamFormValidation } from "../services/ValidationService";
-import {
-  BlackInputLabel,
-  ErrorBox,
-  FormErrorMessage,
-  StyledSelect,
-  TextInput,
-} from "../styles/common.styles";
+import ExamForm from "../components/ExamForm";
+import TopicSection from "../components/TopicSection";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");
   const [description, setDescription] = useState("");
-  const [noOfQuestions, setNoOfQuestions] = useState();
-  const [duration, setDuration] = useState();
-  const [passPercentage, setPassPercentage] = useState();
+  const [noOfQuestions, setNoOfQuestions] = useState("");
+  const [duration, setDuration] = useState("");
+  const [passPercentage, setPassPercentage] = useState("");
   const [questionsRandomized, setQuestionsRandomized] = useState("0");
-  const [answersMust, setAnswersMust] = useState();
+  const [answersMust, setAnswersMust] = useState("");
   const [allowNegativeMarks, setAllowNegativeMarks] = useState("0");
-  const [negativeMarkValue, setNegativeMarkValue] = useState();
-  const [responseError, setResponseError] = useState();
+  const [negativeMarkValue, setNegativeMarkValue] = useState("");
+  const [responseError, setResponseError] = useState("");
   const [formError, setFormError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [examId, setExamId] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,24 +26,24 @@ function ExamCreationPage() {
     setResponseError("");
     setIsLoading(true);
 
-    let formData = {
-      examName: examName,
-      description: description,
-      noOfQuestions: noOfQuestions,
-      duration: duration,
-      passPercentage: passPercentage,
-      questionsRandomized: questionsRandomized,
-      answersMust: answersMust,
-      allowNegativeMarks: allowNegativeMarks,
-      negativeMarkValue: negativeMarkValue,
+    const examFormData = {
+      examName,
+      description,
+      noOfQuestions,
+      duration,
+      passPercentage,
+      questionsRandomized,
+      answersMust,
+      allowNegativeMarks,
+      negativeMarkValue,
     };
 
-    let errors = ExamFormValidation(formData);
-
+    const errors = ExamFormValidation(examFormData);
     if (Object.keys(errors).length === 0) {
-      const response = await apiPost("/exam", formData);
-      if (response.responseMessage && response.responseMessage === "success") {
+      const response = await apiPost("/exam", examFormData);
+      if (response.responseMessage === "success") {
         toast.success(response.successMessage, { position: "top-right" });
+        setExamId(response.examId);
       } else {
         setResponseError(response.errorMessage);
         toast.error(response.errorMessage, { position: "top-right" });
@@ -55,177 +51,38 @@ function ExamCreationPage() {
     } else {
       setFormError(errors);
     }
-
     setIsLoading(false);
-
-    console.log("errors => ", errors);
   };
 
   return (
     <>
-      <h1>Exam Creation Screen</h1>
-      {responseError && <ErrorBox>{responseError}</ErrorBox>}
-      <form onSubmit={handleSubmit}>
-        <BlackInputLabel htmlFor="examName"> Exam name </BlackInputLabel>
-        <TextInput
-          id="examName"
-          type="text"
-          value={examName}
-          onChange={(e) => setExamName(e.target.value)}
-          placeholder="Enter exam name"
-        />
-        {formError.examName && (
-          <FormErrorMessage>{formError.examName}</FormErrorMessage>
-        )}
-        <BlackInputLabel htmlFor="description">
-          Exam Description
-        </BlackInputLabel>
-        <TextInput
-          id="description"
-          type="text"
-          onChange={(e) => setDescription(e.target.value)}
-          value={description}
-          placeholder="Enter Exam Description"
-        />
-        {formError.description && (
-          <FormErrorMessage>{formError.description}</FormErrorMessage>
-        )}
+      <ExamForm
+        formError={formError}
+        responseError={responseError}
+        isLoading={isLoading}
+        examId={examId}
+        examName={examName}
+        setExamName={setExamName}
+        description={description}
+        setDescription={setDescription}
+        noOfQuestions={noOfQuestions}
+        setNoOfQuestions={setNoOfQuestions}
+        duration={duration}
+        setDuration={setDuration}
+        passPercentage={passPercentage}
+        setPassPercentage={setPassPercentage}
+        questionsRandomized={questionsRandomized}
+        setQuestionsRandomized={setQuestionsRandomized}
+        answersMust={answersMust}
+        setAnswersMust={setAnswersMust}
+        allowNegativeMarks={allowNegativeMarks}
+        setAllowNegativeMarks={setAllowNegativeMarks}
+        negativeMarkValue={negativeMarkValue}
+        setNegativeMarkValue={setNegativeMarkValue}
+        onSubmit={handleSubmit}
+      />
 
-        <BlackInputLabel htmlFor="noOfQuestions">
-          Enter Total Nuber Of Questions
-        </BlackInputLabel>
-        <TextInput
-          id="noOfQuestions"
-          type="number"
-          onChange={(e) => setNoOfQuestions(e.target.value)}
-          value={noOfQuestions}
-          placeholder="Enter No Of Questions"
-        />
-        {formError.noOfQuestions && (
-          <FormErrorMessage>{formError.noOfQuestions}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="duration">Exam Duration</BlackInputLabel>
-        <TextInput
-          id="duration"
-          type="number"
-          onChange={(e) => setDuration(e.target.value)}
-          value={duration}
-          placeholder="Enter Exam Duration"
-        />
-        {formError.duration && (
-          <FormErrorMessage>{formError.duration}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="passPercentage">
-          Exam Pass Percentage
-        </BlackInputLabel>
-        <TextInput
-          id="passPercentage"
-          type="number"
-          onChange={(e) => setPassPercentage(e.target.value)}
-          value={passPercentage}
-          placeholder="Enter Exam Pass Percentage"
-        />
-        {formError.passPercentage && (
-          <FormErrorMessage>{formError.passPercentage}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="randomQuestion">
-          Select Question Visibility{" "}
-        </BlackInputLabel>
-        <StyledSelect onChange={(e) => setQuestionsRandomized(e.target.value)}>
-          <option value="0">Random Order</option>
-          <option value="1">Same Order</option>
-        </StyledSelect>
-        {formError.questionsRandomized && (
-          <FormErrorMessage>{formError.questionsRandomized}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="mustAnser">
-          Minimun Questions To Attend{" "}
-        </BlackInputLabel>
-        <TextInput
-          id="mustAnswer"
-          type="number"
-          onChange={(e) => setAnswersMust(e.target.value)}
-          value={answersMust}
-          placeholder="Enter the Minimum questions to attend "
-        />
-        {formError.answersMust && (
-          <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
-        )}
-
-        <BlackInputLabel htmlFor="negativeMarks">
-          Allow Negative marks
-        </BlackInputLabel>
-        <StyledSelect onChange={(e) => setAllowNegativeMarks(e.target.value)}>
-          <option value="0" selected={true}>
-            No
-          </option>
-          <option value="1">Yes</option>
-        </StyledSelect>
-
-        {formError.allowNegativeMarks && (
-          <FormErrorMessage>{formError.allowNegativeMarks}</FormErrorMessage>
-        )}
-        {allowNegativeMarks == "1" && (
-          <>
-            <BlackInputLabel htmlFor="negativeMarkValue">
-              Negative Marks value{" "}
-            </BlackInputLabel>
-            <TextInput
-              id="negativeMarkValue"
-              type="number"
-              onChange={(e) => setNegativeMarkValue(e.target.value)}
-              value={negativeMarkValue}
-              placeholder="Enter Negative Marks "
-            />
-            {formError.negativeMarkValue && (
-              <FormErrorMessage>{formError.negativeMarkValue}</FormErrorMessage>
-            )}
-          </>
-        )}
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold text-white
-                       bg-gradient-to-r from-indigo-600 to-violet-600
-                       hover:from-indigo-500 hover:to-violet-500
-                       active:scale-[0.98] transition-all duration-200
-                       shadow-lg shadow-indigo-500/25
-                       disabled:opacity-60 disabled:cursor-not-allowed
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-        >
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg
-                className="w-4 h-4 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-                />
-              </svg>
-              Creating Exam...
-            </span>
-          ) : (
-            "Create Exam"
-          )}
-        </button>
-      </form>
+      {examId && <TopicSection examId={examId} noOfQuestions={noOfQuestions} />}
     </>
   );
 }
