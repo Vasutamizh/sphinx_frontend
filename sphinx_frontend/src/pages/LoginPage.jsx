@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
-import { loginFormValidator } from "../services/ValidationService";
 import {
   ErrorBox,
   FormDiv,
@@ -11,6 +10,7 @@ import {
   InputLabel,
   TextInput,
 } from "../styles/common.styles";
+import { loginFormValidator } from "../utils/ValidationService";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");

@@ -43,11 +43,6 @@ export const signupFormValidator = (formData) => {
   } else if (!/^[A-Za-z]+$/.test(formData.lastName)) {
     errors.lastName = "Last name must contain only letters";
   }
-
-  if (!formData.mobileNo) {
-    errors.mobileNo = "Mobile number is required";
-  }
-
   // email validation
   let msg = emailValidator(formData.email);
 
@@ -123,7 +118,12 @@ export const ExamFormValidation = (formData) => {
   return errors;
 };
 
-export const validateTopicForm = (selectedTopicId, percentage, examTopics, editTopicId) => {
+export const validateTopicForm = (
+  selectedTopicId,
+  percentage,
+  examTopics,
+  editTopicId,
+) => {
   const errors = {};
   if (!selectedTopicId) errors.selectedTopicId = "Please select a topic.";
   if (!percentage || percentage <= 0 || percentage > 100)

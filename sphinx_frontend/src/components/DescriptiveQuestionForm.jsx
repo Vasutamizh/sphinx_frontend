@@ -8,11 +8,7 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function DescriptiveQuestionForm({
-  descriptiveAnswer,
-  setDescriptiveAnswer,
-  errors,
-}) {
+function DescriptiveQuestionForm({ descriptiveAnswer, updateState, errors }) {
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
@@ -26,7 +22,7 @@ function DescriptiveQuestionForm({
         </label>
         <StyledTextarea
           value={descriptiveAnswer}
-          onChange={(e) => setDescriptiveAnswer(e.target.value)}
+          onChange={(e) => updateState("answerValue", e.target.value)}
           placeholder="Enter detailed answer"
         />
         {errors.answerValue && (

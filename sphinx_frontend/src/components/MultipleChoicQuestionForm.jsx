@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   BlackInputLabel,
   FormErrorMessage,
@@ -12,24 +11,23 @@ import FormHint from "./FormHint";
 
 function MultipleChoicQuestionForm({
   options,
-  setOptions,
+  updateState,
   selectedAnswers,
-  setSelectedAnswers,
   errors,
 }) {
   const handleCheck = (idx) => {
-    setSelectedAnswers((prev) => {
-      if (prev.includes(idx)) {
-        return prev.filter((i) => i !== idx);
-      } else {
-        return [...prev, idx];
-      }
-    });
+    let newAnswers = [];
+    if (selectedAnswers.includes(idx)) {
+      newAnswers = selectedAnswers.filter((i) => i !== idx);
+    } else {
+      newAnswers = [...selectedAnswers, idx];
+    }
+    updateState("selectedAnswers", newAnswers);
   };
 
-  useEffect(() => {
-    console.log("selectedAnswers => ", selectedAnswers);
-  }, [selectedAnswers]);
+  // useEffect(() => {
+  //   console.log("selectedAnswers => ", selectedAnswers);
+  // }, [selectedAnswers]);
 
   return (
     <div>
@@ -59,7 +57,7 @@ function MultipleChoicQuestionForm({
                 onChange={(e) => {
                   const newOptions = [...options];
                   newOptions[idx] = e.target.value;
-                  setOptions(newOptions);
+                  updateState("options", newOptions);
                 }}
                 placeholder={`Option ${idx + 1}`}
               />

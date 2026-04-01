@@ -20,6 +20,7 @@ function Navbar() {
     { name: "Upload File", path: "/uploadQuestions" },
     { name: "Create Exam", path: "/createExam" },
     { name: "Exam Master", path: "/exammaster" },
+    { name: "User Master", path: "/userMaster" },
   ];
 
   return (

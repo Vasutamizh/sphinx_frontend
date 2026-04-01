@@ -8,8 +8,11 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function TrueFalseQuestionForm({ errors, setSingleAnswer }) {
-  const options = ["True", "False"];
+function TrueFalseQuestionForm({ errors, updateState }) {
+  const options = [
+    { key: "True", value: "true" },
+    { key: "False", value: "false" },
+  ];
   const [isChecked, setIsChecked] = useState("");
   return (
     <div>
@@ -21,20 +24,26 @@ function TrueFalseQuestionForm({ errors, setSingleAnswer }) {
         <label>Select One Answer</label>
 
         {options.map((opt, idx) => (
-          <div>
-            <OptionRow key={idx}>
+          <div key={idx}>
+            <OptionRow>
               <input
+                value={opt.value}
                 type="radio"
                 name="singleAnswer"
                 checked={isChecked === idx}
                 onChange={() => {
-                  setSingleAnswer(options[idx]);
+                  updateState("answerValue", opt.value);
                   setIsChecked(idx);
                 }}
                 style={{ cursor: "pointer" }}
               />
 
-              <TextInput value={opt} readOnly={true} disabled={true} />
+              <TextInput
+                htmlFor="singleAnswer"
+                value={opt.key}
+                readOnly={true}
+                disabled={true}
+              />
             </OptionRow>
             {errors[`option_${idx}`] && (
               <FormErrorMessage>{errors[`option_${idx}`]}</FormErrorMessage>
