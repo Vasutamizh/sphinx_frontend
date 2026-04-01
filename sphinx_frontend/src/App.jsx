@@ -4,6 +4,7 @@ import "./App.css";
 import Layout from "./components/Layout";
 import AddQuestionPage from "./pages/AddQuestionPage";
 import AddUser from "./pages/AddUser";
+import AssignUsers from "./pages/AssignUsersPage";
 import ExamCreationPage from "./pages/ExamCreationPage";
 import ExamMasterPage from "./pages/ExamMasterPage";
 import LoginPage from "./pages/LoginPage";
@@ -40,10 +41,46 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/uploadQuestions" Component={QuestionUploadPage} />
-              <Route path="/createExam" Component={ExamCreationPage} />
-              <Route path="/userMaster" Component={AddUser} />
-              <Route path="/exammaster" Component={ExamMasterPage} />
+              <Route
+                path="/uploadQuestions"
+                element={
+                  <ProtectedRoute>
+                    <QuestionUploadPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/createExam"
+                element={
+                  <ProtectedRoute>
+                    <ExamCreationPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/userMaster"
+                element={
+                  <ProtectedRoute>
+                    <AddUser />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/exammaster"
+                element={
+                  <ProtectedRoute>
+                    <ExamMasterPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/assignUsers"
+                element={
+                  <ProtectedRoute>
+                    <AssignUsers />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </Layout>
         </BrowserRouter>
