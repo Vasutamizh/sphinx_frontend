@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
-import { signupFormValidator } from "../services/ValidationService";
 import {
   BorderedFlexDiv,
   ErrorBox,
@@ -15,15 +15,17 @@ import {
   PasswordInput,
   TextInput,
 } from "../styles/common.styles";
+import { signupFormValidator } from "../utils/ValidationService";
 
 export default function SignupPage() {
-  const [userName, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [mobileNo, setMobileNo] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [state, setState] = useState({
+    userName: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   //   role
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,14 +40,20 @@ export default function SignupPage() {
   }, [responseError]);
 
   const clearForm = () => {
-    setUsername("");
-    setFirstName("");
-    setLastName("");
-    setMobileNo("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setShowPassword(false);
+    setState({
+      userName: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  };
+
+  const updateState = (field, value) => {
+    setState((prev) => {
+      return { ...prev, [field]: value };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -55,26 +63,28 @@ export default function SignupPage() {
     setResponseError("");
     setIsLoading(true);
 
-    let formData = {
-      userName,
-      firstName,
-      lastName,
-      mobileNo,
-      email,
-      password,
-      confirmPassword,
-      role: "user",
-    };
+    errors = signupFormValidator(state);
 
-    errors = signupFormValidator(formData);
-
-    console.log("errors => ", errors);
+    console.log("Erros => ", errors);
 
     if (Object.keys(errors).length === 0) {
+      const payload = {
+        userName: state.userName,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        email: state.email,
+        password: state.password,
+        role: "admin",
+      };
       try {
-        const response = await apiPost("/auth/signup", formData);
-        if (response.error) {
-          setResponseError(response.error);
+        const response = await apiPost("/auth/signup", payload);
+        if (
+          response.responseMessage &&
+          response.responseMessage === "success"
+        ) {
+          toast.success(response.successMessage, { position: "top-right" });
+        } else {
+          toast.error(response.successMessage, { position: "top-right" });
         }
       } finally {
         setIsLoading(false);
@@ -123,8 +133,8 @@ export default function SignupPage() {
             <TextInput
               id="userName"
               type="text"
-              value={userName}
-              onChange={(e) => setUsername(e.target.value)}
+              value={state.userName}
+              onChange={(e) => updateState("userName", e.target.value)}
               placeholder="Enter your user name"
             />
             {formErrors.userName && (
@@ -140,8 +150,8 @@ export default function SignupPage() {
               <TextInput
                 id="firstName"
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={state.firstName}
+                onChange={(e) => updateState("firstName", e.target.value)}
                 placeholder="Enter your first name"
               />
               {formErrors.firstName && (
@@ -156,8 +166,8 @@ export default function SignupPage() {
               <TextInput
                 id="lastName"
                 type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                value={state.lastName}
+                onChange={(e) => updateState("lastName", e.target.value)}
                 placeholder="Enter your last name"
               />
               {formErrors.lastName && (
@@ -165,21 +175,6 @@ export default function SignupPage() {
               )}
             </div>
           </FlexDiv>
-          <div className="flex flex-col gap-1.5">
-            <InputLabel htmlFor="mobileNo">
-              Mobile Number <MandatoryInp>*</MandatoryInp>
-            </InputLabel>
-            <TextInput
-              id="mobileNo"
-              type="text"
-              value={mobileNo}
-              onChange={(e) => setMobileNo(e.target.value)}
-              placeholder="Enter your mobile number"
-            />
-            {formErrors.mobileNo && (
-              <FormErrorMessage>{formErrors.mobileNo}</FormErrorMessage>
-            )}
-          </div>
 
           <div className="flex flex-col gap-1.5">
             <InputLabel htmlFor="email">
@@ -188,8 +183,8 @@ export default function SignupPage() {
             <TextInput
               id="email"
               type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={state.email}
+              onChange={(e) => updateState("email", e.target.value)}
               placeholder="Enter your email address"
             />
             {formErrors.email && (
@@ -206,8 +201,8 @@ export default function SignupPage() {
                 <PasswordInput
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={state.password}
+                  onChange={(e) => updateState("password", e.target.value)}
                   placeholder="Enter your password"
                   autoComplete="current-password"
                 />
@@ -236,8 +231,10 @@ export default function SignupPage() {
                 <TextInput
                   id="confirmPassword"
                   type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={state.confirmPassword}
+                  onChange={(e) =>
+                    updateState("confirmPassword", e.target.value)
+                  }
                   placeholder="Enter your confirm password"
                 />
               </div>

@@ -10,12 +10,7 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function SingleChoiceQuestionForm({
-  options,
-  setOptions,
-  setSingleAnswer,
-  errors,
-}) {
+function SingleChoiceQuestionForm({ options, updateState, errors }) {
   const [isChecked, setIsChecked] = useState("");
   return (
     <div>
@@ -32,15 +27,15 @@ function SingleChoiceQuestionForm({
         </h4>
 
         {options.map((opt, idx) => (
-          <div>
-            <OptionRow key={idx}>
+          <div key={idx}>
+            <OptionRow>
               <input
                 type="radio"
                 name="singleAnswer"
                 checked={isChecked === idx}
                 style={{ cursor: "pointer" }}
                 onChange={() => {
-                  setSingleAnswer(options[idx]);
+                  updateState("answerValue", options[idx]);
                   setIsChecked(idx);
                 }}
               />
@@ -50,7 +45,7 @@ function SingleChoiceQuestionForm({
                 onChange={(e) => {
                   const newOptions = [...options];
                   newOptions[idx] = e.target.value;
-                  setOptions(newOptions);
+                  updateState("options", newOptions);
                 }}
                 placeholder={`Option ${idx + 1}`}
               />

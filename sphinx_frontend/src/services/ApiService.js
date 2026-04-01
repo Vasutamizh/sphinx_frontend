@@ -31,7 +31,8 @@ export async function apiGet(endpoint) {
 
     return result;
   } catch (err) {
-    return err;
+    console.error("Error while fetching data =>", err);
+    return { data: null };
   }
 }
 

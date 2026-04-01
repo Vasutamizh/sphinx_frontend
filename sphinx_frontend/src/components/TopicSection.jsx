@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { apiGet, apiPost, apiPut, apiDelete } from "../services/ApiService";
-import { validateTopicForm } from "../services/ValidationService";
+import { apiDelete, apiGet, apiPost, apiPut } from "../services/ApiService";
 import {
   BlackInputLabel,
   FormErrorMessage,
@@ -11,6 +10,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { Button, StyledSpan } from "../styles/ExamMasterPage.styles";
+import { validateTopicForm } from "../utils/ValidationService";
 
 function TopicSection({ examId, noOfQuestions }) {
   const [topicOptions, setTopicOptions] = useState([]);

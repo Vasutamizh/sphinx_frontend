@@ -43,11 +43,6 @@ export const signupFormValidator = (formData) => {
   } else if (!/^[A-Za-z]+$/.test(formData.lastName)) {
     errors.lastName = "Last name must contain only letters";
   }
-
-  if (!formData.mobileNo) {
-    errors.mobileNo = "Mobile number is required";
-  }
-
   // email validation
   let msg = emailValidator(formData.email);
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import FileCard from "../components/FileCard";
 import FileUpload from "../components/FileUpload";
+import FormHint from "../components/FormHint";
 import Loader from "../components/Loader";
 import { apiFileGet, apiFilePost } from "../services/ApiService";
 import { FormErrorMessage, StyledButton } from "../styles/common.styles";
@@ -53,7 +54,7 @@ const QuestionUploadPage = () => {
   const uploadFile = async () => {
     setIsLoading(true);
     const formData = new FormData();
-    if (!file) {
+    if (!file && !(file instanceof File)) {
       setError("File not present, Please re upload.");
       return;
     }
@@ -80,6 +81,11 @@ const QuestionUploadPage = () => {
           Download Sample Template
         </StyledButton>
       </div>
+
+      <FormHint>
+        <strong>Tip -</strong> Click the Download Sample Template to download
+        the sample template for questions.
+      </FormHint>
 
       {file && (
         <div>

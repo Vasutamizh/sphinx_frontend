@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { apiPost } from "../services/ApiService";
-import { ExamFormValidation } from "../services/ValidationService";
 import ExamForm from "../components/ExamForm";
 import TopicSection from "../components/TopicSection";
+import { apiPost } from "../services/ApiService";
+import { ExamFormValidation } from "../utils/ValidationService";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");

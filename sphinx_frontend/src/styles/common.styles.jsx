@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const InputLabel = styled.label`
   color: #708090;
@@ -316,4 +316,64 @@ export const LoaderBackdrop = styled.div`
   top: 0;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(5px);
+`;
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+export const StyledPrimaryButton = styled.button`
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25);
+
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+  }
+`;
+
+export const Spinner = styled.svg`
+  width: 16px;
+  height: 16px;
+  animation: ${spin} 1s linear infinite;
+`;
+
+export const ButtonContent = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 `;
