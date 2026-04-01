@@ -6,6 +6,7 @@ import ExamCreationPage from "./pages/ExamCreationPage";
 import LoginPage from "./pages/LoginPage";
 import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
+import ExamMasterPage from "./pages/ExamMasterPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/addQuestion" Component={AddQuestionPage} />
             <Route path="/uploadQuestions" Component={QuestionUploadPage} />
             <Route path="/createExam" Component={ExamCreationPage} />
+            <Route path="/exammaster" Component={ExamMasterPage} />
           </Routes>
         </Layout>
       </BrowserRouter>
