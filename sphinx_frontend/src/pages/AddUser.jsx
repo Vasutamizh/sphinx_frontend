@@ -8,6 +8,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { emailValidator } from "../utils/ValidationService";
+import { failureToast, successToast } from "../utils/toast";
 
 function AddUser() {
   const [loading, setLoading] = useState(false);
@@ -73,10 +74,10 @@ function AddUser() {
           response.responseMessage &&
           response.responseMessage === "success"
         ) {
-          toast.error(response.successMessage, { position: "top-right" });
+          successToast(response.successMessage);
           clearForm();
         } else {
-          toast.error(response.errorMessage, { position: "top-right" });
+          failureToast(response.errorMessage);
         }
       };
 
@@ -93,68 +94,78 @@ function AddUser() {
       <h1>Add User</h1>
 
       <div>
-        <label>
-          PeopleWise ID <MandatoryInp>*</MandatoryInp>
-        </label>
-        <TextInput
-          value={state.peopleWiseId}
-          onChange={(e) => handleChange("peopleWiseId", e.target.value)}
-          placeholder="Enter employee people wise ID"
-          error={errors.peopleWiseId}
-        />
-        {errors.peopleWiseId && (
-          <FormErrorMessage>{errors.peopleWiseId}</FormErrorMessage>
-        )}
+        <div>
+          <label>
+            PeopleWise ID <MandatoryInp>*</MandatoryInp>
+          </label>
+          <TextInput
+            value={state.peopleWiseId}
+            onChange={(e) => handleChange("peopleWiseId", e.target.value)}
+            placeholder="Enter employee people wise ID"
+            error={errors.peopleWiseId}
+          />
+          {errors.peopleWiseId && (
+            <FormErrorMessage>{errors.peopleWiseId}</FormErrorMessage>
+          )}
+        </div>
 
-        <label>
-          First Name <MandatoryInp>*</MandatoryInp>
-        </label>
-        <TextInput
-          label="First Name"
-          value={state.firstName}
-          onChange={(e) => handleChange("firstName", e.target.value)}
-          placeholder="Enter employee first name"
-          error={errors.firstName}
-        />
-        {errors.firstName && (
-          <FormErrorMessage>{errors.firstName}</FormErrorMessage>
-        )}
+        <div>
+          <label>
+            First Name <MandatoryInp>*</MandatoryInp>
+          </label>
+          <TextInput
+            label="First Name"
+            value={state.firstName}
+            onChange={(e) => handleChange("firstName", e.target.value)}
+            placeholder="Enter employee first name"
+            error={errors.firstName}
+          />
+          {errors.firstName && (
+            <FormErrorMessage>{errors.firstName}</FormErrorMessage>
+          )}
+        </div>
 
-        <label>
-          Last Name <MandatoryInp>*</MandatoryInp>
-        </label>
-        <TextInput
-          label="Last Name"
-          value={state.lastName}
-          onChange={(e) => handleChange("lastName", e.target.value)}
-          placeholder="Enter employee last name"
-          error={errors.lastName}
-        />
-        {errors.lastName && (
-          <FormErrorMessage>{errors.lastName}</FormErrorMessage>
-        )}
+        <div>
+          <label>
+            Last Name <MandatoryInp>*</MandatoryInp>
+          </label>
+          <TextInput
+            label="Last Name"
+            value={state.lastName}
+            onChange={(e) => handleChange("lastName", e.target.value)}
+            placeholder="Enter employee last name"
+            error={errors.lastName}
+          />
+          {errors.lastName && (
+            <FormErrorMessage>{errors.lastName}</FormErrorMessage>
+          )}
+        </div>
 
-        <label>
-          Email Address <MandatoryInp>*</MandatoryInp>
-        </label>
-        <TextInput
-          label="Mail ID"
-          value={state.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-          placeholder="Enter employee email address"
-        />
-        {errors.email && <FormErrorMessage>{errors.email}</FormErrorMessage>}
+        <div>
+          <label>
+            Email Address <MandatoryInp>*</MandatoryInp>
+          </label>
+          <TextInput
+            label="Mail ID"
+            value={state.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+            placeholder="Enter employee email address"
+          />
+          {errors.email && <FormErrorMessage>{errors.email}</FormErrorMessage>}
+        </div>
 
-        <label>
-          Department <MandatoryInp>*</MandatoryInp>
-        </label>
-        <TextInput
-          label="Department"
-          value={state.dept}
-          onChange={(e) => handleChange("dept", e.target.value)}
-          placeholder="Enter employee department"
-        />
-        {errors.dept && <FormErrorMessage>{errors.dept}</FormErrorMessage>}
+        <div>
+          <label>
+            Department <MandatoryInp>*</MandatoryInp>
+          </label>
+          <TextInput
+            label="Department"
+            value={state.dept}
+            onChange={(e) => handleChange("dept", e.target.value)}
+            placeholder="Enter employee department"
+          />
+          {errors.dept && <FormErrorMessage>{errors.dept}</FormErrorMessage>}
+        </div>
       </div>
 
       <div>

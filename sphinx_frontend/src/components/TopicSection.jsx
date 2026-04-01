@@ -5,9 +5,11 @@ import {
   BlackInputLabel,
   FormErrorMessage,
   MandatoryInp,
+  StyledButton,
   StyledSelect,
   TextInput,
 } from "../styles/common.styles";
+import { Button, StyledSpan } from "../styles/ExamMasterPage.styles";
 import { validateTopicForm } from "../utils/ValidationService";
 
 function TopicSection({ examId, noOfQuestions }) {
@@ -141,7 +143,17 @@ function TopicSection({ examId, noOfQuestions }) {
       toast.error(response.errorMessage, { position: "top-right" });
     }
   };
-
+  const questionDate = {
+    examId: examId,
+  };
+  const generateQuestions = async () => {
+    const response = await apiPost("/exam/generate", questionDate);
+    if (response.responseMessage === "success") {
+      toast.success(response.successMessage, { position: "top-right" });
+    } else {
+      toast.error(response.errorMessage, { position: "top-right" });
+    }
+  };
   const totalPct = examTopics.reduce((sum, t) => sum + Number(t.percentage), 0);
 
   return (
@@ -185,6 +197,23 @@ function TopicSection({ examId, noOfQuestions }) {
           <div style={{ width: "140px" }}>
             <BlackInputLabel htmlFor="percentage">
               Question % <MandatoryInp>*</MandatoryInp>
+            </BlackInputLabel>
+            <TextInput
+              id="percentage"
+              type="number"
+              min="1"
+              max="100"
+              value={percentage}
+              onChange={(e) => setPercentage(e.target.value)}
+              placeholder="e.g. 40"
+            />
+            {topicError.percentage && (
+              <FormErrorMessage>{topicError.percentage}</FormErrorMessage>
+            )}
+          </div>
+          <div style={{ width: "140px" }}>
+            <BlackInputLabel htmlFor="percentage">
+              Pass % <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <TextInput
               id="percentage"
@@ -271,54 +300,20 @@ function TopicSection({ examId, noOfQuestions }) {
                   {topic.topicName}
                 </td>
                 <td style={{ padding: "10px 12px" }}>
-                  <span
-                    style={{
-                      background: "#EEEDFE",
-                      color: "#3C3489",
-                      padding: "2px 10px",
-                      borderRadius: "12px",
-                      fontSize: "12px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {topic.percentage}%
-                  </span>
+                  <StyledSpan>{topic.percentage}%</StyledSpan>
                 </td>
                 <td
                   style={{ padding: "10px 12px", display: "flex", gap: "8px" }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => handleEditTopic(topic)}
-                    style={{
-                      background: "#E6F1FB",
-                      color: "#185FA5",
-                      border: "none",
-                      padding: "4px 12px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                  >
+                  <Button type="button" onClick={() => handleEditTopic(topic)}>
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => handleDeleteTopic(topic.topicId)}
-                    style={{
-                      background: "#FCEBEB",
-                      color: "#A32D2D",
-                      border: "none",
-                      padding: "4px 12px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
                   >
                     Delete
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -361,6 +356,10 @@ function TopicSection({ examId, noOfQuestions }) {
           No topics added yet.
         </p>
       )}
+
+      <StyledButton onClick={generateQuestions}>
+        Generate Questions
+      </StyledButton>
     </div>
   );
 }

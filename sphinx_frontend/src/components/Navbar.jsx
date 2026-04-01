@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Hamburger,
   Logo,
@@ -11,6 +12,8 @@ import {
 } from "../styles/Navbar.styles";
 
 function Navbar() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   const [open, setOpen] = useState(false);
 
   const menuItems = [
@@ -21,6 +24,7 @@ function Navbar() {
     { name: "Create Exam", path: "/createExam" },
     { name: "Exam Master", path: "/exammaster" },
     { name: "User Master", path: "/userMaster" },
+    { name: "Exam Master", path: "exammaster" },
   ];
 
   return (
@@ -30,11 +34,12 @@ function Navbar() {
           <Logo>Sphinx</Logo>
 
           <Menu>
-            {menuItems.map((item, idx) => (
-              <MenuItem key={idx} to={item.path}>
-                {item.name}
-              </MenuItem>
-            ))}
+            {isAuthenticated &&
+              menuItems.map((item, idx) => (
+                <MenuItem key={idx} to={item.path}>
+                  {item.name}
+                </MenuItem>
+              ))}
           </Menu>
 
           <Hamburger onClick={() => setOpen(true)}>

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
+import { authActions } from "../store/AuthReducer";
 import {
   ErrorBox,
   FormDiv,
@@ -11,6 +13,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { loginFormValidator } from "../utils/ValidationService";
+import { failureToast, successToast } from "../utils/toast";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
@@ -19,6 +22,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [responseError, setResponseError] = useState("");
   const [formErrors, setFormErrors] = useState({});
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     window.scroll({
@@ -50,8 +55,14 @@ export default function LoginPage() {
       try {
         const response = await apiPost("/auth/login", formData);
 
-        if (response.error) {
-          setResponseError(response.error);
+        if (
+          response.responseMessage &&
+          response.responseMessage === "success"
+        ) {
+          successToast(response.successMessage);
+          dispatch(authActions.authenticate());
+        } else {
+          failureToast(response.errorMessage);
         }
       } finally {
         setIsLoading(false);

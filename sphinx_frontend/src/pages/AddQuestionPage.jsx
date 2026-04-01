@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import DescriptiveQuestionForm from "../components/DescriptiveQuestionForm";
 import FillUpQuestionForm from "../components/FillUpQuestionForm";
 import MultipleChoicQuestionForm from "../components/MultipleChoicQuestionForm";
@@ -24,6 +23,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { useQuestionConfig } from "../utils/questionConfig";
+import { failureToast, successToast } from "../utils/toast";
 
 function AddQuestionPage() {
   const [loading, setLoading] = useState(false);
@@ -65,13 +65,13 @@ function AddQuestionPage() {
       const res = await apiPost("/questions", payload);
 
       if (res.responseMessage === "success") {
-        toast.success(res.successMessage, { position: "top-right" });
+        successToast(res.successMessage);
         resetForm();
       } else {
-        toast.error(res.errorMessage, { position: "top-right" });
+        failureToast(res.errorMessage);
       }
     } catch {
-      toast.error("Something went wrong", { position: "top-right" });
+      failureToast("Something went wrong");
     } finally {
       setLoading(false);
     }
