@@ -20,6 +20,7 @@ function TopicSection({ examId, noOfQuestions }) {
   const [selectedTopicName, setSelectedTopicName] = useState("");
   const [percentage, setPercentage] = useState("");
   const [topicError, setTopicError] = useState({});
+  const [passPercentage, setPassPercentage] = useState("");
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [editTopicId, setEditTopicId] = useState(null);
 
@@ -51,6 +52,7 @@ function TopicSection({ examId, noOfQuestions }) {
     setSelectedTopicId("");
     setSelectedTopicName("");
     setPercentage("");
+    setPassPercentage("");
     setEditTopicId(null);
     setTopicError({});
   };
@@ -75,6 +77,7 @@ function TopicSection({ examId, noOfQuestions }) {
       topicId: selectedTopicId,
       topicName: selectedTopicName,
       percentage,
+      passPercentage,
     };
     const response = await apiPost("/exam/topics", payload);
     if (response.responseMessage === "success") {
@@ -109,6 +112,7 @@ function TopicSection({ examId, noOfQuestions }) {
       topicId: selectedTopicId,
       topicName: selectedTopicName,
       percentage,
+      passPercentage,
     };
     const response = await apiPut("/exam/topics", payload);
     if (response.responseMessage === "success") {
@@ -130,6 +134,7 @@ function TopicSection({ examId, noOfQuestions }) {
     setSelectedTopicId(topic.topicId);
     setSelectedTopicName(topic.topicName);
     setPercentage(topic.percentage);
+    setPassPercentage(topic.passPercentage);
     setTopicError({});
   };
 
@@ -216,12 +221,12 @@ function TopicSection({ examId, noOfQuestions }) {
               Pass % <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <TextInput
-              id="percentage"
+              id="passpercentage"
               type="number"
               min="1"
               max="100"
-              value={percentage}
-              onChange={(e) => setPercentage(e.target.value)}
+              value={passPercentage}
+              onChange={(e) => setPassPercentage(e.target.value)}
               placeholder="e.g. 40"
             />
             {topicError.percentage && (

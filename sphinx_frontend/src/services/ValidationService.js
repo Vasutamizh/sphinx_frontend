@@ -100,17 +100,29 @@ export const ExamFormValidation = (formData) => {
   if (!formData.noOfQuestions) {
     errors.noOfQuestions = "Number of question is required";
   }
+  if (formData.noOfQuestions > 100) {
+    errors.noOfQuestions = " Total no of questions should be less than 100";
+  }
   if (!formData.duration) {
     errors.duration = "Exam Duration is required ";
   }
+  if (formData.duration > 180) {
+    errors.duration = "Exam duration should be less than 180 minutes";
+  }
   if (!formData.passPercentage) {
     errors.passPercentage = "Exam Pass Percentage is required ";
+  }
+  if (formData.passPercentage > 100) {
+    errors.passPercentage = "Pass percentage should be less than 100";
   }
   if (!formData.questionsRandomized) {
     errors.questionsRandomized = "Question Random option is required ";
   }
   if (!formData.answersMust) {
     errors.answersMust = "Minimun Answers to attend is required";
+  }
+  if (formData.answersMust > formData.noOfQuestions) {
+    errors.answersMust = "Minimum answers should be less than total questions";
   }
   if (formData.allowNegativeMarks && formData.allowNegativeMarks === "1") {
     if (!formData.negativeMarkValue) {
@@ -123,7 +135,12 @@ export const ExamFormValidation = (formData) => {
   return errors;
 };
 
-export const validateTopicForm = (selectedTopicId, percentage, examTopics, editTopicId) => {
+export const validateTopicForm = (
+  selectedTopicId,
+  percentage,
+  examTopics,
+  editTopicId,
+) => {
   const errors = {};
   if (!selectedTopicId) errors.selectedTopicId = "Please select a topic.";
   if (!percentage || percentage <= 0 || percentage > 100)

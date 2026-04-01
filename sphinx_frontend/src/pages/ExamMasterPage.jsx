@@ -57,8 +57,7 @@ function ExamMasterPage() {
         <ExamContainer key={e.examId}>
           <div>{e.examName}</div>
           <SubContainer>
-            <StyledNavLink Link to="/createExam">
-              {" "}
+            <StyledNavLink Link to="/createExam" state={{exam:e.examId}}>
               Update exam
             </StyledNavLink>
             <StyledNavLink>Add topics</StyledNavLink>
