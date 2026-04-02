@@ -10,10 +10,11 @@ import {
 } from "../styles/common.styles";
 
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import TopicSection from "../components/TopicSection";
 import { apiGet, apiPost, apiPut } from "../services/ApiService";
 import { failureToast, successToast } from "../utils/toast";
 import { ExamFormValidation } from "../utils/ValidationService";
-import TopicSection from "../components/TopicSection";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");
@@ -35,6 +36,10 @@ function ExamCreationPage() {
   const exam = location.state?.exam;
   const isUpdateMode = !!exam?.examId;
 
+  const partyId = useSelector((state) => state.auth?.partyId);
+
+  console.log("partyId => ", partyId);
+
   // Load exam data in update mode
   useEffect(() => {
     if (!isUpdateMode) return;
@@ -53,7 +58,6 @@ function ExamCreationPage() {
         setAnswersMust(data.answersMust?.toString() || "");
         setAllowNegativeMarks(data.allowNegativeMarks?.toString() || "0");
         setNegativeMarkValue(data.negativeMarkValue?.toString() || "");
-        successToast("Exam details loaded successfully");
       } else {
         failureToast(response.errorMessage || "Failed to load exam");
       }
@@ -69,6 +73,7 @@ function ExamCreationPage() {
     setIsLoading(true);
 
     const examFormData = {
+      partyId,
       examName,
       description,
       noOfQuestions,
@@ -119,7 +124,7 @@ function ExamCreationPage() {
 
     const response = await apiPut("/exam", examUpdateData);
 
-    if (response.responseMessage === "success") {
+    if (response.responseMessage && response.responseMessage === "success") {
       successToast("Exam updated successfully");
     } else {
       failureToast(response.errorMessage || "Failed to update exam");

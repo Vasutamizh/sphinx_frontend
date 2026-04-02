@@ -60,7 +60,7 @@ export default function LoginPage() {
           response.responseMessage === "success"
         ) {
           successToast(response.successMessage);
-          dispatch(authActions.authenticate());
+          dispatch(authActions.authenticate({ partyId: response.partyId }));
         } else {
           failureToast(response.errorMessage);
         }

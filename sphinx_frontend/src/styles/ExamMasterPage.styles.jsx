@@ -103,3 +103,110 @@ export const StyledH2 = styled.h2`
   margin: 1rem;
   font-weight: 700;
 `;
+
+export const BlueActionLabel = styled.span`
+  font-size: 12px;
+  font-weight: bold;
+  color: royalblue;
+`;
+
+export const GreenActionLabel = styled.span`
+  font-size: 12px;
+  font-weight: bold;
+  color: #059669;
+`;
+
+export const RedActionLabel = styled.span`
+  font-size: 12px;
+  font-weight: bold;
+  color: #dc2525;
+`;
+
+export const ExamCard = styled.div`
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  }
+`;
+
+export const ExamHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ExamTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  gap: 24px;
+`;
+
+export const ActionItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  span {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+  }
+`;
+
+export const ActionButton = styled.div`
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.edit {
+    background: #e0f2fe;
+    color: #0284c7;
+
+    &:hover {
+      background: #0284c7;
+      color: white;
+    }
+  }
+
+  &.topics {
+    background: #dcfce7;
+    color: #16a34a;
+
+    &:hover {
+      background: #16a34a;
+      color: white;
+    }
+  }
+
+  &.delete {
+    background: #fee2e2;
+    color: #dc2626;
+
+    &:hover {
+      background: #dc2626;
+      color: white;
+    }
+  }
+`;

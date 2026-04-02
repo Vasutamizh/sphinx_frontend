@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { apiDelete, apiGet, apiPost, apiPut } from "../services/ApiService";
 import {
   BlackInputLabel,
@@ -10,6 +9,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { Button, StyledSpan } from "../styles/ExamMasterPage.styles";
+import { failureToast, successToast } from "../utils/toast";
 import { validateTopicForm } from "../utils/ValidationService";
 
 function TopicSection({ examId, noOfQuestions }) {
@@ -23,14 +23,13 @@ function TopicSection({ examId, noOfQuestions }) {
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [editTopicId, setEditTopicId] = useState(null);
 
-  
   useEffect(() => {
     const getAllTopics = async () => {
       const response = await apiGet("/topics");
       if (response.responseMessage === "success") {
         setTopicOptions(response.topicList);
       } else {
-        toast.error(response.errorMessage, { position: "top-right" });
+        failureToast(response.errorMessage);
       }
     };
     getAllTopics();
@@ -41,11 +40,11 @@ function TopicSection({ examId, noOfQuestions }) {
     const getExamTopics = async () => {
       const response = await apiGet(`/exam/topics/${examId}`);
       if (response.responseMessage === "success") {
-        const data =response.examTopicList;
+        const data = response.examTopicList;
 
         setExamTopics(response.examTopicList);
       } else {
-        toast.error(response.errorMessage, { position: "top-right" });
+        failureToast(response.errorMessage);
       }
     };
     getExamTopics();
@@ -84,13 +83,11 @@ function TopicSection({ examId, noOfQuestions }) {
     };
     const response = await apiPost("/exam/topics", payload);
     if (response.responseMessage === "success") {
-      toast.success(response.successMessage || "Topic added.", {
-        position: "top-right",
-      });
+      successToast(response.successMessage || "Topic added.");
       setExamTopics((prev) => [...prev, payload]);
       resetTopicForm();
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage);
     }
     setIsTopicLoading(false);
   };
@@ -119,7 +116,7 @@ function TopicSection({ examId, noOfQuestions }) {
     };
     const response = await apiPut("/exam/topics", payload);
     if (response.responseMessage === "success") {
-      toast.success(response.successMessage || "Topic updated.", {
+      successToast(response.successMessage || "Topic updated.", {
         position: "top-right",
       });
       setExamTopics((prev) =>
@@ -127,7 +124,7 @@ function TopicSection({ examId, noOfQuestions }) {
       );
       resetTopicForm();
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage);
     }
     setIsTopicLoading(false);
   };
@@ -144,20 +141,20 @@ function TopicSection({ examId, noOfQuestions }) {
   const handleDeleteTopic = async (topicId) => {
     const response = await apiDelete("/exam/topics", { examId, topicId });
     if (response.responseMessage === "success") {
-      toast.success("Topic removed.", { position: "top-right" });
+      successToast("Topic removed.");
       setExamTopics((prev) => prev.filter((t) => t.topicId !== topicId));
       if (editTopicId === topicId) resetTopicForm();
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage);
     }
   };
 
   const generateQuestions = async () => {
     const response = await apiPost("/exam/generate", { examId });
     if (response.responseMessage === "success") {
-      toast.success(response.successMessage, { position: "top-right" });
+      successToast(response.successMessage);
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage);
     }
   };
 

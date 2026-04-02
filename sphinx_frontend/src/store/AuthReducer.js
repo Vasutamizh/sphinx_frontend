@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   isAuthenticated: JSON.parse(localStorage.getItem("isAuthenticated")) || false,
+  partyId: JSON.parse(localStorage.getItem("partyId")) || null,
 };
 
 export const authSlice = createSlice({
@@ -14,6 +15,8 @@ export const authSlice = createSlice({
         "isAuthenticated",
         JSON.stringify(state.isAuthenticated),
       );
+      state.partyId = action.payload.partyId;
+      localStorage.setItem("partyId", JSON.stringify(action.payload.partyId));
     },
 
     logout(state, action) {

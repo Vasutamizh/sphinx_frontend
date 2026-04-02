@@ -122,6 +122,12 @@ export const ExamFormValidation = (formData) => {
     errors.answersMust = "Minimun Answers to attend is required";
   }
   if (formData.answersMust > formData.noOfQuestions) {
+    console.log(
+      "answerMust => ",
+      formData.answersMust,
+      " noOfQuestions => ",
+      formData.noOfQuestions,
+    );
     errors.answersMust = "Minimum answers should be less than total questions";
   }
   if (formData.allowNegativeMarks && formData.allowNegativeMarks === "1") {

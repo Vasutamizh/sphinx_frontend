@@ -7,6 +7,7 @@ import AddUser from "./pages/AddUser";
 import AssignUsers from "./pages/AssignUsersPage";
 import ExamCreationPage from "./pages/ExamCreationPage";
 import ExamMasterPage from "./pages/ExamMasterPage";
+import ExamWiseUserViewer from "./pages/ExamWiseUserViewerPage";
 import LoginPage from "./pages/LoginPage";
 import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
@@ -78,6 +79,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AssignUsers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/examWiseUsers"
+                element={
+                  <ProtectedRoute>
+                    <ExamWiseUserViewer />
                   </ProtectedRoute>
                 }
               />

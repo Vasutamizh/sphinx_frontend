@@ -25,6 +25,7 @@ function Navbar() {
     { name: "Exam Master", path: "/exammaster" },
     { name: "User Master", path: "/userMaster" },
     { name: "Assign Users", path: "/assignUsers" },
+    { name: "Exam Wise Users", path: "/examWiseUsers" },
   ];
 
   return (

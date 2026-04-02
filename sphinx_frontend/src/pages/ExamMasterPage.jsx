@@ -1,16 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { BookOpen, Pencil, Trash2, UserPlus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { IoCreate } from "react-icons/io5";
+import { Link } from "react-router-dom";
 import { apiDelete, apiGet } from "../services/ApiService";
-import { toast } from "sonner";
-import { StyledButton } from "../styles/common.styles";
-import { Pencil, Trash2, BookOpen } from "lucide-react";
 import {
-  Button,
+  ActionButton,
+  ActionItem,
+  Actions,
+  BlueActionLabel,
+  ExamCard,
   ExamContainer,
+  ExamHeader,
+  ExamTitle,
   StyledH2,
   StyledNavLink,
   SubContainer,
 } from "../styles/ExamMasterPage.styles";
-import { Link } from "react-router-dom";
+import { failureToast, successToast } from "../utils/toast";
 
 function ExamMasterPage() {
   const [examList, setExamList] = useState([]);
@@ -23,22 +29,19 @@ function ExamMasterPage() {
     const response = await apiGet("/exam");
     if (response.responseMessage === "success") {
       setExamList(response.examList);
-      toast.success("Exams displayed", { position: "top-right" });
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage || response.error || response.message);
     }
   };
 
   // fixed: accept examId as param, update state directly, no undefined variables
   const deleteExam = async (examId) => {
     const response = await apiDelete("/exam", { examId });
-    if (response.responseMessage === "success") {
-      toast.success("Exam deleted successfully", { position: "top-right" });
+    if (response.responseMessage && response.responseMessage === "success") {
+      successToast(response.successMessage);
       setExamList((prev) => prev.filter((e) => e.examId !== examId));
     } else {
-      toast.error(response.errorMessage || "Failed to delete exam", {
-        position: "top-right",
-      });
+      failureToast(response.errorMessage || "Failed to delete exam");
     }
   };
 
@@ -47,44 +50,70 @@ function ExamMasterPage() {
       <ExamContainer>
         Exams
         <SubContainer>
-          <StyledNavLink as={Link} to="/createExam">
-            <Button>Create Exam</Button>
-          </StyledNavLink>
+          <div>
+            <StyledNavLink
+              as={Link}
+              to="/createExam"
+              className="edit"
+              title="Update Exam"
+            >
+              <IoCreate size={18} strokeWidth={2.2} />
+              <BlueActionLabel>Create Exam</BlueActionLabel>
+            </StyledNavLink>
+          </div>
         </SubContainer>
       </ExamContainer>
 
       <StyledH2>Available exam</StyledH2>
-
       {examList.map((e) => (
-        <ExamContainer key={e.examId}>
-          <div>{e.examName}</div>
+        <ExamCard key={e.examId}>
+          <ExamHeader>
+            <ExamTitle>{e.examName}</ExamTitle>
+          </ExamHeader>
 
-          <SubContainer>
-            {/* Update — navigates to form and fills all exam details */}
-            <StyledNavLink
-              as={Link}
-              to="/createExam"
-              state={{ exam: e }}
-              className="edit"
-              title="Update Exam"
-            >
-              <Pencil size={18} strokeWidth={2.2} />
-            </StyledNavLink>
+          <Actions>
+            <ActionItem>
+              <ActionButton
+                as={Link}
+                to="/assignUsers"
+                className="edit"
+                state={{ exam: e }}
+              >
+                <UserPlus size={18} />
+              </ActionButton>
+              <span>Assign</span>
+            </ActionItem>
 
-            <StyledNavLink className="add" title="Add Topics">
-              <BookOpen size={18} strokeWidth={2.2} />
-            </StyledNavLink>
+            <ActionItem>
+              <ActionButton
+                as={Link}
+                to="/createExam"
+                state={{ exam: e }}
+                className="edit"
+              >
+                <Pencil size={18} />
+              </ActionButton>
+              <span>Edit</span>
+            </ActionItem>
 
-            {/* fixed: arrow function so it doesn't fire immediately on render */}
-            <StyledNavLink
-              className="delete"
-              title="Delete Exam"
-              onClick={() => deleteExam(e.examId)}
-            >
-              <Trash2 size={18} strokeWidth={2.2} />
-            </StyledNavLink>
-          </SubContainer>
-        </ExamContainer>
+            <ActionItem>
+              <ActionButton className="topics">
+                <BookOpen size={18} />
+              </ActionButton>
+              <span>Topics</span>
+            </ActionItem>
+
+            <ActionItem>
+              <ActionButton
+                className="delete"
+                onClick={() => deleteExam(e.examId)}
+              >
+                <Trash2 size={18} />
+              </ActionButton>
+              <span>Delete</span>
+            </ActionItem>
+          </Actions>
+        </ExamCard>
       ))}
     </>
   );
