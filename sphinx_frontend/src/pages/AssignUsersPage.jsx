@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { apiGet } from "../services/ApiService";
+import { failureToast } from "../utils/toast";
 
 const usersMock = [
   { id: 1, name: "John Doe" },
@@ -8,15 +10,29 @@ const usersMock = [
 ];
 
 export default function AssignUsers() {
+  const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [attempts, setAttempts] = useState("");
   const [timeout, setTimeoutValue] = useState("");
   const [assignedUsers, setAssignedUsers] = useState([]);
 
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const response = await apiGet("/auth/getAllUsers");
+      if (response.responseMessage && response.responseMessage === "success") {
+        setUsers(response.users);
+      } else {
+        failureToast(response.errorMessage || response.error);
+      }
+    };
+
+    getAllUsers();
+  }, []);
+
   const handleAddUser = () => {
     if (!selectedUserId || !attempts || !timeout) return;
 
-    const user = usersMock.find((u) => u.id === Number(selectedUserId));
+    const user = users.find((u) => u.partyId === selectedUserId);
 
     const newEntry = {
       ...user,
@@ -67,56 +83,81 @@ export default function AssignUsers() {
 
       {/* Form Card */}
       <div className="bg-white shadow-md rounded-xl p-5 mb-6 border">
-        <div className="grid md:grid-cols-4 gap-4">
-          {/* User Dropdown */}
-          <select
-            value={selectedUserId}
-            onChange={(e) => setSelectedUserId(e.target.value)}
-            className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">Select User</option>
-            {usersMock.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-
-          {/* Attempts */}
-          <input
-            type="number"
-            placeholder="Attempts"
-            value={attempts}
-            onChange={(e) => setAttempts(e.target.value)}
-            className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-          />
-
-          {/* Timeout */}
-          <input
-            type="number"
-            placeholder="Timeout (days)"
-            value={timeout}
-            onChange={(e) => setTimeoutValue(e.target.value)}
-            className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-          />
-
-          {/* Add Button */}
-          <button
-            onClick={handleAddUser}
-            className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 flex items-center justify-center gap-2"
-          >
-            {/* Plus Icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        <div className="flex items-center gap-4">
+          <div>
+            <label className="font-bold" htmlFor="userSelect">
+              Select User
+            </label>
+            {/* User Dropdown */}
+            <select
+              id="userSelect"
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
+              className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400"
             >
-              <path strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Assign
-          </button>
+              <option value="">Select User</option>
+              {users.map((user) => (
+                <option key={user.partyId} value={user.partyId}>
+                  {user.firstName +
+                    " " +
+                    user.lastName +
+                    " ( " +
+                    user.partyId +
+                    " ) "}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="font-bold" htmlFor="attempts">
+              Allowed Attempts
+            </label>
+            {/* Attempts */}
+            <input
+              type="number"
+              id="attempts"
+              placeholder="Allowed Attempts"
+              value={attempts}
+              onChange={(e) => setAttempts(e.target.value)}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label className="font-bold" htmlFor="timeout">
+              Exam Timeout in Days
+            </label>
+            {/* Timeout */}
+            <input
+              type="number"
+              id="timeout"
+              placeholder="Exam Timeout(days)"
+              value={timeout}
+              onChange={(e) => setTimeoutValue(e.target.value)}
+              className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            {/* Add Button */}
+            <button
+              onClick={handleAddUser}
+              className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 flex items-center justify-center gap-2 mt-5"
+            >
+              {/* Plus Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Assign
+            </button>
+          </div>
         </div>
       </div>
 
@@ -132,11 +173,18 @@ export default function AssignUsers() {
           <div className="grid md:grid-cols-2 gap-4">
             {assignedUsers.map((user) => (
               <div
-                key={user.id}
+                key={user.partyId}
                 className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center shadow-sm"
               >
                 <div>
-                  <p className="font-semibold text-gray-800">{user.name}</p>
+                  <p className="font-semibold text-gray-800">
+                    {user.firstName +
+                      " " +
+                      user.lastName +
+                      " ( " +
+                      user.partyId +
+                      " ) "}
+                  </p>
                   <p className="text-sm text-gray-600">
                     Attempts: {user.attempts} | Timeout: {user.timeout} days
                   </p>
