@@ -15,7 +15,6 @@ import { validateTopicForm } from "../utils/ValidationService";
 function TopicSection({ examId, noOfQuestions }) {
   const [topicOptions, setTopicOptions] = useState([]);
   const [examTopics, setExamTopics] = useState([]);
-
   const [selectedTopicId, setSelectedTopicId] = useState("");
   const [selectedTopicName, setSelectedTopicName] = useState("");
   const [percentage, setPercentage] = useState("");
@@ -24,7 +23,7 @@ function TopicSection({ examId, noOfQuestions }) {
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [editTopicId, setEditTopicId] = useState(null);
 
-  // fetch topic dropdown options
+  
   useEffect(() => {
     const getAllTopics = async () => {
       const response = await apiGet("/topics");
@@ -37,16 +36,20 @@ function TopicSection({ examId, noOfQuestions }) {
     getAllTopics();
   }, []);
 
-  // fetch existing exam topics
   useEffect(() => {
+    if (!examId) return;
     const getExamTopics = async () => {
-      const response = await apiGet("/exam/topics");
+      const response = await apiGet(`/exam/topics/${examId}`);
       if (response.responseMessage === "success") {
+        const data =response.examTopicList;
+
         setExamTopics(response.examTopicList);
+      } else {
+        toast.error(response.errorMessage, { position: "top-right" });
       }
     };
     getExamTopics();
-  }, []);
+  }, [examId]);
 
   const resetTopicForm = () => {
     setSelectedTopicId("");
@@ -148,17 +151,16 @@ function TopicSection({ examId, noOfQuestions }) {
       toast.error(response.errorMessage, { position: "top-right" });
     }
   };
-  const questionDate = {
-    examId: examId,
-  };
+
   const generateQuestions = async () => {
-    const response = await apiPost("/exam/generate", questionDate);
+    const response = await apiPost("/exam/generate", { examId });
     if (response.responseMessage === "success") {
       toast.success(response.successMessage, { position: "top-right" });
     } else {
       toast.error(response.errorMessage, { position: "top-right" });
     }
   };
+
   const totalPct = examTopics.reduce((sum, t) => sum + Number(t.percentage), 0);
 
   return (
@@ -216,8 +218,9 @@ function TopicSection({ examId, noOfQuestions }) {
               <FormErrorMessage>{topicError.percentage}</FormErrorMessage>
             )}
           </div>
+
           <div style={{ width: "140px" }}>
-            <BlackInputLabel htmlFor="percentage">
+            <BlackInputLabel htmlFor="passpercentage">
               Pass % <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <TextInput
@@ -229,9 +232,6 @@ function TopicSection({ examId, noOfQuestions }) {
               onChange={(e) => setPassPercentage(e.target.value)}
               placeholder="e.g. 40"
             />
-            {topicError.percentage && (
-              <FormErrorMessage>{topicError.percentage}</FormErrorMessage>
-            )}
           </div>
 
           <div style={{ display: "flex", gap: "8px" }}>

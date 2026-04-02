@@ -1,72 +1,91 @@
 import React, { useEffect, useState } from "react";
-import { apiGet, apiPut } from "../services/ApiService";
+import { apiDelete, apiGet } from "../services/ApiService";
 import { toast } from "sonner";
 import { StyledButton } from "../styles/common.styles";
+import { Pencil, Trash2, BookOpen } from "lucide-react";
 import {
+  Button,
   ExamContainer,
   StyledH2,
   StyledNavLink,
   SubContainer,
-  Table,
-  Td,
-  Th,
 } from "../styles/ExamMasterPage.styles";
-import { Button } from "../styles/ExamMasterPage.styles";
 import { Link } from "react-router-dom";
 
 function ExamMasterPage() {
-  const [getExam, setGetExam] = useState(false);
   const [examList, setExamList] = useState([]);
 
   useEffect(() => {
-    const getAllExam = async () => {
-      const response = await apiGet("/exam");
-      if (response.responseMessage === "success") {
-        setExamList(response.examList);
-        toast.success("Exams displayed", { position: "top-right" });
-      } else {
-        toast.error(response.errorMessage, { position: "top-right" });
-      }
-    };
     getAllExam();
   }, []);
 
-  const updateExam = async () => {
-    const response = await apiPut("/exam");
+  const getAllExam = async () => {
+    const response = await apiGet("/exam");
     if (response.responseMessage === "success") {
-      toast.success(response.successMessage, { position: "top-right" });
+      setExamList(response.examList);
+      toast.success("Exams displayed", { position: "top-right" });
     } else {
       toast.error(response.errorMessage, { position: "top-right" });
     }
   };
 
-  let index = 0;
+  // fixed: accept examId as param, update state directly, no undefined variables
+  const deleteExam = async (examId) => {
+    const response = await apiDelete("/exam", { examId });
+    if (response.responseMessage === "success") {
+      toast.success("Exam deleted successfully", { position: "top-right" });
+      setExamList((prev) => prev.filter((e) => e.examId !== examId));
+    } else {
+      toast.error(response.errorMessage || "Failed to delete exam", {
+        position: "top-right",
+      });
+    }
+  };
 
   return (
     <>
       <ExamContainer>
         Exams
         <SubContainer>
-          <Button>Create exam</Button>
+          <StyledNavLink as={Link} to="/createExam">
+            <Button>Create Exam</Button>
+          </StyledNavLink>
         </SubContainer>
       </ExamContainer>
 
       <StyledH2>Available exam</StyledH2>
 
-      {examList.map((e, index) => (
+      {examList.map((e) => (
         <ExamContainer key={e.examId}>
           <div>{e.examName}</div>
+
           <SubContainer>
-            <StyledNavLink Link to="/createExam" state={{exam:e.examId}}>
-              Update exam
+            {/* Update — navigates to form and fills all exam details */}
+            <StyledNavLink
+              as={Link}
+              to="/createExam"
+              state={{ exam: e }}
+              className="edit"
+              title="Update Exam"
+            >
+              <Pencil size={18} strokeWidth={2.2} />
             </StyledNavLink>
-            <StyledNavLink>Add topics</StyledNavLink>
-            <StyledNavLink>Delete Exam</StyledNavLink>
+
+            <StyledNavLink className="add" title="Add Topics">
+              <BookOpen size={18} strokeWidth={2.2} />
+            </StyledNavLink>
+
+            {/* fixed: arrow function so it doesn't fire immediately on render */}
+            <StyledNavLink
+              className="delete"
+              title="Delete Exam"
+              onClick={() => deleteExam(e.examId)}
+            >
+              <Trash2 size={18} strokeWidth={2.2} />
+            </StyledNavLink>
           </SubContainer>
         </ExamContainer>
       ))}
-
-      <StyledButton>Update exam</StyledButton>
     </>
   );
 }
