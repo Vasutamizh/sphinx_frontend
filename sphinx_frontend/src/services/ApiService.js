@@ -1,4 +1,4 @@
-let KKR_URL = "https://192.168.29.124:8443/Sphinx/api";
+
 let LOCAL_URL = "https://localhost:8443/Sphinx/api";
 
 export async function apiPost(endpoint, data) {

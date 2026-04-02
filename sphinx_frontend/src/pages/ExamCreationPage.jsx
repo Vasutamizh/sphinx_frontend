@@ -8,10 +8,12 @@ import {
   TextArea,
   TextInput,
 } from "../styles/common.styles";
-import TopicSection from "../components/TopicSection";
+
 import { useEffect, useState } from "react";
-import { apiGet, apiPut } from "../services/ApiService";
+import { apiGet, apiPost, apiPut } from "../services/ApiService";
 import { failureToast, successToast } from "../utils/toast";
+import { ExamFormValidation } from "../utils/ValidationService";
+import TopicSection from "../components/TopicSection";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");
@@ -23,28 +25,42 @@ function ExamCreationPage() {
   const [answersMust, setAnswersMust] = useState("");
   const [allowNegativeMarks, setAllowNegativeMarks] = useState("0");
   const [negativeMarkValue, setNegativeMarkValue] = useState("");
+
   const [responseError, setResponseError] = useState("");
   const [formError, setFormError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [examId, setExamId] = useState("");
+  const [createdExamId, setCreatedExamId] = useState(""); // For create mode
 
   const location = useLocation();
   const exam = location.state?.exam;
-  console.log(exam);
+  const isUpdateMode = !!exam?.examId;
 
+  // Load exam data in update mode
   useEffect(() => {
-    const getAllExam = async () => {
-      const response = await apiGet("/exam");
+    if (!isUpdateMode) return;
+
+    const getExamById = async () => {
+      const response = await apiGet(`/exam/${exam.examId}`);
       if (response.responseMessage === "success") {
-        setExamId(response.examList.examId);
-        setExamName(response.examList.examName);
-        successToast(response.successMessage);
+        const data = response.exam;
+        setCreatedExamId(data.examId); // reuse for consistency
+        setExamName(data.examName || "");
+        setDescription(data.description || "");
+        setNoOfQuestions(data.noOfQuestions?.toString() || "");
+        setDuration(data.duration?.toString() || "");
+        setPassPercentage(data.passPercentage?.toString() || "");
+        setQuestionsRandomized(data.questionsRandomized?.toString() || "0");
+        setAnswersMust(data.answersMust?.toString() || "");
+        setAllowNegativeMarks(data.allowNegativeMarks?.toString() || "0");
+        setNegativeMarkValue(data.negativeMarkValue?.toString() || "");
+        successToast("Exam details loaded successfully");
       } else {
-        failureToast(response.errorMessage);
+        failureToast(response.errorMessage || "Failed to load exam");
       }
     };
-    getAllExam();
-  }, []);
+
+    getExamById();
+  }, [isUpdateMode, exam?.examId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,24 +81,31 @@ function ExamCreationPage() {
     };
 
     const errors = ExamFormValidation(examFormData);
-    if (Object.keys(errors).length === 0) {
-      const response = await apiPost("/exam", examFormData);
-      if (response.responseMessage === "success") {
-        successToast(response.successMessage);
-        setExamId(response.examId);
-      } else {
-        setResponseError(response.errorMessage);
-        failureToast(response.errorMessage);
-      }
-    } else {
+    if (Object.keys(errors).length > 0) {
       setFormError(errors);
+      setIsLoading(false);
+      return;
     }
+
+    const response = await apiPost("/exam", examFormData);
+
+    if (response.responseMessage === "success") {
+      successToast("Exam created successfully");
+      setCreatedExamId(response.examId);
+    } else {
+      setResponseError(response.errorMessage);
+      failureToast(response.errorMessage);
+    }
+
     setIsLoading(false);
   };
 
-  const updateExam = async () => {
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     const examUpdateData = {
-      examId,
+      examId: exam.examId,
       examName,
       description,
       noOfQuestions,
@@ -93,19 +116,27 @@ function ExamCreationPage() {
       allowNegativeMarks,
       negativeMarkValue,
     };
+
     const response = await apiPut("/exam", examUpdateData);
+
     if (response.responseMessage === "success") {
-      successToast(response.successMessage);
+      successToast("Exam updated successfully");
     } else {
-      failureToast(response.errorMessage);
+      failureToast(response.errorMessage || "Failed to update exam");
     }
+
+    setIsLoading(false);
   };
+
+  const activeExamId = isUpdateMode ? exam.examId : createdExamId;
+
   return (
     <>
-      <h1>{exam ? "Exam Updation Screen" : "Exam Creation Screen"}</h1>
+      <h1>{isUpdateMode ? "Update Exam" : "Create Exam"}</h1>
+
       {responseError && <ErrorBox>{responseError}</ErrorBox>}
 
-      <form onSubmit={examId ? updateExam : handleSubmit}>
+      <form onSubmit={isUpdateMode ? handleUpdate : handleSubmit}>
         <BlackInputLabel htmlFor="examName">
           Exam name <MandatoryInp>*</MandatoryInp>
         </BlackInputLabel>
@@ -120,13 +151,16 @@ function ExamCreationPage() {
           <FormErrorMessage>{formError.examName}</FormErrorMessage>
         )}
 
+        <br />
+        <br />
+
         <BlackInputLabel htmlFor="description">
           Exam Description
         </BlackInputLabel>
         <TextArea
           id="description"
-          onChange={(e) => setDescription(e.target.value)}
           value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Enter Exam Description"
         />
         {formError.description && (
@@ -143,14 +177,15 @@ function ExamCreationPage() {
             <TextInput
               id="noOfQuestions"
               type="number"
-              onChange={(e) => setNoOfQuestions(e.target.value)}
               value={noOfQuestions}
+              onChange={(e) => setNoOfQuestions(e.target.value)}
               placeholder="Enter No Of Questions"
             />
             {formError.noOfQuestions && (
               <FormErrorMessage>{formError.noOfQuestions}</FormErrorMessage>
             )}
           </div>
+
           <div>
             <BlackInputLabel htmlFor="duration">
               Exam Duration (In Minutes) <MandatoryInp>*</MandatoryInp>
@@ -158,14 +193,15 @@ function ExamCreationPage() {
             <TextInput
               id="duration"
               type="number"
-              onChange={(e) => setDuration(e.target.value)}
               value={duration}
+              onChange={(e) => setDuration(e.target.value)}
               placeholder="Enter Exam Duration"
             />
             {formError.duration && (
               <FormErrorMessage>{formError.duration}</FormErrorMessage>
             )}
           </div>
+
           <div>
             <BlackInputLabel htmlFor="passPercentage">
               Exam Pass Percentage (%) <MandatoryInp>*</MandatoryInp>
@@ -173,8 +209,8 @@ function ExamCreationPage() {
             <TextInput
               id="passPercentage"
               type="number"
-              onChange={(e) => setPassPercentage(e.target.value)}
               value={passPercentage}
+              onChange={(e) => setPassPercentage(e.target.value)}
               placeholder="Enter Exam Pass Percentage"
             />
             {formError.passPercentage && (
@@ -183,24 +219,22 @@ function ExamCreationPage() {
           </div>
         </div>
         <br />
+        <br />
 
         <div className="flex flex-colum gap-25">
           <div>
-            <BlackInputLabel htmlFor="randomQuestion">
+            <BlackInputLabel>
               Select Question Visibility <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <StyledSelect
+              value={questionsRandomized}
               onChange={(e) => setQuestionsRandomized(e.target.value)}
             >
               <option value="0">Random Order</option>
               <option value="1">Same Order</option>
             </StyledSelect>
-            {formError.questionsRandomized && (
-              <FormErrorMessage>
-                {formError.questionsRandomized}
-              </FormErrorMessage>
-            )}
           </div>
+
           <div>
             <BlackInputLabel htmlFor="mustAnswer">
               Minimum Questions To Attend <MandatoryInp>*</MandatoryInp>
@@ -208,8 +242,8 @@ function ExamCreationPage() {
             <TextInput
               id="mustAnswer"
               type="number"
-              onChange={(e) => setAnswersMust(e.target.value)}
               value={answersMust}
+              onChange={(e) => setAnswersMust(e.target.value)}
               placeholder="Enter the Minimum questions to attend"
             />
             {formError.answersMust && (
@@ -221,21 +255,18 @@ function ExamCreationPage() {
 
         <div className="flex flex-colum gap-70">
           <div>
-            <BlackInputLabel htmlFor="negativeMarks">
+            <BlackInputLabel>
               Allow Negative Marks <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
             <StyledSelect
+              value={allowNegativeMarks}
               onChange={(e) => setAllowNegativeMarks(e.target.value)}
             >
               <option value="0">No</option>
               <option value="1">Yes</option>
             </StyledSelect>
-            {formError.allowNegativeMarks && (
-              <FormErrorMessage>
-                {formError.allowNegativeMarks}
-              </FormErrorMessage>
-            )}
           </div>
+
           <div>
             {allowNegativeMarks === "1" && (
               <>
@@ -245,8 +276,8 @@ function ExamCreationPage() {
                 <TextInput
                   id="negativeMarkValue"
                   type="number"
-                  onChange={(e) => setNegativeMarkValue(e.target.value)}
                   value={negativeMarkValue}
+                  onChange={(e) => setNegativeMarkValue(e.target.value)}
                   placeholder="Enter Negative Marks"
                 />
                 {formError.negativeMarkValue && (
@@ -261,47 +292,29 @@ function ExamCreationPage() {
 
         <button
           type="submit"
-          disabled={isLoading || !!examId}
-          className="w-full mt-2 py-3 px-4 rounded-xl text-sm font-semibold text-white
+          disabled={isLoading || (!isUpdateMode && !!createdExamId)}
+          className="w-full mt-6 py-3 px-4 rounded-xl text-sm font-semibold text-white
                      bg-gradient-to-r from-indigo-600 to-violet-600
                      hover:from-indigo-500 hover:to-violet-500
                      active:scale-[0.98] transition-all duration-200
                      shadow-lg shadow-indigo-500/25
-                     disabled:opacity-60 disabled:cursor-not-allowed
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                     disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg
-                className="w-4 h-4 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-                />
-              </svg>
-              Creating Exam...
-            </span>
-          ) : examId ? (
-            "Exam Created"
-          ) : (
-            "Create Exam"
-          )}
+          {isLoading
+            ? isUpdateMode
+              ? "Updating..."
+              : "Creating..."
+            : isUpdateMode
+              ? "Update Exam"
+              : createdExamId
+                ? "Exam Created ✓"
+                : "Create Exam"}
         </button>
       </form>
 
-      {examId && <TopicSection examId={examId} noOfQuestions={noOfQuestions} />}
+      {activeExamId && (
+        <TopicSection examId={activeExamId} noOfQuestions={noOfQuestions} />
+      )}
     </>
   );
 }
