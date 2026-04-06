@@ -7,6 +7,7 @@ import AddUser from "./pages/AddUser";
 import AssignUsers from "./pages/AssignUsersPage";
 import ExamCreationPage from "./pages/ExamCreationPage";
 import ExamMasterPage from "./pages/ExamMasterPage";
+import ExamQuestionsPage from "./pages/ExamQuestionsPage";
 import ExamWiseUserViewer from "./pages/ExamWiseUserViewerPage";
 import LoginPage from "./pages/LoginPage";
 import Logout from "./pages/Logout";
@@ -128,7 +129,16 @@ function App() {
                 path="/logout"
                 element={
                   <ProtectedRoute>
-                    <Logout />
+                    <Logout />{" "}
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/ExamQuestions"
+                element={
+                  <ProtectedRoute>
+                    <ExamQuestionsPage />
                   </ProtectedRoute>
                 }
               />

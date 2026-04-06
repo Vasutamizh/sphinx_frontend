@@ -44,7 +44,6 @@ function ExamMasterPage() {
     }
   };
 
-  // fixed: accept examId as param, update state directly, no undefined variables
   const deleteExam = async (examId) => {
     const response = await apiDelete("/exam", { examId });
     if (response.responseMessage && response.responseMessage === "success") {
@@ -87,7 +86,7 @@ function ExamMasterPage() {
                 as={Link}
                 to="/assignUsers"
                 className="edit"
-                state={{ exam: e }}
+                state={{ exam: e.examId }}
               >
                 <UserPlus size={18} />
               </ActionButton>
@@ -107,10 +106,15 @@ function ExamMasterPage() {
             </ActionItem>
 
             <ActionItem>
-              <ActionButton className="topics">
+              <ActionButton
+                className="topics"
+                as={Link}
+                to="/ExamQuestions"
+                state={{ exam: e }}
+              >
                 <BookOpen size={18} />
               </ActionButton>
-              <span>Topics</span>
+              <span>Questions</span>
             </ActionItem>
 
             <ActionItem>
