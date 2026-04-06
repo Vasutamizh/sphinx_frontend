@@ -1,4 +1,3 @@
-
 let LOCAL_URL = "https://localhost:8443/Sphinx/api";
 
 export async function apiPost(endpoint, data) {
@@ -103,3 +102,15 @@ export async function apiFilePost(endpoint, formData) {
     return err;
   }
 }
+
+export const isError = (responseObject) => {
+  if (!responseObject) return true;
+
+  if (
+    responseObject.responseMessage &&
+    responseObject.responseMessage === "success"
+  )
+    return false;
+
+  return true;
+};

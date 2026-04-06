@@ -22,12 +22,36 @@ export default function ExamWiseUserViewer() {
   //   ];
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState("");
+  const [assignedUsers, setAssignedUsers] = useState([]);
 
-  const selectedExam = exams.find((e) => e.examId === selectedExamId);
-
-  const users = selectedExam?.users || [];
+  const handleChange = (examId) => {
+    if (examId) {
+      setSelectedExamId(examId);
+    }
+  };
 
   const partyId = useSelector((state) => state.auth?.partyId);
+
+  useEffect(() => {
+    const getUsersForExam = async () => {
+      if (!selectedExamId) {
+        return;
+      }
+      const response = await apiPost("/exam/getAssignedUsers", {
+        examId: selectedExamId,
+      });
+
+      if (response.responseMessage && response.responseMessage === "success") {
+        setAssignedUsers(response.data);
+      } else {
+        failureToast(
+          response.errorMessage || response.error || "Failed to Load data!",
+        );
+        setAssignedUsers([]);
+      }
+    };
+    getUsersForExam();
+  }, [selectedExamId]);
 
   useEffect(() => {
     const getAllExamsByAdmin = async () => {
@@ -56,61 +80,63 @@ export default function ExamWiseUserViewer() {
       <div className="relative mb-6">
         <select
           value={selectedExamId}
-          onChange={(e) => setSelectedExamId(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-3 pr-10 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Select an Exam</option>
-          {exams.map((exam) => (
-            <option key={exam.examId} value={exam.examId}>
-              {exam.examName}
-            </option>
-          ))}
+          {exams.length > 0 &&
+            exams.map((exam) => (
+              <option key={exam.examId} value={exam.examId}>
+                {exam.examName}
+              </option>
+            ))}
         </select>
 
         <ChevronDown className="absolute right-3 top-3 text-gray-500 pointer-events-none" />
       </div>
 
       {/* User List */}
-      {selectedExamId && users.length > 0 && (
+      {selectedExamId && assignedUsers.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {users.map((u, index) => {
-            const initials = u.name
-              ?.split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase();
+          {assignedUsers.length > 0 &&
+            assignedUsers.map((u, index) => {
+              const initials = u.name
+                ?.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase();
 
-            return (
-              <div
-                key={index}
-                className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                {/* Avatar */}
-                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
-                  {initials || <User size={18} />}
-                </div>
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  {/* Avatar */}
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
+                    {u.firstName[0] + u.lastName[0] || <User size={18} />}
+                  </div>
 
-                {/* Info */}
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">
-                    {u.name || "Unnamed User"}
-                  </p>
-                  <p className="text-xs text-gray-500">ID: {u.partyId}</p>
-                  <p className="text-xs text-gray-500">
-                    Allowed Attempts: {u.partyId}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Timeout Days: {u.partyId}
-                  </p>
+                  {/* Info */}
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {u.firstName + " " + u.lastName || "Unnamed User"}
+                    </p>
+                    <p className="text-xs text-gray-500">ID: {u.partyId}</p>
+                    <p className="text-xs text-gray-500">
+                      Allowed Attempts: {u.partyId}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Timeout Days: {u.partyId}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       )}
 
       {/* Empty States */}
-      {selectedExamId && users.length === 0 && (
+      {selectedExamId && assignedUsers.length === 0 && (
         <div className="text-center py-10 text-gray-500">
           <User className="mx-auto mb-2 opacity-50" />
           No users assigned to this exam

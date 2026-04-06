@@ -8,14 +8,13 @@ export const emailValidator = (value) => {
 
 export const passwordValidator = (value) => {
   if (
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/.test(
       value,
     )
   ) {
     return "";
   } else {
     console.log("Password validation failed => ", value);
-
     return "Password should contain 1 Uppercase, 1 Lowercase, 1 Special Character, 1 Numeric and 8-16 characters long.";
   }
 };

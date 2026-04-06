@@ -1,8 +1,9 @@
 import { BookOpen, Pencil, Trash2, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IoCreate } from "react-icons/io5";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { apiDelete, apiGet } from "../services/ApiService";
+import { apiDelete, apiPost } from "../services/ApiService";
 import {
   ActionButton,
   ActionItem,
@@ -19,6 +20,9 @@ import {
 import { failureToast, successToast } from "../utils/toast";
 
 function ExamMasterPage() {
+  // getting the partyId from the store.
+  const partyId = useSelector((state) => state.auth.partyId);
+
   const [examList, setExamList] = useState([]);
 
   useEffect(() => {
@@ -26,9 +30,15 @@ function ExamMasterPage() {
   }, []);
 
   const getAllExam = async () => {
-    const response = await apiGet("/exam");
+    if (!partyId) {
+      failureToast(
+        "Seems to be Issue in your Sign In! Please make Sign Out and Sign In again!",
+      );
+    }
+
+    const response = await apiPost("/exam/getAllExamsByAdmin", { partyId });
     if (response.responseMessage === "success") {
-      setExamList(response.examList);
+      setExamList(response.data);
     } else {
       failureToast(response.errorMessage || response.error || response.message);
     }
