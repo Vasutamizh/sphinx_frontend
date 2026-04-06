@@ -12,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
 import store from "./store/Store";
+import ExamQuestionsPage from "./pages/ExamQuestionsPage";
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -87,6 +88,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ExamWiseUserViewer />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ExamQuestions"
+                element={
+                  <ProtectedRoute>
+                    <ExamQuestionsPage />
                   </ProtectedRoute>
                 }
               />
