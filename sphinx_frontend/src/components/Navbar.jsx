@@ -17,15 +17,16 @@ function Navbar() {
   const [open, setOpen] = useState(false);
 
   const menuItems = [
-    { name: "Dashboard", path: "/" },
-    { name: "Questions", path: "/questions" },
+    { name: "Dashboard", path: "/dashboard" },
+    // { name: "Questions", path: "/questions" },
     { name: "Add Questions", path: "/addQuestion" },
     { name: "Upload File", path: "/uploadQuestions" },
     { name: "Create Exam", path: "/createExam" },
-    { name: "Exam Master", path: "/exammaster" },
+    // { name: "Exam Master", path: "/exammaster" },
     { name: "User Master", path: "/userMaster" },
-    { name: "Assign Users", path: "/assignUsers" },
     { name: "Exam Wise Users", path: "/examWiseUsers" },
+    { name: "User Wise Exams", path: "/userWiseExams" },
+    { name: "Logout", path: "/logout" },
   ];
 
   return (

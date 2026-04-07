@@ -7,23 +7,33 @@ import AddUser from "./pages/AddUser";
 import AssignUsers from "./pages/AssignUsersPage";
 import ExamCreationPage from "./pages/ExamCreationPage";
 import ExamMasterPage from "./pages/ExamMasterPage";
+import ExamQuestionsPage from "./pages/ExamQuestionsPage";
 import ExamWiseUserViewer from "./pages/ExamWiseUserViewerPage";
 import LoginPage from "./pages/LoginPage";
+import Logout from "./pages/Logout";
 import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
+import UserExamDashboard from "./pages/UserWiseExamPage";
 import store from "./store/Store";
-import ExamQuestionsPage from "./pages/ExamQuestionsPage";
 
 function App() {
   const ProtectedRoute = ({ children }) => {
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-    console.log("State =>", isAuthenticated);
-
     if (isAuthenticated) {
       return children;
     } else {
       return <LoginPage />;
+    }
+  };
+
+  const AuthenticateProtectedRoute = ({ children }) => {
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+    if (isAuthenticated) {
+      return <ExamMasterPage />;
+    } else {
+      return children;
     }
   };
 
@@ -33,8 +43,22 @@ function App() {
         <BrowserRouter>
           <Layout>
             <Routes>
-              <Route path="/" Component={LoginPage} />
-              <Route path="/signup" Component={SignupPage} />
+              <Route
+                path="/"
+                element={
+                  <AuthenticateProtectedRoute>
+                    <LoginPage />
+                  </AuthenticateProtectedRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <AuthenticateProtectedRoute>
+                    <SignupPage />
+                  </AuthenticateProtectedRoute>
+                }
+              />
               <Route
                 path="/addQuestion"
                 element={
@@ -68,7 +92,7 @@ function App() {
                 }
               />
               <Route
-                path="/exammaster"
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <ExamMasterPage />
@@ -91,6 +115,25 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/userWiseExams"
+                element={
+                  <ProtectedRoute>
+                    <UserExamDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/logout"
+                element={
+                  <ProtectedRoute>
+                    <Logout />{" "}
+                  </ProtectedRoute>
+                }
+              />
+
               <Route
                 path="/ExamQuestions"
                 element={

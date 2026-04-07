@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   BottomBar,
   FooterContainer,
@@ -8,6 +9,8 @@ import {
 } from "../styles/Footer.styles";
 
 function Footer() {
+  const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
+
   return (
     <FooterContainer>
       <FooterContent>
@@ -16,12 +19,14 @@ function Footer() {
           <p>Smart exam and question management system.</p>
         </FooterSection>
 
-        <FooterSection>
-          <FooterTitle>Quick Links</FooterTitle>
-          <FooterLink>Dashboard</FooterLink>
-          <FooterLink>Question Bank</FooterLink>
-          <FooterLink>Create Exam</FooterLink>
-        </FooterSection>
+        {isAuthenticated && (
+          <FooterSection>
+            <FooterTitle>Quick Links</FooterTitle>
+            <FooterLink>Dashboard</FooterLink>
+            <FooterLink>Question Bank</FooterLink>
+            <FooterLink>Create Exam</FooterLink>
+          </FooterSection>
+        )}
 
         <FooterSection>
           <FooterTitle>Support</FooterTitle>

@@ -295,7 +295,7 @@ export default function SignupPage() {
         </div>
 
         <p className="text-center text-sm text-slate-400">
-          Already have an account? <Link to="/login">Login here</Link>
+          Already have an account? <Link to="/">Login here</Link>
           {/* <StyledLink to="#">Login here.</StyledLink> */}
         </p>
       </FormDiv>

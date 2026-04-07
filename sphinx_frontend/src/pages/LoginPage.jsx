@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
@@ -16,6 +16,7 @@ import { loginFormValidator } from "../utils/ValidationService";
 import { failureToast, successToast } from "../utils/toast";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -61,6 +62,7 @@ export default function LoginPage() {
         ) {
           successToast(response.successMessage);
           dispatch(authActions.authenticate({ partyId: response.partyId }));
+          navigate("/");
         } else {
           failureToast(response.errorMessage);
         }

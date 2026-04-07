@@ -29,7 +29,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const authActions = authSlice.actions;
-const authReducer = authSlice.reducer;
+export const authActions = authSlice.actions; // for component use
+const authReducer = authSlice.reducer; // for store use
 
 export default authReducer;
