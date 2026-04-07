@@ -111,6 +111,7 @@ function ExamCreationPage() {
 
     const examUpdateData = {
       examId: exam.examId,
+      partyId: partyId,
       examName,
       description,
       noOfQuestions,
@@ -251,11 +252,11 @@ function ExamCreationPage() {
               onChange={(e) => setAnswersMust(e.target.value)}
               placeholder="Enter the Minimum questions to attend"
             />
-            {formError.answersMust && (
-              <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
-            )}
           </div>
         </div>
+        {formError.answersMust && (
+          <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
+        )}
         <br />
 
         <div className="flex flex-colum gap-70">

@@ -271,18 +271,20 @@ function TopicSection({ examId, noOfQuestions }) {
             <tr
               style={{ borderBottom: "1px solid #ced6e0", textAlign: "left" }}
             >
-              {["No", "Topic Name", "Question %", "Actions"].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: "10px 12px",
-                    color: "#888",
-                    fontWeight: 500,
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
+              {["No", "Topic Name", "Question %", "Pass %", "Actions"].map(
+                (h) => (
+                  <th
+                    key={h}
+                    style={{
+                      padding: "10px 12px",
+                      color: "#888",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {h}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
@@ -304,6 +306,10 @@ function TopicSection({ examId, noOfQuestions }) {
                 <td style={{ padding: "10px 12px" }}>
                   <StyledSpan>{topic.percentage}%</StyledSpan>
                 </td>
+                <td style={{ padding: "10px 12px" }}>
+                  <StyledSpan>{topic.passPercentage}</StyledSpan>
+                </td>
+
                 <td
                   style={{ padding: "10px 12px", display: "flex", gap: "8px" }}
                 >
