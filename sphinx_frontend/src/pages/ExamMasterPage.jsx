@@ -86,7 +86,7 @@ function ExamMasterPage() {
                 as={Link}
                 to="/assignUsers"
                 className="edit"
-                state={{ exam: e.examId }}
+                state={{ exam: e }}
               >
                 <UserPlus size={18} />
               </ActionButton>

@@ -138,8 +138,10 @@ export default function AssignUsers() {
     setIsConfirmModalOpen(false);
   };
 
-  const handleEdit = (user) => {
-    setCurrentUserForEdit(user);
+  const handleEdit = (user, flag) => {
+    if (!flag) return;
+
+    setCurrentUserForEdit({ user, flag });
     setIsEditModalOpen(true);
   };
   const handleSubmit = async () => {
@@ -172,16 +174,38 @@ export default function AssignUsers() {
     setNewlyAssignedUsers([]);
   };
 
+  const onSuccessUpdate = (userWithFLag) => {
+    const { user, flag } = userWithFLag;
+    console.log(userWithFLag);
+    if (!user || !flag) return;
+    // on success API call.
+    if (flag === "AU") {
+      const filteredUsers = alreadyAssignedUsers.filter(
+        (u) => u.partyId !== user.partyId,
+      );
+      filteredUsers.push(user);
+      setAlreadyAssignedUsers(filteredUsers);
+    } else {
+      const filteredUsers = newlyAssignedUsers.filter(
+        (u) => u.partyId !== user.partyId,
+      );
+      filteredUsers.push(user);
+      setNewlyAssignedUsers(filteredUsers);
+    }
+  };
+
   if (exam) {
     return (
       <div className="p-6 max-w-4xl mx-auto">
         <EditAssignedUserModal
           open={isEditModalOpen}
-          user={currentUserForEdit}
+          userForEdit={currentUserForEdit}
+          examId={exam.examId}
           setUser={setCurrentUserForEdit}
           onClose={() => {
             setIsEditModalOpen(false);
           }}
+          onSuccessUpdate={onSuccessUpdate}
         />
         <ConfimationModal
           isOpen={isConfirmModalOpen}
@@ -332,7 +356,7 @@ export default function AssignUsers() {
                                   <ActionRow>
                                     <IconButton
                                       $variant="edit"
-                                      onClick={() => handleEdit(user)}
+                                      onClick={() => handleEdit(user, "AU")}
                                       aria-label={`Edit ${user.name}`}
                                       title="Edit"
                                     >
@@ -420,7 +444,7 @@ export default function AssignUsers() {
                             <ActionRow>
                               <IconButton
                                 $variant="edit"
-                                onClick={() => handleEdit(user)}
+                                onClick={() => handleEdit(user, "NU")}
                                 aria-label={`Edit ${user.name}`}
                                 title="Edit"
                               >
