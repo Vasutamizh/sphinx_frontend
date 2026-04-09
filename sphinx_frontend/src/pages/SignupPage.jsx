@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
-import { apiPost } from "../services/ApiService";
+import { apiPost, isError } from "../services/ApiService";
 import {
   BorderedFlexDiv,
   ErrorBox,
@@ -16,6 +15,7 @@ import {
   TextInput,
 } from "../styles/common.styles";
 import { signupFormValidator } from "../utils/ValidationService";
+import { failureToast, successToast } from "../utils/toast";
 
 export default function SignupPage() {
   const [state, setState] = useState({
@@ -74,17 +74,21 @@ export default function SignupPage() {
         lastName: state.lastName,
         email: state.email,
         password: state.password,
+        confirmPassword: state.confirmPassword,
         role: "admin",
       };
       try {
         const response = await apiPost("/auth/signup", payload);
-        if (
-          response.responseMessage &&
-          response.responseMessage === "success"
-        ) {
-          toast.success(response.successMessage, { position: "top-right" });
+        if (!isError(response)) {
+          successToast(
+            response.successMessage || "Account Created Successfully!",
+          );
         } else {
-          toast.error(response.successMessage, { position: "top-right" });
+          failureToast(
+            response.errorMessage ||
+              response.error ||
+              "Failed to Create Account!",
+          );
         }
       } finally {
         setIsLoading(false);
@@ -120,7 +124,7 @@ export default function SignupPage() {
         </div>
 
         <h1 className="text-2xl font-bold mb-1 tracking-tight">
-          Create new account
+          Create new Account
         </h1>
 
         {responseError && <ErrorBox>{responseError}</ErrorBox>}

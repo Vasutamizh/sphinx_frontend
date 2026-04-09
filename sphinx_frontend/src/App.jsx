@@ -11,6 +11,7 @@ import ExamQuestionsPage from "./pages/ExamQuestionsPage";
 import ExamWiseUserViewer from "./pages/ExamWiseUserViewerPage";
 import LoginPage from "./pages/LoginPage";
 import Logout from "./pages/Logout";
+import QuestionList from "./pages/QuestionListPage";
 import QuestionUploadPage from "./pages/QuestionUploadPage";
 import SignupPage from "./pages/SignupPage";
 import UserExamDashboard from "./pages/UserWiseExamPage";
@@ -142,6 +143,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/allQuestions" Component={QuestionList} />
             </Routes>
           </Layout>
         </BrowserRouter>

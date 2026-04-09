@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import EyeClosedIcon from "../components/EyeCloseIcon";
 import EyeOpenIcon from "../components/EyeOpen";
 import { apiPost } from "../services/ApiService";
@@ -10,6 +10,7 @@ import {
   FormDiv,
   FormErrorMessage,
   InputLabel,
+  MandatoryInp,
   TextInput,
 } from "../styles/common.styles";
 import { loginFormValidator } from "../utils/ValidationService";
@@ -53,6 +54,10 @@ export default function LoginPage() {
     let errors = loginFormValidator(formData);
 
     if (Object.keys(errors).length === 0) {
+      // formData = {
+      //   USERNAME: userId,
+      //   PASSWORD: password,
+      // };
       try {
         const response = await apiPost("/auth/login", formData);
 
@@ -64,7 +69,11 @@ export default function LoginPage() {
           dispatch(authActions.authenticate({ partyId: response.partyId }));
           navigate("/");
         } else {
-          failureToast(response.errorMessage);
+          failureToast(
+            response.errorMessage ||
+              response.error ||
+              "Failed to perform Action!",
+          );
         }
       } finally {
         setIsLoading(false);
@@ -100,14 +109,16 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-2xl font-bold mb-1 tracking-tight">
-          Sign in to your account
+          Sign in to your Account
         </h1>
 
         {responseError && <ErrorBox>{responseError}</ErrorBox>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col gap-1.5">
-            <InputLabel htmlFor="userId">User Login ID</InputLabel>
+            <InputLabel htmlFor="userId">
+              User Login ID <MandatoryInp> *</MandatoryInp>{" "}
+            </InputLabel>
             <TextInput
               id="userId"
               type="text"
@@ -122,7 +133,9 @@ export default function LoginPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <InputLabel htmlFor="password">Password</InputLabel>
+            <InputLabel htmlFor="password">
+              Password <MandatoryInp> *</MandatoryInp>
+            </InputLabel>
             <div className="relative">
               <TextInput
                 id="password"
@@ -208,17 +221,17 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="flex items-center gap-3 my-6">
+        {/* <div className="flex items-center gap-3 my-6">
           <div className="flex-1 h-px bg-slate-800" />
           <span className="text-xs text-slate-500 uppercase tracking-wider">
             or
           </span>
           <div className="flex-1 h-px bg-slate-800" />
-        </div>
+        </div> */}
 
-        <p className="text-center text-sm text-slate-400">
+        {/* <p className="text-center text-sm text-slate-400">
           Don't have an account? <Link to="/signup">Create one</Link>
-        </p>
+        </p> */}
       </FormDiv>
     </div>
   );

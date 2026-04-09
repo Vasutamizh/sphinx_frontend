@@ -66,7 +66,7 @@ export const signupFormValidator = (formData) => {
   }
 
   if (!formData.confirmPassword) {
-    errors.confirmPassword = "Password is required";
+    errors.confirmPassword = "Confirm Password is required";
   } else if (formData.password !== formData.confirmPassword) {
     errors.confirmPassword = "Password and confirm password should be same";
   }

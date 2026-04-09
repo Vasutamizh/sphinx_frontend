@@ -1,4 +1,4 @@
-import { BookOpen, Pencil, Trash2, UserPlus } from "lucide-react";
+import { BookOpen, Pencil, Trash2, UserPlus, View } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IoCreate } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -70,10 +70,23 @@ function ExamMasterPage() {
               <BlueActionLabel>Create Exam</BlueActionLabel>
             </StyledNavLink>
           </div>
+          <div>
+            <StyledNavLink as={Link} to="/allQuestions" className="edit">
+              <View size={18} strokeWidth={2.2} />
+              <BlueActionLabel>View All Questions</BlueActionLabel>
+            </StyledNavLink>
+          </div>
         </SubContainer>
       </ExamContainer>
 
       <StyledH2>Available exam</StyledH2>
+      {examList.length === 0 && (
+        <div className="text-center">
+          <h3>
+            No Exams are available! Please Create One using Create Exam Button!
+          </h3>
+        </div>
+      )}
       {examList.map((e) => (
         <ExamCard key={e.examId}>
           <ExamHeader>
