@@ -12,7 +12,9 @@ function ExamQuestionsPage() {
 
   useEffect(() => {
     const getAllExamQuestions = async () => {
-      const response = await apiGet(`/exam/getAllExamQuestions?examId=${exam.examId}`);
+      const response = await apiGet(
+        `/exam/getAllExamQuestions?examId=${exam.examId}`,
+      );
       if (response.responseMessage === "success") {
         setExamQuestions(response.data || []);
         successToast(response.successMessage);
