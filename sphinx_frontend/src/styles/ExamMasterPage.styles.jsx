@@ -88,7 +88,6 @@ export const ExamContainer = styled.div`
   background-color: #ffffff;
   padding: 0.7rem;
   border-radius: 1rem;
-  margin: 2rem;
   text-align: center;
   align-items: center;
   padding-left: 2rem;

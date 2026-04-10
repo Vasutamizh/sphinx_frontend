@@ -22,8 +22,6 @@ export default function TopicModal({ isOpen, onSave, onClose }) {
     onClose();
   };
 
-  console.log("Modal rendered");
-
   return (
     <Dialog.Root open={isOpen}>
       <Dialog.Portal>

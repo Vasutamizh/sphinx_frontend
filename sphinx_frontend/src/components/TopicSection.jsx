@@ -116,9 +116,7 @@ function TopicSection({ examId, noOfQuestions }) {
     };
     const response = await apiPut("/exam/topics", payload);
     if (response.responseMessage === "success") {
-      successToast(response.successMessage || "Topic updated.", {
-        position: "top-right",
-      });
+      successToast(response.successMessage || "Topic updated.");
       setExamTopics((prev) =>
         prev.map((t) => (t.topicId === selectedTopicId ? payload : t)),
       );
