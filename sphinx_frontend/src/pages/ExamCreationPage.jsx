@@ -40,7 +40,6 @@ function ExamCreationPage() {
 
   console.log("partyId => ", partyId);
 
-  // Load exam data in update mode
   useEffect(() => {
     if (!isUpdateMode) return;
 
@@ -161,7 +160,7 @@ function ExamCreationPage() {
         <br />
 
         <BlackInputLabel htmlFor="description">
-          Exam Description
+          Exam Description <MandatoryInp>*</MandatoryInp>
         </BlackInputLabel>
         <TextArea
           id="description"

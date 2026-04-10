@@ -41,6 +41,7 @@ function TopicSection({ examId, noOfQuestions }) {
       const response = await apiGet(`/exam/topics/${examId}`);
       if (response.responseMessage === "success") {
         const data = response.examTopicList;
+        console.log(data);
 
         setExamTopics(response.examTopicList);
       } else {
@@ -79,7 +80,7 @@ function TopicSection({ examId, noOfQuestions }) {
       topicId: selectedTopicId,
       topicName: selectedTopicName,
       percentage,
-      passPercentage,
+      topicPassPercentage: passPercentage,
     };
     const response = await apiPost("/exam/topics", payload);
     if (response.responseMessage === "success") {
@@ -112,7 +113,7 @@ function TopicSection({ examId, noOfQuestions }) {
       topicId: selectedTopicId,
       topicName: selectedTopicName,
       percentage,
-      passPercentage,
+      topicPassPercentage: passPercentage,
     };
     const response = await apiPut("/exam/topics", payload);
     if (response.responseMessage === "success") {
@@ -132,7 +133,7 @@ function TopicSection({ examId, noOfQuestions }) {
     setSelectedTopicId(topic.topicId);
     setSelectedTopicName(topic.topicName);
     setPercentage(topic.percentage);
-    setPassPercentage(topic.passPercentage);
+    setPassPercentage(topic.topicPassPercentage);
     setTopicError({});
   };
 
@@ -191,9 +192,6 @@ function TopicSection({ examId, noOfQuestions }) {
                 </option>
               ))}
             </StyledSelect>
-            {topicError.selectedTopicId && (
-              <FormErrorMessage>{topicError.selectedTopicId}</FormErrorMessage>
-            )}
           </div>
 
           <div style={{ width: "140px" }}>
@@ -209,9 +207,6 @@ function TopicSection({ examId, noOfQuestions }) {
               onChange={(e) => setPercentage(e.target.value)}
               placeholder="e.g. 40"
             />
-            {topicError.percentage && (
-              <FormErrorMessage>{topicError.percentage}</FormErrorMessage>
-            )}
           </div>
 
           <div style={{ width: "140px" }}>
@@ -234,10 +229,10 @@ function TopicSection({ examId, noOfQuestions }) {
               type="submit"
               disabled={isTopicLoading}
               className="mt-2 py-3 px-4 rounded-xl text-sm font-semibold text-white
-                         bg-gradient-to-r from-indigo-600 to-violet-600
-                         hover:from-indigo-500 hover:to-violet-500
-                         active:scale-[0.98] transition-all duration-200
-                         disabled:opacity-60 disabled:cursor-not-allowed"
+                   bg-gradient-to-r from-indigo-600 to-violet-600
+                   hover:from-indigo-500 hover:to-violet-500
+                   active:scale-[0.98] transition-all duration-200
+                   disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {editTopicId ? "Save Changes" : "+ Add Topic"}
             </button>
@@ -246,14 +241,35 @@ function TopicSection({ examId, noOfQuestions }) {
                 type="button"
                 onClick={resetTopicForm}
                 className="mt-2 py-3 px-4 rounded-xl text-sm font-semibold
-                           border border-gray-300 hover:bg-gray-100
-                           active:scale-[0.98] transition-all duration-200"
+                     border border-gray-300 hover:bg-gray-100
+                     active:scale-[0.98] transition-all duration-200"
               >
                 Cancel
               </button>
             )}
           </div>
         </div>
+
+        {(topicError.selectedTopicId || topicError.percentage) && (
+          <div className="flex gap-3" style={{ marginTop: "4px" }}>
+            <div style={{ flex: 1 }}>
+              {topicError.selectedTopicId && (
+                <FormErrorMessage>
+                  {topicError.selectedTopicId}
+                </FormErrorMessage>
+              )}
+            </div>
+            <div style={{ width: "140px" }}>
+              {topicError.percentage && (
+                <FormErrorMessage>{topicError.percentage}</FormErrorMessage>
+              )}
+            </div>
+            <div style={{ width: "140px" }} />
+            <div style={{ display: "flex", gap: "8px", visibility: "hidden" }}>
+              <button className="py-3 px-4 text-sm">placeholder</button>
+            </div>
+          </div>
+        )}
       </form>
 
       {examTopics.length > 0 ? (
@@ -305,7 +321,7 @@ function TopicSection({ examId, noOfQuestions }) {
                   <StyledSpan>{topic.percentage}%</StyledSpan>
                 </td>
                 <td style={{ padding: "10px 12px" }}>
-                  <StyledSpan>{topic.passPercentage}</StyledSpan>
+                  <StyledSpan>{topic.topicPassPercentage}</StyledSpan>
                 </td>
 
                 <td
