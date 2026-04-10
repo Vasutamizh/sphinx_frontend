@@ -77,8 +77,10 @@ function ManageQuestions() {
 
       const response = await apiPost("/questions/getAllQuestions", {
         viewIndex: nextPageNumber.current,
-        questionDetailFilter,
         viewSize,
+        topicIds: topicFilter,
+        questionTypes: typeFilter,
+        questionDetailFilter,
       });
       if (isError(response)) {
         failureToast(
@@ -105,11 +107,10 @@ function ManageQuestions() {
     setDebounceLoading(true);
     const debouncesLoadData = setTimeout(() => {
       loadQuestions();
-      console.log("Debounced Value => ", questionDetailFilter);
     }, 2000);
 
     return () => clearTimeout(debouncesLoadData);
-  }, [questionDetailFilter, rowsPerPage]);
+  }, [questionDetailFilter, rowsPerPage, topicFilter, typeFilter]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -194,6 +195,37 @@ function ManageQuestions() {
     }
   };
 
+  useEffect(() => {
+    console.log("topicFilter => ", topicFilter);
+    console.log("typeFilter => ", typeFilter);
+  }, [topicFilter, typeFilter]);
+
+  const handleSelect = (type, value) => {
+    console.log("type => ", type, "value => ", value);
+    if (type === "topic") {
+      if (topicFilter.includes(value)) {
+        setTopicFilter((prev) => prev.filter((t) => t !== value));
+      } else {
+        setTopicFilter((prev) => [...prev, value]);
+      }
+      // setTopicFilter((prev) => {
+      //   if (prev.includes(value)) {
+      //     return prev.filter((t) => t !== value);
+      //   } else {
+      //     return [...prev, value];
+      //   }
+      // });
+    } else {
+      setTypeFilter((prev) => {
+        if (prev.includes(value)) {
+          return prev.filter((t) => t !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
+    }
+  };
+
   return (
     <div>
       <ConfimationModal
@@ -263,11 +295,15 @@ function ManageQuestions() {
                                 key={topic.topicId}
                                 value={topic.topicName}
                                 onSelect={(changedValue) => {
-                                  setTopicFilter(changedValue);
-                                  // setTopicfilterOpen(false);
+                                  handleSelect("topic", topic.topicId);
                                 }}
                               >
-                                <Checkbox />
+                                <Checkbox
+                                  checked={topicFilter.includes(topic.topicId)}
+                                  // onCheckedChange={(checkedValue) =>
+                                  //   handleSelect("topic", topic.topicId)
+                                  // }
+                                />
                                 {topic.topicName}
                               </CommandItem>
                             );
@@ -305,10 +341,15 @@ function ManageQuestions() {
                               key={type.id}
                               value={type.name}
                               onSelect={(changedValue) => {
-                                setTypeFilter(changedValue);
-                                setTypefilterOpen(false);
+                                handleSelect("type", type.id);
                               }}
                             >
+                              <Checkbox
+                                checked={typeFilter.includes(type.id)}
+                                // onCheckedChange={(checkedValue) =>
+                                //   handleSelect("type", type.id)
+                                // }
+                              />
                               {type.name}
                             </CommandItem>
                           );
