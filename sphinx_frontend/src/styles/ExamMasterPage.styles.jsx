@@ -87,11 +87,21 @@ export const ExamContainer = styled.div`
   justify-content: space-between;
   background-color: #ffffff;
   padding: 0.7rem;
-  border-radius: 1rem;
-  margin: 2rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  margin-top: 2rem;
   text-align: center;
   align-items: center;
   padding-left: 2rem;
+  width: 100%;
+`;
+export const Header = styled.div`
+  background: #f7f6f3;
+  padding: 0.9rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  justify-content: space-between;
 `;
 export const SubContainer = styled.div`
   display: flex;
@@ -124,12 +134,12 @@ export const RedActionLabel = styled.span`
 
 export const ExamCard = styled.div`
   background: #ffffff;
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin-bottom: 16px;
+  padding: 0.8rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transition: all 0.25s ease;
-
+  border-bottom: 1px black solid;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -154,12 +164,12 @@ export const ExamTitle = styled.h3`
 
 export const Actions = styled.div`
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 1px;
 `;
 
 export const ActionItem = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 6px;
 
@@ -171,8 +181,8 @@ export const ActionItem = styled.div`
 `;
 
 export const ActionButton = styled.div`
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -181,27 +191,17 @@ export const ActionButton = styled.div`
   transition: all 0.2s ease;
 
   &.edit {
-    background: #e0f2fe;
-    color: #0284c7;
+    background: white;
+    color: black;
 
     &:hover {
-      background: #0284c7;
-      color: white;
-    }
-  }
-
-  &.topics {
-    background: #dcfce7;
-    color: #16a34a;
-
-    &:hover {
-      background: #16a34a;
+      background: black;
       color: white;
     }
   }
 
   &.delete {
-    background: #fee2e2;
+    
     color: #dc2626;
 
     &:hover {
@@ -209,4 +209,12 @@ export const ActionButton = styled.div`
       color: white;
     }
   }
+`;
+
+export const Tile = styled.div`
+  height: 10rem;
+  width: 20rem;
+  border-radius: 0.8rem;
+  background: #ffffff;
+  text-align: center;
 `;
