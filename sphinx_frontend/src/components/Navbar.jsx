@@ -19,13 +19,13 @@ function Navbar() {
   const menuItems = [
     { name: "Dashboard", path: "/" },
     // { name: "Questions", path: "/questions" },
-    { name: "Add Questions", path: "/addQuestion" },
-    { name: "Manage Questions", path: "/uploadQuestions" },
+    // { name: "Add Questions", path: "/addQuestion" },
+    { name: "Manage Questions", path: "/manageQuestions" },
     { name: "Manage Assignments", path: "/createExam" },
     // { name: "Exam Master", path: "/exammaster" },
     { name: "Manage Users", path: "/userMaster" },
-    { name: "Exam Wise Users", path: "/examWiseUsers" },
-    { name: "User Wise Exams", path: "/userWiseExams" },
+    // { name: "Exam Wise Users", path: "/examWiseUsers" },
+    // { name: "User Wise Exams", path: "/userWiseExams" },
     { name: "Logout", path: "/logout" },
   ];
 

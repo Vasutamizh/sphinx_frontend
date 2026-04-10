@@ -288,8 +288,9 @@ export const LayoutContainer = styled.div`
 `;
 
 export const LayoutContentContainer = styled.div`
-  max-width: 900px;
-  margin: 20px auto;
+  max-width: 1000px;
+  // margin: 20px auto;
+  flex: 3;
 `;
 
 export const HelperText = styled.div`

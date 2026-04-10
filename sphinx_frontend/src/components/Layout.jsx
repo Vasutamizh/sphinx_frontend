@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import {
   LayoutContainer,
@@ -7,11 +10,24 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 
 function Layout({ children }) {
+  const navigate = useNavigate();
   return (
     <LayoutContainer>
       <Navbar />
       <Toaster />
-      <LayoutContentContainer>{children}</LayoutContentContainer>
+      <div className="mt-5 grid gap-3 grid-cols-[1fr_10fr]">
+        <div className="mt-3 flex justify-end">
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeft size={20} />{" "}
+            <span className="font-semibold text-md">Back</span>
+          </Button>
+        </div>
+        <LayoutContentContainer>{children}</LayoutContentContainer>
+      </div>
       <Footer />
     </LayoutContainer>
   );

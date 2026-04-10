@@ -65,10 +65,10 @@ function AddQuestionPage() {
       const res = await apiPost("/questions", payload);
 
       if (res.responseMessage === "success") {
-        successToast(res.successMessage);
+        successToast(res.successMessage || "Question Created Successfully!");
         resetForm();
       } else {
-        failureToast(res.errorMessage);
+        failureToast(res.errorMessage || "Failed to create Question!");
       }
     } catch {
       failureToast("Something went wrong");

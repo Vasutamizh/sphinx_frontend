@@ -1,4 +1,4 @@
-import { StyledButton } from "../../styles/common.styles";
+import { Button } from "@/components/ui/button";
 import Modal from "../Modal";
 
 function ConfimationModal({ isOpen, onClose, onOk, onCancel, message }) {
@@ -7,19 +7,19 @@ function ConfimationModal({ isOpen, onClose, onOk, onCancel, message }) {
       isOpen={isOpen}
       onClose={onClose}
       title={"Confirmation Required!"}
-      subtitle={"You are Performing a Critical Operation!"}
+      subtitle={"You are Performing a Critical Operation and can't be undone!"}
       type={"warning"}
       size={"80%"}
     >
       <div className="text-center flex flex-col items-center">
         <span className="font-bold text-md">{message}</span>
         <div className="flex gap-10 my-5">
-          <StyledButton type="button" onClick={onOk}>
+          <Button size="lg" type="button" onClick={onOk}>
             Yes Proceed!
-          </StyledButton>
-          <StyledButton type="button" onClick={onCancel}>
+          </Button>
+          <Button size="lg" variant="outline" type="button" onClick={onCancel}>
             Cancel
-          </StyledButton>
+          </Button>
         </div>
       </div>
     </Modal>

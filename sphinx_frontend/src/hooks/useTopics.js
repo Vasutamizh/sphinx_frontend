@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { apiGet, apiPost } from "../services/ApiService";
+import { failureToast, successToast } from "../utils/toast";
 
 export const useTopics = () => {
   const [topics, setTopics] = useState([]);
@@ -33,9 +34,9 @@ export const useTopics = () => {
         ...prev,
         { topicId: res.topicId, topicName: res.topicName },
       ]);
-      toast.success(res.successMessage);
+      successToast(res.successMessage);
     } else {
-      toast.error(res.errorMessage);
+      failureToast(res.errorMessage);
     }
   };
 

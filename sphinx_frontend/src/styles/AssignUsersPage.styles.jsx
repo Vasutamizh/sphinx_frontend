@@ -57,7 +57,6 @@ export const Wrapper = styled.div`
 /** Card that houses the table */
 export const TableCard = styled.div`
   width: 100%;
-  max-width: 900px;
   background: ${tokens.surface};
   border-radius: ${tokens.radiusLg};
   border: 1px solid ${tokens.border};

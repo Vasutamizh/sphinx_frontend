@@ -201,7 +201,6 @@ export const ActionButton = styled.div`
   }
 
   &.delete {
-    
     color: #dc2626;
 
     &:hover {
