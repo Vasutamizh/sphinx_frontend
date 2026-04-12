@@ -1,10 +1,13 @@
 import {
   BookOpen,
-  MoreVertical,
   Pencil,
   Trash2,
   UserPlus,
   View,
+  ShieldCheck,
+  BarChart3,
+  Users,
+  Layers,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IoCreate } from "react-icons/io5";
@@ -12,23 +15,38 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { apiDelete, apiGet, apiPost } from "../services/ApiService";
 import {
-  ActionButton,
-  ActionItem,
-  Actions,
-  BlueActionLabel,
-  ExamCard,
+  Wrapper,
+  TableCard,
+  TableScrollWrapper,
+  StyledTable,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  IconButton,
+  ActionRow,
+  EmptyState,
+  AddButton,
+} from "../styles/AssignUsersPage.styles";
+import {
   ExamContainer,
-  ExamHeader,
-  ExamTitle,
-  Header,
-  StyledH2,
-  StyledNavLink,
   SubContainer,
-  Tile,
+  StyledNavLink,
+  BlueActionLabel,
+  StatsWrapper,
+  StatsCard,
+  StatsHeader,
+  StatsIcon,
+  StatsTitle,
+  StatsValue,
 } from "../styles/ExamMasterPage.styles";
-import { failureToast, successToast } from "../utils/toast";
+
 import DeleteExamModal from "../components/Modal_Components/DeleteExamModal";
-import { TbTooltip } from "react-icons/tb";
+import { failureToast, successToast } from "../utils/toast";
 
 function ExamMasterPage() {
   const partyId = useSelector((state) => state.auth.partyId);
@@ -39,226 +57,204 @@ function ExamMasterPage() {
   const [examCount, setExamCount] = useState(0);
   const [topicCount, setTopicCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
-  const [toolTip, setToolTip] = useState(false);
+
+  useEffect(() => {
+    getAllExam();
+    getCounts();
+  }, []);
+
+  const getAllExam = async () => {
+    const response = await apiPost("/exam/getAllExamsByAdmin", { partyId });
+    if (response.responseMessage === "success") {
+      setExamList(response.data);
+    } else {
+      failureToast(response.errorMessage || response.error);
+    }
+  };
+
+  const getCounts = async () => {
+    const examRes = await apiPost("/exam/examCount", { partyId });
+    if (examRes.responseMessage === "success") {
+      setExamCount(examRes.count);
+    }
+
+    const topicRes = await apiGet("/topics/getTopicCount");
+    if (topicRes.responseMessage === "success") {
+      setTopicCount(topicRes.count);
+    }
+
+    const userRes = await apiGet("/auth/getAllUsersCount");
+    if (userRes.responseMessage === "success") {
+      setUsersCount(userRes.count);
+    }
+  };
 
   const openDeleteModal = (examId) => {
     setSelectedExamId(examId);
     setIsDeleteModalOpen(true);
   };
+
   const closeDeleteModal = () => {
     setSelectedExamId(null);
     setIsDeleteModalOpen(false);
   };
+
   const handleDeleteSuccess = (examId) => {
     setExamList((prev) => prev.filter((e) => e.examId !== examId));
   };
 
-  useEffect(() => {
-    getAllExam();
-  }, []);
-
-  const getAllExam = async () => {
-    if (!partyId) {
-      failureToast(
-        "Seems to be Issue in your Sign In! Please make Sign Out and Sign In again!",
-      );
-    }
-    const response = await apiPost("/exam/getAllExamsByAdmin", { partyId });
-    if (response.responseMessage === "success") {
-      setExamList(response.data);
-    } else {
-      failureToast(response.errorMessage || response.error || response.message);
-    }
-  };
-  const totalExamCount = examList.length;
-
-  const deleteExam = async (examId) => {
-    const response = await apiDelete("/exam", { examId });
-    if (response.responseMessage && response.responseMessage === "success") {
-      successToast(response.successMessage);
-      setExamList((prev) => prev.filter((e) => e.examId !== examId));
-    } else {
-      failureToast(response.errorMessage || "Failed to delete exam");
-    }
-  };
-  useEffect(() => {
-    const adminExamListCount = async () => {
-      const response = await apiPost("/exam/examCount", { partyId });
-      if (response.responseMessage && response.responseMessage === "success") {
-        successToast(response.successMessage);
-        setExamCount(response.count);
-      } else {
-        failureToast(response.errorMessage);
-      }
-    };
-    adminExamListCount();
-  }, []);
-
-  useEffect(() => {
-    const topicListCount = async () => {
-      const response = await apiGet("/topics/getTopicCount");
-      if (response.responseMessage && response.responseMessage === "success") {
-        successToast(response.successMessage);
-        setTopicCount(response.count);
-      } else {
-        failureToast(response.errorMessage);
-      }
-    };
-    topicListCount();
-  }, []);
-
-  useEffect(() => {
-    const getAllUserCount = async () => {
-      const response = await apiGet("/auth/getAllUsersCount");
-      if (response.responseMessage && response.responseMessage === "succcess") {
-        successToast(response.successMessage);
-        setUsersCount(response.count);
-      } else {
-        failureToast(response.errorMessage);
-      }
-    };
-    getAllUserCount();
-  }, []);
-  let count = 0;
   return (
     <>
-      <div className="flex gap-5">
-        <Tile>
-          <b>Total Assessments</b>
-          <h1>{examCount}</h1>
-        </Tile>
-        <Tile>
-          <b>Total Users</b>
-          <h1>{usersCount}</h1>
-          <h1></h1>
-        </Tile>
-        <Tile>
-          <b>Total Topics</b>
-          <h1>{topicCount}</h1>
-        </Tile>
-        <Tile>
-          <b>Launched Assessments</b>
-        </Tile>
-      </div>
-      <ExamContainer>
-        Available Assessments
-        <SubContainer>
-          <div>
-            <StyledNavLink
-              as={Link}
-              to="/createExam"
-              className="edit"
-              title="Update Exam"
-            >
-              <IoCreate size={18} strokeWidth={2.2} />
-              <BlueActionLabel>Create Exam</BlueActionLabel>
-            </StyledNavLink>
-          </div>
-          <div>
-            <StyledNavLink as={Link} to="/allQuestions" className="edit">
-              <View size={18} strokeWidth={2.2} />
-              <BlueActionLabel>View All Questions</BlueActionLabel>
-            </StyledNavLink>
-          </div>
-        </SubContainer>
-      </ExamContainer>
-      <Header>
-        <p>S.No</p>
-        <p>Name</p>
-        <p>Duration(min)</p>
-        <p>Total Questions</p>
-        <p>Pass %</p>
-        <p>Actions</p>
-      </Header>
-      {examList.length === 0 && (
-        <div className="text-center">
-          <h3>
-            No Exams are available! Please Create One using Create Exam Button!
-          </h3>
-        </div>
-      )}
-      {examList.map((e) => (
-        <ExamCard key={e.examId}>
-          <ExamHeader>
-            <p>{++count}</p>
-            {/* <ExamTitle>{e.examName}</ExamTitle> */}
-          </ExamHeader>
-          <ExamHeader>
-            <p>{e.examName}</p>
-            {/* <ExamTitle>{e.examName}</ExamTitle> */}
-          </ExamHeader>
-          <ExamHeader>
-            <ExamTitle>{e.duration}</ExamTitle>
-          </ExamHeader>
-          <ExamHeader>
-            <ExamTitle>{e.noOfQuestions}</ExamTitle>
-          </ExamHeader>
-          <ExamHeader>
-            <ExamTitle>{e.passPercentage}</ExamTitle>
-          </ExamHeader>
+      <StatsWrapper>
+        <StatsCard color="#4F46E5">
+          <StatsHeader>
+            <StatsIcon color="#4F46E5" bg="#EEF2FF">
+              <BarChart3 size={20} />
+            </StatsIcon>
+          </StatsHeader>
+          <StatsTitle>Total Assessments</StatsTitle>
+          <StatsValue>{examCount}</StatsValue>
+        </StatsCard>
 
-          <ExamHeader>
-            <button
-              onClick={() => setToolTip(!toolTip)}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              title="Actions"
-            >
-              <MoreVertical size={20} />
-            </button>
-          </ExamHeader>
-          {toolTip && (
-            <div className="absolute right-0 bottom-full mb-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
-              <Actions>
-                <ActionItem>
-                  <ActionButton
-                    as={Link}
-                    to="/assignUsers"
-                    className="edit"
-                    state={{ exam: e }}
-                  >
-                    <UserPlus size={13} />
-                  </ActionButton>
-                  <span>Assign</span>
-                </ActionItem>
+        <StatsCard color="#059669">
+          <StatsHeader>
+            <StatsIcon color="#059669" bg="#ECFDF5">
+              <Users size={20} />
+            </StatsIcon>
+          </StatsHeader>
+          <StatsTitle>Total Users</StatsTitle>
+          <StatsValue>{usersCount}</StatsValue>
+        </StatsCard>
 
-                <ActionItem>
-                  <ActionButton
-                    as={Link}
-                    to="/createExam"
-                    state={{ exam: e }}
-                    className="edit"
-                  >
-                    <Pencil size={13} />
-                  </ActionButton>
-                  <span>Edit</span>
-                </ActionItem>
+        <StatsCard color="#D97706">
+          <StatsHeader>
+            <StatsIcon color="#D97706" bg="#FFFBEB">
+              <Layers size={20} />
+            </StatsIcon>
+          </StatsHeader>
+          <StatsTitle>Total Topics</StatsTitle>
+          <StatsValue>{topicCount}</StatsValue>
+        </StatsCard>
 
-                <ActionItem>
-                  <ActionButton
-                    className="edit"
-                    as={Link}
-                    to="/ExamQuestions"
-                    state={{ exam: e }}
-                  >
-                    <BookOpen size={13} />
-                  </ActionButton>
-                  <span>Questions</span>
-                </ActionItem>
+        <StatsCard color="#DC2626">
+          <StatsHeader>
+            <StatsIcon color="#DC2626" bg="#FEF2F2">
+              <BookOpen size={20} />
+            </StatsIcon>
+          </StatsHeader>
+          <StatsTitle>Launched Assessments</StatsTitle>
+          <StatsValue>{examList.length}</StatsValue>
+        </StatsCard>
+      </StatsWrapper>
 
-                <ActionItem>
-                  <ActionButton
-                    className="delete"
-                    onClick={() => openDeleteModal(e.examId)}
-                  >
-                    <Trash2 size={13} />
-                  </ActionButton>
-                  <span>Delete</span>
-                </ActionItem>
-              </Actions>
-            </div>
-          )}
-        </ExamCard>
-      ))}
+      <Wrapper>
+        <TableCard>
+          <CardHeader>
+            <CardTitle>
+              <ShieldCheck size={18} />
+              Available Assessments
+            </CardTitle>
+            <SubContainer>
+              <StyledNavLink as={Link} to="/createExam" className="edit">
+                <IoCreate size={18} />
+                <BlueActionLabel>Create Exam</BlueActionLabel>
+              </StyledNavLink>
+
+              <StyledNavLink as={Link} to="/allQuestions" className="edit">
+                <View size={18} />
+                <BlueActionLabel>View All Questions</BlueActionLabel>
+              </StyledNavLink>
+            </SubContainer>
+          </CardHeader>
+
+          <TableScrollWrapper>
+            <StyledTable>
+              <THead>
+                <Tr>
+                  <Th>S.No</Th>
+                  <Th>Exam Name</Th>
+                  <Th>Duration (min)</Th>
+                  <Th>Total Questions</Th>
+                  <Th>Pass %</Th>
+                  <Th $align="center">Actions</Th>
+                </Tr>
+              </THead>
+
+              <TBody>
+                {examList.length === 0 ? (
+                  <Tr>
+                    <Td colSpan="6">
+                      <EmptyState>
+                        No Exams Available. Click "Create Exam" to add one.
+                      </EmptyState>
+                    </Td>
+                  </Tr>
+                ) : (
+                  examList.map((exam, index) => (
+                    <Tr key={exam.examId} $index={index}>
+                      <Td>{index + 1}</Td>
+                      <Td>{exam.examName}</Td>
+                      <Td>{exam.duration}</Td>
+                      <Td>{exam.noOfQuestions}</Td>
+                      <Td>{exam.passPercentage}%</Td>
+                      <Td $align="center">
+                        <ActionRow>
+                          <IconButton
+                            as={Link}
+                            to="/assignUsers"
+                            state={{ exam }}
+                            $variant="edit"
+                            title="Assign Users"
+                          >
+                            <UserPlus size={16} />
+                          </IconButton>
+
+                          <IconButton
+                            as={Link}
+                            to="/createExam"
+                            state={{ exam }}
+                            $variant="edit"
+                            title="Edit Exam"
+                          >
+                            <Pencil size={16} />
+                          </IconButton>
+
+                          <IconButton
+                            as={Link}
+                            to="/ExamQuestions"
+                            state={{ exam }}
+                            $variant="edit"
+                            title="View Questions"
+                          >
+                            <BookOpen size={16} />
+                          </IconButton>
+
+                          <IconButton
+                            onClick={() => openDeleteModal(exam.examId)}
+                            $variant="delete"
+                            title="Delete Exam"
+                          >
+                            <Trash2 size={16} />
+                          </IconButton>
+                        </ActionRow>
+                      </Td>
+                    </Tr>
+                  ))
+                )}
+              </TBody>
+            </StyledTable>
+          </TableScrollWrapper>
+
+          <CardFooter>
+            <span>
+              {examList.length} exam
+              {examList.length !== 1 ? "s" : ""} available
+            </span>
+          </CardFooter>
+        </TableCard>
+      </Wrapper>
+
+      {/* Delete Modal */}
       <DeleteExamModal
         open={isDeleteModalOpen}
         onClose={closeDeleteModal}

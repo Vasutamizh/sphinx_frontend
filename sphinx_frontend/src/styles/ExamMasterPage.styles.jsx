@@ -191,7 +191,6 @@ export const ActionButton = styled.div`
   transition: all 0.2s ease;
 
   &.edit {
-    background: white;
     color: black;
 
     &:hover {
@@ -201,6 +200,7 @@ export const ActionButton = styled.div`
   }
 
   &.delete {
+    background: #dc2626;
     color: #dc2626;
 
     &:hover {
@@ -210,10 +210,68 @@ export const ActionButton = styled.div`
   }
 `;
 
-export const Tile = styled.div`
-  height: 10rem;
-  width: 20rem;
-  border-radius: 0.8rem;
-  background: #ffffff;
-  text-align: center;
+export const StatsWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+  margin: 24px 0;
+`;
+
+export const StatsCard = styled.div`
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease-in-out;
+  position: relative;
+  overflow: hidden;
+
+  /* Top Accent Line */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: ${({ color }) => color || "#4f46e5"};
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+export const StatsHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const StatsIcon = styled.div`
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: ${({ bg }) => bg || "#eef2ff"};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ color }) => color || "#4f46e5"};
+`;
+
+export const StatsTitle = styled.p`
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 12px 0 4px 0;
+`;
+
+export const StatsValue = styled.h2`
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.5px;
 `;
