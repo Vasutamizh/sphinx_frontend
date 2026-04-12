@@ -160,7 +160,7 @@ export default function AssignUsers() {
       })),
     };
 
-    console.log("Final Payload:", payload);
+    // console.log("Final Payload:", payload);
 
     const response = await apiPost("/exam/assignUser", payload);
 
@@ -176,7 +176,7 @@ export default function AssignUsers() {
 
   const onSuccessUpdate = (userWithFLag) => {
     const { user, flag } = userWithFLag;
-    console.log(userWithFLag);
+    // console.log(userWithFLag);
     if (!user || !flag) return;
     // on success API call.
     if (flag === "AU") {

@@ -9,7 +9,7 @@ function ExamQuestionsPage() {
 
   const location = useLocation();
   const exam = location.state?.exam;
-  console.log(exam.examId);
+  // console.log(exam.examId);
   if (!exam) return;
 
   useEffect(() => {

@@ -7,7 +7,7 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function FillUpQuestionForm({ answerValue, updateState, errors }) {
+function FillUpQuestionForm({ answer, errors, storeAnswer }) {
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
@@ -19,8 +19,10 @@ function FillUpQuestionForm({ answerValue, updateState, errors }) {
           Correct Answer <MandatoryInp>*</MandatoryInp>
         </label>
         <TextInput
-          value={answerValue}
-          onChange={(e) => updateState("answerValue", e.target.value)}
+          value={answer["FILL_UP"]}
+          onChange={(e) => {
+            storeAnswer("FILL_UP", e.target.value);
+          }}
           placeholder="Enter correct answer"
         />
         {errors.answerValue && (

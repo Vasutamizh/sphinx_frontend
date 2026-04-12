@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import DescriptiveQuestionForm from "../components/DescriptiveQuestionForm";
 import FillUpQuestionForm from "../components/FillUpQuestionForm";
 import MultipleChoicQuestionForm from "../components/MultipleChoicQuestionForm";
@@ -6,9 +7,8 @@ import SingleChoiceQuestionForm from "../components/SingleChoiceQuestionForm";
 import ButtonWithLoading from "../components/StyledButton";
 import TopicModal from "../components/TopicFormModal";
 import TrueFalseQuestionForm from "../components/TrueFalseQuestionForm";
-import { useQuestionForm } from "../hooks/useQuestionForm";
 import { useTopics } from "../hooks/useTopics";
-import { apiPost } from "../services/ApiService";
+import { apiPost, apiPut, isError } from "../services/ApiService";
 import {
   BlackInputLabel,
   Form,
@@ -22,16 +22,95 @@ import {
   StyledSelect,
   TextInput,
 } from "../styles/common.styles";
-import { useQuestionConfig } from "../utils/questionConfig";
+import {
+  DEFAULT_OPTIONS_COUNT,
+  useQuestionConfig,
+} from "../utils/questionConfig";
 import { failureToast, successToast } from "../utils/toast";
+import { validateQuestionForm } from "../utils/ValidateQuestionForm";
 
 function AddQuestionPage() {
+  const location = useLocation();
+
+  const questionForUpdate = location.state;
+
+  // console.log("Question => ", questionForUpdate);
+
   const [loading, setLoading] = useState(false);
-  const { state, update, computedAnswer, validate, resetForm } =
-    useQuestionForm();
+  const [state, setState] = useState({
+    questionDetail: questionForUpdate?.questionDetail || "",
+    currentTab: questionForUpdate?.questionType || "",
+    selectedTopic: questionForUpdate?.topicId || "",
+    difficultyLevel: questionForUpdate?.difficultyLevel || "Easy",
+    options:
+      Array(
+        questionForUpdate?.optionA,
+        questionForUpdate?.optionB,
+        questionForUpdate?.optionC,
+        questionForUpdate?.optionD,
+      ) || Array(DEFAULT_OPTIONS_COUNT).fill(""),
+    errors: {},
+  });
+
+  const [answer, setAnswer] = useState({
+    SINGLE_CHOICE: "",
+    MULTIPLE_CHOICE: "",
+    FILL_UP: "",
+    TRUE_FALSE: "",
+    DETAILED_ANSWER: "",
+  });
+
+  const storeAnswer = (key, value) => {
+    answer[key] = value;
+    // const newObj = { ...answer, key: value };
+    // setAnswer(newObj);
+    setAnswer((prev) => {
+      prev[key] = value;
+      return { ...prev };
+    });
+  };
+
+  const update = (key, value) => {
+    setState((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const validate = () => {
+    const errors = validateQuestionForm(state, answer);
+    update("errors", errors);
+    // console.log("Errors => ", errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const resetForm = () => {
+    setState({
+      questionDetail: "",
+      currentTab: "",
+      selectedTopic: "",
+      difficultyLevel: "Easy",
+      options: Array(DEFAULT_OPTIONS_COUNT).fill(""),
+      answerValue: "",
+      errors: {},
+    });
+
+    setAnswer({
+      SINGLE_CHOICE: "",
+      MULTIPLE_CHOICE: "",
+      FILL_UP: "",
+      TRUE_FALSE: "",
+      DETAILED_ANSWER: "",
+    });
+  };
 
   useEffect(() => {
     update("errors", {});
+    if (questionForUpdate) {
+      // set Answers for Question Upadate (Not for New Questions)
+      if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
+        storeAnswer("MULTIPLE_CHOICE", questionForUpdate.answer.split(","));
+      } else {
+        storeAnswer(questionForUpdate.questionType, questionForUpdate.answer);
+      }
+    }
   }, []);
 
   const { topics, createTopic, openModal, setOpenModal } = useTopics();
@@ -41,9 +120,18 @@ function AddQuestionPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Before Validation!");
+    // console.log("Before Validation!");
     if (!validate()) return;
-    console.log("After Validation!");
+    // console.log("After Validation!");
+
+    let finalAnswer = answer[state.currentTab];
+    let numOfAnswers = 1;
+
+    if (state.currentTab === "MULTIPLE_CHOICE") {
+      numOfAnswers = finalAnswer.length;
+      finalAnswer = finalAnswer.join(",");
+    }
+
     const payload = {
       questionDetail: state.questionDetail,
       questionType: state.currentTab,
@@ -52,23 +140,34 @@ function AddQuestionPage() {
       optionB: state.options[1],
       optionC: state.options[2],
       optionD: state.options[3],
-      answer: computedAnswer,
-      numAnswers: state.selectedAnswers.length,
+      answer: finalAnswer,
+      numAnswers: numOfAnswers,
       difficultyLevel: state.difficultyLevel,
-      answerValue: computedAnswer,
+      answerValue: finalAnswer,
     };
+
+    // console.log("Payload => ", payload);
 
     update("errors", {});
 
     try {
       setLoading(true);
-      const res = await apiPost("/questions", payload);
+      let res;
 
-      if (res.responseMessage === "success") {
+      if (questionForUpdate) {
+        payload.questionId = questionForUpdate.questionId;
+        res = await apiPut("/questions", payload);
+      } else {
+        res = await apiPost("/questions", payload);
+      }
+
+      if (isError(res)) {
+        failureToast(
+          res.errorMessage || res.error || "Failed to perform action!",
+        );
+      } else {
         successToast(res.successMessage || "Question Created Successfully!");
         resetForm();
-      } else {
-        failureToast(res.errorMessage || "Failed to create Question!");
       }
     } catch {
       failureToast("Something went wrong");
@@ -76,6 +175,11 @@ function AddQuestionPage() {
       setLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   console.log("Stored Answer => ", answer);
+  // }, [answer]);
+
   return (
     <div>
       {openModal && (
@@ -175,41 +279,48 @@ function AddQuestionPage() {
           </div>
         </div>
 
-        {/* Difficulty Level */}
-
         {/* form based on the tab selection  */}
+
         {state.currentTab === "MULTIPLE_CHOICE" && (
           <MultipleChoicQuestionForm
             options={state.options}
             updateState={update}
-            selectedAnswers={state.selectedAnswers}
+            selectedAnswers={answer["MULTIPLE_CHOICE"]}
             errors={state.errors}
+            storeAnswer={storeAnswer}
           />
         )}
+
         {state.currentTab === "SINGLE_CHOICE" && (
           <SingleChoiceQuestionForm
             options={state.options}
             updateState={update}
+            answer={answer}
             errors={state.errors}
+            storeAnswer={storeAnswer}
           />
         )}
         {state.currentTab === "FILL_UP" && (
           <FillUpQuestionForm
-            answerValue={state.answerValue}
-            updateState={update}
+            answer={answer}
             errors={state.errors}
+            storeAnswer={storeAnswer}
           />
         )}
         {state.currentTab === "DETAILED_ANSWER" && (
           <DescriptiveQuestionForm
-            descriptiveAnswer={state.answerValue}
-            updateState={update}
+            answer={answer}
             errors={state.errors}
+            storeAnswer={storeAnswer}
           />
         )}
 
         {state.currentTab === "TRUE_FALSE" && (
-          <TrueFalseQuestionForm errors={state.errors} updateState={update} />
+          <TrueFalseQuestionForm
+            errors={state.errors}
+            answer={answer}
+            storeAnswer={storeAnswer}
+          />
         )}
 
         <div className="flex gap-5 mt-5">
@@ -221,7 +332,9 @@ function AddQuestionPage() {
           </StyledButton> */}
           <ButtonWithLoading
             isLoading={loading}
-            buttonText={"Add Question +"}
+            buttonText={
+              questionForUpdate !== null ? "Update Question" : "Add Question +"
+            }
             onAction={handleSubmit}
           />
           {/* <StyledButton type="button" onClick={handleSubmit}>

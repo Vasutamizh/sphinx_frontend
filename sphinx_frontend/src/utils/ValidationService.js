@@ -14,7 +14,7 @@ export const passwordValidator = (value) => {
   ) {
     return "";
   } else {
-    console.log("Password validation failed => ", value);
+    // console.log("Password validation failed => ", value);
 
     return "Password should contain 1 Uppercase, 1 Lowercase, 1 Special Character, 1 Numeric and 8-16 characters long.";
   }
@@ -117,13 +117,13 @@ export const ExamFormValidation = (formData) => {
     errors.answersMust = "Minimun Answers to attend is required";
   }
   if (Number(formData.answersMust) > Number(formData.noOfQuestions)) {
-    console.log(typeof formData.answersMust);
-    console.log(
-      "answerMust => ",
-      formData.answersMust,
-      " noOfQuestions => ",
-      formData.noOfQuestions,
-    );
+    // console.log(typeof formData.answersMust);
+    // console.log(
+    //   "answerMust => ",
+    //   formData.answersMust,
+    //   " noOfQuestions => ",
+    //   formData.noOfQuestions,
+    // );
     errors.answersMust = "Minimum answers should be less than total questions";
   }
   if (formData.allowNegativeMarks && formData.allowNegativeMarks === "1") {

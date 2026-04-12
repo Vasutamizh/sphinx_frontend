@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { apiPost } from "../services/ApiService";
 import {
   BlackInputLabel,
   ErrorBox,
@@ -8,6 +10,8 @@ import {
   TextArea,
   TextInput,
 } from "../styles/common.styles";
+import { failureToast, successToast } from "../utils/toast";
+import { ExamFormValidation } from "../utils/ValidationService";
 import TopicSection from "./TopicSection";
 
 function ExamForm() {
@@ -27,7 +31,7 @@ function ExamForm() {
 
   const location = useLocation();
   const exam = location.state?.exam;
-  console.log(exam);
+  // console.log(exam);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError({});
@@ -50,11 +54,11 @@ function ExamForm() {
     if (Object.keys(errors).length === 0) {
       const response = await apiPost("/exam", examFormData);
       if (response.responseMessage === "success") {
-        toast.success(response.successMessage, { position: "top-right" });
+        successToast(response.successMessage);
         setExamId(response.examId);
       } else {
         setResponseError(response.errorMessage);
-        toast.error(response.errorMessage, { position: "top-right" });
+        failureToast(response.errorMessage || response.error);
       }
     } else {
       setFormError(errors);

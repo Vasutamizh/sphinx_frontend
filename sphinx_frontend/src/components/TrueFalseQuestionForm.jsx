@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BlackInputLabel,
   FormErrorMessage,
@@ -8,12 +7,11 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function TrueFalseQuestionForm({ errors, updateState }) {
+function TrueFalseQuestionForm({ errors, answer, storeAnswer }) {
   const options = [
     { key: "True", value: "true" },
     { key: "False", value: "false" },
   ];
-  const [isChecked, setIsChecked] = useState("");
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
@@ -30,10 +28,9 @@ function TrueFalseQuestionForm({ errors, updateState }) {
                 value={opt.value}
                 type="radio"
                 name="singleAnswer"
-                checked={isChecked === idx}
+                checked={answer["TRUE_FALSE"] === opt.value}
                 onChange={() => {
-                  updateState("answerValue", opt.value);
-                  setIsChecked(idx);
+                  storeAnswer("TRUE_FALSE", opt.value);
                 }}
                 style={{ cursor: "pointer" }}
               />

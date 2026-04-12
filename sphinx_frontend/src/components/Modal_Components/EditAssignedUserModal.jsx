@@ -32,14 +32,14 @@ function EditAssignedUserModal({
   const udateState = (key, value) => {
     const updatedUser = { ...user };
     updatedUser[key] = value;
-    console.log("updated User => ", updatedUser);
+    // console.log("updated User => ", updatedUser);
     setUser({ user: updatedUser, flag });
   };
 
   const updateUser = async () => {
     if (flag === "AU") {
       if (!examId) {
-        console.log("Exam Details Missing!");
+        // console.log("Exam Details Missing!");
         return;
       }
       // api call here

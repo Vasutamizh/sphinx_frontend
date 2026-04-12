@@ -14,15 +14,24 @@ function MultipleChoicQuestionForm({
   updateState,
   selectedAnswers,
   errors,
+  storeAnswer,
 }) {
+  const idxIdentifier = {
+    0: "A",
+    1: "B",
+    2: "C",
+    3: "D",
+  };
   const handleCheck = (idx) => {
     let newAnswers = [];
-    if (selectedAnswers.includes(idx)) {
-      newAnswers = selectedAnswers.filter((i) => i !== idx);
+    let answer = idxIdentifier[idx];
+    if (selectedAnswers.includes(answer)) {
+      newAnswers = selectedAnswers.filter((i) => i !== answer);
     } else {
-      newAnswers = [...selectedAnswers, idx];
+      newAnswers = [...selectedAnswers, answer];
     }
     updateState("selectedAnswers", newAnswers);
+    storeAnswer("MULTIPLE_CHOICE", newAnswers);
   };
 
   // useEffect(() => {
@@ -48,7 +57,7 @@ function MultipleChoicQuestionForm({
               <input
                 type="checkbox"
                 name="check"
-                checked={selectedAnswers.includes(idx) === true}
+                checked={selectedAnswers.includes(idxIdentifier[idx])}
                 onChange={() => handleCheck(idx)}
               />
 

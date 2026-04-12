@@ -61,10 +61,9 @@ function ManageQuestions() {
 
   const { topics } = useTopics();
 
-  const [filters, setFilters] = useState({
-    topic: "",
-    questionType: "",
-  });
+  // ==========================================================================================================
+  // ================================================= Api Calls ==============================================
+  // ==========================================================================================================
 
   const loadQuestions = async () => {
     setLoading(true);
@@ -99,53 +98,6 @@ function ManageQuestions() {
     }
   };
 
-  useEffect(() => {
-    loadQuestions();
-  }, []);
-
-  useEffect(() => {
-    setDebounceLoading(true);
-    const debouncesLoadData = setTimeout(() => {
-      loadQuestions();
-    }, 2000);
-
-    return () => clearTimeout(debouncesLoadData);
-  }, [questionDetailFilter, rowsPerPage, topicFilter, typeFilter]);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const nextPage = () => {
-    if (
-      paginationInfo &&
-      paginationInfo.balanceRecord &&
-      paginationInfo.viewSize
-    ) {
-      if (paginationInfo.balanceRecord / paginationInfo.viewSize > 0) {
-        nextPageNumber.current = nextPageNumber.current + 1;
-        loadQuestions();
-      }
-    }
-  };
-
-  const prevPage = () => {
-    if (
-      paginationInfo &&
-      paginationInfo.balanceRecord &&
-      paginationInfo.viewSize
-    ) {
-      if (paginationInfo.viewIndex > 1) {
-        nextPageNumber.current = nextPageNumber.current - 1;
-        loadQuestions();
-      }
-    }
-  };
-
   const handleDelete = async () => {
     if (!selectParticulars || selectParticulars.length === 0) return;
 
@@ -164,6 +116,62 @@ function ManageQuestions() {
     setSelectAll(false);
   };
 
+  // useEffect(() => {
+  //   loadQuestions();
+  // }, []);
+
+  // Debouncing function for filter function.
+  useEffect(() => {
+    let debouncesLoadData;
+    let timeout = 2000;
+    if (
+      !questionDetailFilter &&
+      rowsPerPage === 10 &&
+      !topicFilter &&
+      !typeFilter
+    ) {
+      timeout = 0;
+    }
+    setDebounceLoading(true);
+    debouncesLoadData = setTimeout(() => {
+      loadQuestions();
+    }, timeout);
+
+    return () => clearTimeout(debouncesLoadData);
+  }, [questionDetailFilter, rowsPerPage, topicFilter, typeFilter]);
+
+  // pagination functions for next page.
+  const nextPage = () => {
+    if (
+      paginationInfo &&
+      paginationInfo.balanceRecord &&
+      paginationInfo.viewSize
+    ) {
+      if (
+        paginationInfo.balanceRecord / paginationInfo.viewSize >
+        paginationInfo.viewSize
+      ) {
+        nextPageNumber.current = nextPageNumber.current + 1;
+        loadQuestions();
+      }
+    }
+  };
+
+  // pagination functions for previours page.
+  const prevPage = () => {
+    if (
+      paginationInfo &&
+      paginationInfo.balanceRecord &&
+      paginationInfo.viewSize
+    ) {
+      if (paginationInfo.viewIndex > 1) {
+        nextPageNumber.current = nextPageNumber.current - 1;
+        loadQuestions();
+      }
+    }
+  };
+
+  // Handle function for select a single row.
   const handleParticularSelect = (checked, questionId) => {
     if (checked) {
       setSelectParticulars((prev) => {
@@ -175,16 +183,12 @@ function ManageQuestions() {
       });
     } else {
       // we are remove the question from the array, if it is unchecked
-      // console.log("Else block, selected questions ID's => ", selectParticulars);
-      // console.log("comming question Id => ", String(questionId));
-      // const filteredIds = selectParticulars.filter((q) => q !== questionId);
-      // console.log("Filtered Id's => ", filteredIds);
-      // setSelectParticulars(filteredIds);
       setSelectParticulars((prev) => prev.filter((qId) => qId !== questionId));
       setSelectAll(false);
     }
   };
 
+  // select All Function for deletion.
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectParticulars(questions.map((q) => q.questionId));
@@ -195,26 +199,15 @@ function ManageQuestions() {
     }
   };
 
-  useEffect(() => {
-    console.log("topicFilter => ", topicFilter);
-    console.log("typeFilter => ", typeFilter);
-  }, [topicFilter, typeFilter]);
-
+  // Handle functions for filters Topic filter & Type Filter.
   const handleSelect = (type, value) => {
-    console.log("type => ", type, "value => ", value);
+    // console.log("type => ", type, "value => ", value);
     if (type === "topic") {
       if (topicFilter.includes(value)) {
         setTopicFilter((prev) => prev.filter((t) => t !== value));
       } else {
         setTopicFilter((prev) => [...prev, value]);
       }
-      // setTopicFilter((prev) => {
-      //   if (prev.includes(value)) {
-      //     return prev.filter((t) => t !== value);
-      //   } else {
-      //     return [...prev, value];
-      //   }
-      // });
     } else {
       setTypeFilter((prev) => {
         if (prev.includes(value)) {
@@ -311,6 +304,14 @@ function ManageQuestions() {
                       </CommandGroup>
                     </CommandList>
                   </Command>
+                  <Button
+                    onClick={() => {
+                      setTopicFilter([]);
+                    }}
+                    className="m-5"
+                  >
+                    Clear all Filters
+                  </Button>
                 </CommandDialog>
               </div>
 
@@ -331,7 +332,8 @@ function ManageQuestions() {
                   onOpenChange={setTypefilterOpen}
                 >
                   <Command>
-                    <CommandInput placeholder="Type a command or search..." />
+                    <CommandInput placeholder="Seearch filter..." />
+
                     <CommandList>
                       <CommandEmpty>No results found.</CommandEmpty>
                       <CommandGroup heading="Question Types">
@@ -357,6 +359,14 @@ function ManageQuestions() {
                       </CommandGroup>
                     </CommandList>
                   </Command>
+                  <Button
+                    onClick={() => {
+                      setTypeFilter([]);
+                    }}
+                    className="m-5"
+                  >
+                    Clear all Filters
+                  </Button>
                 </CommandDialog>
               </div>
 
@@ -373,63 +383,63 @@ function ManageQuestions() {
         <div className="questionsBody mt-5">
           {/* Table */}
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            {loading ? (
-              <div className="p-6 text-center text-gray-500">
-                Loading questions...
-              </div>
-            ) : questions.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
-                No questions found.
-              </div>
-            ) : (
-              <>
-                <TableCard>
-                  <CardHeader>
-                    <div>
-                      <CardTitle>
-                        <ShieldCheck size={18} strokeWidth={2} />
-                        Question Bank
-                      </CardTitle>
-                    </div>
+            <>
+              <TableCard>
+                <CardHeader>
+                  <div>
+                    <CardTitle>
+                      <ShieldCheck size={18} strokeWidth={2} />
+                      Question Bank
+                    </CardTitle>
+                  </div>
 
-                    <div>
-                      <button
-                        onClick={() => {
-                          setIsOpen(true);
-                          setPopupMessage(
-                            "Are you sure to delete the selected Questions?",
-                          );
-                        }}
-                        className="cursor-pointer flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 disabled:bg-red-200 disabled:cursor-not-allowed"
-                        disabled={!selectAll && selectParticulars.length === 0}
-                      >
-                        <Trash2 size={18} />
-                        <span className="font-semibolf text-xs">
-                          Delete Selected
-                        </span>
-                      </button>
+                  <div>
+                    <button
+                      onClick={() => {
+                        setIsOpen(true);
+                        setPopupMessage(
+                          "Are you sure to delete the selected Questions?",
+                        );
+                      }}
+                      className="cursor-pointer flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 disabled:bg-red-200 disabled:cursor-not-allowed"
+                      disabled={!selectAll && selectParticulars.length === 0}
+                    >
+                      <Trash2 size={18} />
+                      <span className="font-semibolf text-xs">
+                        Delete Selected
+                      </span>
+                    </button>
+                  </div>
+                </CardHeader>
+                <StyledTable role="table" aria-label="Assigned users table">
+                  <THead className="p-4">
+                    <tr role="row">
+                      <Th>
+                        <Checkbox
+                          checked={selectAll}
+                          onCheckedChange={(checked) =>
+                            handleSelectAll(checked)
+                          }
+                        />
+                      </Th>
+                      <Th>S.No</Th>
+                      <Th>Question</Th>
+                      <Th>Type</Th>
+                      <Th>Topic</Th>
+                      <Th>Difficulty</Th>
+                      <Th>Updated</Th>
+                      <Th>Action</Th>
+                    </tr>
+                  </THead>
+                  {loading ? (
+                    <div className="p-6 text-center text-gray-500">
+                      Loading questions...
                     </div>
-                  </CardHeader>
-                  <StyledTable role="table" aria-label="Assigned users table">
-                    <THead className="p-4">
-                      <tr role="row">
-                        <Th>
-                          <Checkbox
-                            checked={selectAll}
-                            onCheckedChange={(checked) =>
-                              handleSelectAll(checked)
-                            }
-                          />
-                        </Th>
-                        <Th>S.No</Th>
-                        <Th>Question</Th>
-                        <Th>Topic</Th>
-                        <Th>Difficulty</Th>
-                        <Th>Answers</Th>
-                        <Th>Updated</Th>
-                        <Th>Action</Th>
-                      </tr>
-                    </THead>
+                  ) : questions.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500">
+                      No questions found.
+                    </div>
+                  ) : (
                     <TBody>
                       {questions.map((q, idx) => (
                         <Tr key={q.questionId}>
@@ -446,13 +456,18 @@ function ManageQuestions() {
                           </Td>
                           <Td>{idx + 1}</Td>
                           <Td> {q.questionDetail} </Td>
+                          <Td> {q.questionType}</Td>
                           <Td> {q.topicId} </Td>
                           <Td>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                q.difficultyLevel === "EASY"
+                                q.difficultyLevel === "EASY" ||
+                                q.difficultyLevel === "Easy" ||
+                                q.difficultyLevel === "easy"
                                   ? "bg-green-100 text-green-700"
-                                  : q.difficultyLevel === "MEDIUM"
+                                  : q.difficultyLevel === "MEDIUM" ||
+                                      q.difficultyLevel === "Medium" ||
+                                      q.difficultyLevel === "medium"
                                     ? "bg-yellow-100 text-yellow-700"
                                     : "bg-red-100 text-red-700"
                               }`}
@@ -460,11 +475,15 @@ function ManageQuestions() {
                               {q.difficultyLevel}
                             </span>
                           </Td>
-                          <Td> {q.numAnswers}</Td>
                           <Td>
                             {new Date(q.lastUpdatedStamp).toLocaleDateString()}
                           </Td>
-                          <Td className="text-center flex gap-2">
+                          <Td
+                            className="text-center flex gap-2"
+                            onClick={() =>
+                              navigate("/addQuestion", { state: q })
+                            }
+                          >
                             <IconButton $variant="edit" title="Edit">
                               <Pencil size={14} strokeWidth={2} />
                             </IconButton>
@@ -485,57 +504,57 @@ function ManageQuestions() {
                         </Tr>
                       ))}
                     </TBody>
-                  </StyledTable>
-                </TableCard>
-                {paginationInfo && (
-                  <div className="bg-white rounded-2xl mt-2 p-5 shadow-md flex items-center justify-between">
-                    <div className="paginateFilter">
-                      <div className="flex gap-5 items-center">
-                        <div className="w-30">
-                          <Input
-                            type="text"
-                            placeholder=""
-                            className="bg-white"
-                            value={rowsPerPage}
-                            onChange={(e) => setRowsPerPage(e.target.value)}
-                          />
-                        </div>
-                        <span className="text-xs font-semibold">
-                          Items Per Page
-                        </span>
-                        {debounceLoading && (
-                          <LoaderCircle className="size-4 animate-spin" />
-                        )}
+                  )}
+                </StyledTable>
+              </TableCard>
+              {paginationInfo && (
+                <div className="bg-white rounded-2xl mt-2 p-5 shadow-md flex items-center justify-between">
+                  <div className="paginateFilter">
+                    <div className="flex gap-5 items-center">
+                      <div className="w-30">
+                        <Input
+                          type="text"
+                          placeholder=""
+                          className="bg-white"
+                          value={rowsPerPage}
+                          onChange={(e) => setRowsPerPage(e.target.value)}
+                        />
                       </div>
+                      <span className="text-xs font-semibold">
+                        Items Per Page
+                      </span>
+                      {debounceLoading && (
+                        <LoaderCircle className="size-4 animate-spin" />
+                      )}
                     </div>
-                    <ButtonGroup
-                      orientation="horizontal"
-                      aria-label="Media controls"
-                      className="h-fit"
-                    >
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => prevPage()}
-                      >
-                        <ChevronsLeftIcon size={16} />
-                      </Button>
-
-                      <Button variant="outline" size="icon">
-                        {nextPageNumber.current}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => nextPage()}
-                      >
-                        <ChevronsRightIcon size={16} />
-                      </Button>
-                    </ButtonGroup>
                   </div>
-                )}
-              </>
-            )}
+                  <ButtonGroup
+                    orientation="horizontal"
+                    aria-label="Media controls"
+                    className="h-fit"
+                  >
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => prevPage()}
+                    >
+                      <ChevronsLeftIcon size={16} />
+                    </Button>
+
+                    <Button variant="outline" size="icon">
+                      {nextPageNumber.current}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => nextPage()}
+                    >
+                      <ChevronsRightIcon size={16} />
+                    </Button>
+                  </ButtonGroup>
+                </div>
+              )}
+            </>
           </div>
         </div>
       </div>

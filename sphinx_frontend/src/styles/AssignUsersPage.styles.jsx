@@ -61,7 +61,7 @@ export const TableCard = styled.div`
   border-radius: ${tokens.radiusLg};
   border: 1px solid ${tokens.border};
   box-shadow: ${tokens.shadowMd};
-  overflow: hidden;
+  overflow: scroll;
   animation: ${fadeSlideIn} 300ms ${tokens.ease} both;
 `;
 

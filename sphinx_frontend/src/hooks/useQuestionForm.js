@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { validateQuestionForm } from "../utils/ValidateQuestionForm";
 import { DEFAULT_OPTIONS_COUNT, QUESTION_TYPES } from "../utils/questionConfig";
 
-export const useQuestionForm = () => {
+export const useQuestionForm = (questionForUpdate) => {
   const [state, setState] = useState({
     questionDetail: "",
     currentTab: "",
@@ -28,7 +28,7 @@ export const useQuestionForm = () => {
   const validate = () => {
     const errors = validateQuestionForm(state);
     update("errors", errors);
-    console.log("Errors => ", errors);
+    // console.log("Errors => ", errors);
     return Object.keys(errors).length === 0;
   };
 

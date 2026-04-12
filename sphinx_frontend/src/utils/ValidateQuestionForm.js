@@ -1,6 +1,6 @@
 import { QUESTION_TYPES } from "./questionConfig";
 
-export const validateQuestionForm = (state) => {
+export const validateQuestionForm = (state, answer) => {
   const {
     questionDetail,
     selectedTopic,
@@ -29,33 +29,45 @@ export const validateQuestionForm = (state) => {
     currentTab === QUESTION_TYPES.MULTIPLE
   ) {
     options.forEach((opt, idx) => {
-      if (!opt.trim()) {
+      if (!opt || !opt.trim()) {
         errors[`option_${idx}`] = `Option ${idx + 1} is required`;
       }
     });
 
-    if (currentTab === QUESTION_TYPES.SINGLE && !answerValue) {
-      errors.singleAnswer = "Select the correct answer";
+    if (currentTab === QUESTION_TYPES.SINGLE) {
+      if (!answer[QUESTION_TYPES.SINGLE]) {
+        errors.singleAnswer = "Select the correct answer";
+      }
     }
-
-    if (
-      currentTab === QUESTION_TYPES.MULTIPLE &&
-      selectedAnswers.length === 0
-    ) {
-      errors.answers = "Select at least one correct answer";
+    if (currentTab === QUESTION_TYPES.MULTIPLE) {
+      if (
+        !answer[QUESTION_TYPES.MULTIPLE] ||
+        answer[QUESTION_TYPES.MULTIPLE].length === 0
+      ) {
+        errors.answers = "Select Atleast One Correct Answer";
+      }
     }
   }
 
   if (
-    [
-      QUESTION_TYPES.FILL_UP,
-      QUESTION_TYPES.TRUE_FALSE,
-      QUESTION_TYPES.DETAILED,
-    ].includes(currentTab)
+    currentTab === QUESTION_TYPES.FILL_UP &&
+    !answer[QUESTION_TYPES.FILL_UP]
   ) {
-    if (!answerValue?.trim()) {
-      errors.answerValue = "Answer is required";
-    }
+    errors.answerValue = "Answer is required";
+  }
+
+  if (
+    currentTab === QUESTION_TYPES.TRUE_FALSE &&
+    !answer[QUESTION_TYPES.TRUE_FALSE]
+  ) {
+    errors.answerValue = "Answer is required";
+  }
+
+  if (
+    currentTab === QUESTION_TYPES.DETAILED &&
+    !answer[QUESTION_TYPES.DETAILED]
+  ) {
+    errors.answerValue = "Answer is required";
   }
 
   return errors;

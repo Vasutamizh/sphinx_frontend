@@ -40,8 +40,8 @@ function TopicSection({ examId, noOfQuestions }) {
     const getExamTopics = async () => {
       const response = await apiGet(`/exam/topics/${examId}`);
       if (response.responseMessage === "success") {
-        const data = response.examTopicList;
-        console.log(data);
+        // const data = response.examTopicList;
+        // console.log(data);
 
         setExamTopics(response.examTopicList);
       } else {

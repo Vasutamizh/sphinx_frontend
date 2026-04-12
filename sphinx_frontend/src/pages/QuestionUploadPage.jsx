@@ -30,7 +30,7 @@ const QuestionUploadPage = () => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    console.log("file", file);
+    // console.log("file", file);
 
     setError("");
 
@@ -60,7 +60,7 @@ const QuestionUploadPage = () => {
     }
     formData.append("file", file);
 
-    console.log("File type:", typeof file, file instanceof File, file); // must show File object
+    // console.log("File type:", typeof file, file instanceof File, file); // must show File object
 
     const response = await apiFilePost("/questions/upload", formData);
     setIsLoading(false);

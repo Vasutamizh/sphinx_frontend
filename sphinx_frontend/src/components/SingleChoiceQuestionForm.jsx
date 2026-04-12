@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BlackInputLabel,
   FormErrorMessage,
@@ -10,8 +9,21 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function SingleChoiceQuestionForm({ options, updateState, errors }) {
-  const [isChecked, setIsChecked] = useState("");
+function SingleChoiceQuestionForm({
+  options,
+  updateState,
+  answer,
+  errors,
+  storeAnswer,
+}) {
+  const idxIdentifier = {
+    0: "A",
+    1: "B",
+    2: "C",
+    3: "D",
+  };
+  // const [isChecked, setIsChecked] = useState("");
+  const singleChoiceAnswer = answer["SINGLE_CHOICE"];
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
@@ -32,11 +44,10 @@ function SingleChoiceQuestionForm({ options, updateState, errors }) {
               <input
                 type="radio"
                 name="singleAnswer"
-                checked={isChecked === idx}
+                checked={singleChoiceAnswer === idxIdentifier[idx]}
                 style={{ cursor: "pointer" }}
                 onChange={() => {
-                  updateState("answerValue", options[idx]);
-                  setIsChecked(idx);
+                  storeAnswer("SINGLE_CHOICE", idxIdentifier[idx]);
                 }}
               />
 

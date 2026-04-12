@@ -65,7 +65,7 @@ export default function SignupPage() {
 
     errors = signupFormValidator(state);
 
-    console.log("Erros => ", errors);
+    // console.log("Erros => ", errors);
 
     if (Object.keys(errors).length === 0) {
       const payload = {

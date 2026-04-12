@@ -9,7 +9,7 @@ export function useQuestionConfig() {
       const response = await apiGet("/questions/questionTypes");
       if (response.data) {
         setQuestionTypes(response.data);
-        console.log("Question types set!");
+        // console.log("Question types set!");
       }
     };
     getTypes();
@@ -30,7 +30,7 @@ export const QUESTION_TYPES = {
 
 const types = apiGet("/questions/questionTypes").then((res) => res);
 
-console.log("Types response", types);
+// console.log("Types response", types);
 
 export const DEFAULT_OPTIONS_COUNT = 4;
 

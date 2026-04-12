@@ -38,7 +38,7 @@ function ExamCreationPage() {
 
   const partyId = useSelector((state) => state.auth?.partyId);
 
-  console.log("partyId => ", partyId);
+  // console.log("partyId => ", partyId);
 
   useEffect(() => {
     if (!isUpdateMode) return;
