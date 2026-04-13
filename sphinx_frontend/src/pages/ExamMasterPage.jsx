@@ -1,48 +1,47 @@
 import {
+  BarChart3,
   BookOpen,
+  Cog,
+  Layers,
   Pencil,
+  ShieldCheck,
   Trash2,
   UserPlus,
-  View,
-  ShieldCheck,
-  BarChart3,
   Users,
-  Layers,
+  View,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IoCreate } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { apiDelete, apiGet, apiPost } from "../services/ApiService";
+import { apiGet, apiPost, isError } from "../services/ApiService";
 import {
-  Wrapper,
-  TableCard,
-  TableScrollWrapper,
-  StyledTable,
-  THead,
-  TBody,
-  Tr,
-  Th,
-  Td,
+  ActionRow,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-  IconButton,
-  ActionRow,
   EmptyState,
-  AddButton,
+  IconButton,
+  StyledTable,
+  TableCard,
+  TableScrollWrapper,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Wrapper,
 } from "../styles/AssignUsersPage.styles";
 import {
-  ExamContainer,
-  SubContainer,
-  StyledNavLink,
   BlueActionLabel,
-  StatsWrapper,
   StatsCard,
   StatsHeader,
   StatsIcon,
   StatsTitle,
   StatsValue,
+  StatsWrapper,
+  StyledNavLink,
+  SubContainer,
 } from "../styles/ExamMasterPage.styles";
 
 import DeleteExamModal from "../components/Modal_Components/DeleteExamModal";
@@ -69,6 +68,19 @@ function ExamMasterPage() {
       setExamList(response.data);
     } else {
       failureToast(response.errorMessage || response.error);
+    }
+  };
+
+  const setupExam = async (examId) => {
+    const response = await apiPost("/exam/setupExam", { examId });
+    if (isError(response)) {
+      failureToast(
+        response.errorMessage || response.error || "Failed to setup exam!",
+      );
+    } else {
+      successToast(
+        response.successMessage || "Exam Setup Successfully Completed!",
+      );
     }
   };
 
@@ -235,6 +247,13 @@ function ExamMasterPage() {
                             title="Delete Exam"
                           >
                             <Trash2 size={16} />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => setupExam(exam.examId)}
+                            $variant="edit"
+                            title="Setup Exam"
+                          >
+                            <Cog size={16} />
                           </IconButton>
                         </ActionRow>
                       </Td>

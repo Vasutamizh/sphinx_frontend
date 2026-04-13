@@ -382,7 +382,7 @@ function ManageQuestions() {
         </div>
         <div className="questionsBody mt-5">
           {/* Table */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm">
             <>
               <TableCard>
                 <CardHeader>
