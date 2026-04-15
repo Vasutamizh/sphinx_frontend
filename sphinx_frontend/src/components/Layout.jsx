@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import {
@@ -7,12 +9,19 @@ import {
   LayoutContentContainer,
 } from "../styles/common.styles";
 import Footer from "./Footer";
+import CustomLoader from "./Loader";
 import Navbar from "./Navbar";
 
 function Layout({ children }) {
   const navigate = useNavigate();
+  const isLoading = useSelector((state) => state.loader?.isLoading);
+  const memoizedComps = useMemo(() => {
+    return <LayoutContentContainer>{children}</LayoutContentContainer>;
+  }, [children]);
+  console.log("Children => ", children);
   return (
     <LayoutContainer>
+      {isLoading && <CustomLoader />}
       <Navbar />
       <Toaster />
       <div className="mt-5 grid gap-3 grid-cols-[1fr_10fr]">
@@ -26,7 +35,7 @@ function Layout({ children }) {
             <span className="font-semibold text-md">Back</span>
           </Button>
         </div>
-        <LayoutContentContainer>{children}</LayoutContentContainer>
+        {memoizedComps}
       </div>
       <Footer />
     </LayoutContainer>

@@ -47,7 +47,7 @@ function ManageQuestions() {
   const [loading, setLoading] = useState(false);
   const [paginationInfo, setPaginationInfo] = useState({});
   const [isOpen, setIsOpen] = useState(false);
-  const nextPageNumber = useRef(1);
+  const nextPageNumber = useRef(0);
   const [questionDetailFilter, setQuestionDetailFilter] = useState("");
   const [topicFilter, setTopicFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -144,12 +144,12 @@ function ManageQuestions() {
   const nextPage = () => {
     if (
       paginationInfo &&
-      paginationInfo.balanceRecord &&
+      paginationInfo.totalRecords &&
       paginationInfo.viewSize
     ) {
       if (
-        paginationInfo.balanceRecord / paginationInfo.viewSize >
-        paginationInfo.viewSize
+        paginationInfo.totalRecords >
+        paginationInfo.viewSize * (paginationInfo.viewIndex + 1)
       ) {
         nextPageNumber.current = nextPageNumber.current + 1;
         loadQuestions();
@@ -161,10 +161,10 @@ function ManageQuestions() {
   const prevPage = () => {
     if (
       paginationInfo &&
-      paginationInfo.balanceRecord &&
+      paginationInfo.totalRecords &&
       paginationInfo.viewSize
     ) {
-      if (paginationInfo.viewIndex > 1) {
+      if (paginationInfo.viewIndex > 0) {
         nextPageNumber.current = nextPageNumber.current - 1;
         loadQuestions();
       }
@@ -192,10 +192,10 @@ function ManageQuestions() {
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectParticulars(questions.map((q) => q.questionId));
-      setSelectAll(true);
+      // setSelectAll(true);
     } else {
       setSelectParticulars([]);
-      setSelectAll(false);
+      // setSelectAll(false);
     }
   };
 
@@ -416,7 +416,9 @@ function ManageQuestions() {
                     <tr role="row">
                       <Th>
                         <Checkbox
-                          checked={selectAll}
+                          checked={
+                            questions.length === selectParticulars.length
+                          }
                           onCheckedChange={(checked) =>
                             handleSelectAll(checked)
                           }
@@ -478,13 +480,14 @@ function ManageQuestions() {
                           <Td>
                             {new Date(q.lastUpdatedStamp).toLocaleDateString()}
                           </Td>
-                          <Td
-                            className="text-center flex gap-2"
-                            onClick={() =>
-                              navigate("/addQuestion", { state: q })
-                            }
-                          >
-                            <IconButton $variant="edit" title="Edit">
+                          <Td className="text-center flex gap-2">
+                            <IconButton
+                              $variant="edit"
+                              title="Edit"
+                              onClick={() =>
+                                navigate("/addQuestion", { state: q })
+                              }
+                            >
                               <Pencil size={14} strokeWidth={2} />
                             </IconButton>
                             <IconButton
@@ -542,7 +545,7 @@ function ManageQuestions() {
                     </Button>
 
                     <Button variant="outline" size="icon">
-                      {nextPageNumber.current}
+                      {nextPageNumber.current + 1}
                     </Button>
                     <Button
                       variant="outline"

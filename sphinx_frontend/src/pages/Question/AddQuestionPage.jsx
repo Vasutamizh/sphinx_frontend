@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import DescriptiveQuestionForm from "../components/DescriptiveQuestionForm";
-import FillUpQuestionForm from "../components/FillUpQuestionForm";
-import MultipleChoicQuestionForm from "../components/MultipleChoicQuestionForm";
-import SingleChoiceQuestionForm from "../components/SingleChoiceQuestionForm";
-import ButtonWithLoading from "../components/StyledButton";
-import TopicModal from "../components/TopicFormModal";
-import TrueFalseQuestionForm from "../components/TrueFalseQuestionForm";
-import { useTopics } from "../hooks/useTopics";
-import { apiPost, apiPut, isError } from "../services/ApiService";
+import DescriptiveQuestionForm from "../../components/DescriptiveQuestionForm";
+import FillUpQuestionForm from "../../components/FillUpQuestionForm";
+import MultipleChoicQuestionForm from "../../components/MultipleChoicQuestionForm";
+import SingleChoiceQuestionForm from "../../components/SingleChoiceQuestionForm";
+import ButtonWithLoading from "../../components/StyledButton";
+import TopicModal from "../../components/TopicFormModal";
+import TrueFalseQuestionForm from "../../components/TrueFalseQuestionForm";
+import { useTopics } from "../../hooks/useTopics";
+import { apiPost, apiPut, isError } from "../../services/ApiService";
 import {
   BlackInputLabel,
   Form,
@@ -21,13 +21,13 @@ import {
   StyledButton,
   StyledSelect,
   TextInput,
-} from "../styles/common.styles";
+} from "../../styles/common.styles";
 import {
   DEFAULT_OPTIONS_COUNT,
   useQuestionConfig,
-} from "../utils/questionConfig";
-import { failureToast, successToast } from "../utils/toast";
-import { validateQuestionForm } from "../utils/ValidateQuestionForm";
+} from "../../utils/questionConfig";
+import { failureToast, successToast } from "../../utils/toast";
+import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
 
 function AddQuestionPage() {
   const location = useLocation();

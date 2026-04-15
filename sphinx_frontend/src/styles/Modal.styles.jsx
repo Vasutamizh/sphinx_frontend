@@ -46,7 +46,7 @@ export const ModalOverlay = styled.div`
 
 export const ModalPanel = styled.div`
   position: relative;
-  width: ${($size) => $size || "50%"};
+  width: ${({ $size }) => $size || "50%"};
   max-height: calc(100vh - 2rem);
   display: flex;
   flex-direction: column;

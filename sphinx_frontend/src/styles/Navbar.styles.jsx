@@ -22,6 +22,9 @@ export const NavContainer = styled.div`
 export const Logo = styled.div`
   font-size: 1.25rem;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 export const Menu = styled.div`

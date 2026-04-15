@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import EyeClosedIcon from "../components/EyeCloseIcon";
-import EyeOpenIcon from "../components/EyeOpen";
-import { apiPost, isError } from "../services/ApiService";
+import EyeClosedIcon from "../../components/EyeCloseIcon";
+import EyeOpenIcon from "../../components/EyeOpen";
+import { apiPost, isError } from "../../services/ApiService";
 import {
   BorderedFlexDiv,
   ErrorBox,
@@ -13,9 +13,9 @@ import {
   MandatoryInp,
   PasswordInput,
   TextInput,
-} from "../styles/common.styles";
-import { signupFormValidator } from "../utils/ValidationService";
-import { failureToast, successToast } from "../utils/toast";
+} from "../../styles/common.styles";
+import { signupFormValidator } from "../../utils/ValidationService";
+import { failureToast, successToast } from "../../utils/toast";
 
 export default function SignupPage() {
   const [state, setState] = useState({

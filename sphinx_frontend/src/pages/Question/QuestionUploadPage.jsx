@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { toast } from "sonner";
-import FileCard from "../components/FileCard";
-import FileUpload from "../components/FileUpload";
-import FormHint from "../components/FormHint";
-import Loader from "../components/Loader";
-import { apiFileGet, apiFilePost } from "../services/ApiService";
-import { FormErrorMessage, StyledButton } from "../styles/common.styles";
+import FileCard from "../../components/FileCard";
+import FileUpload from "../../components/FileUpload";
+import FormHint from "../../components/FormHint";
+import Loader from "../../components/Loader";
+import { apiFileGet, apiFilePost } from "../../services/ApiService";
+import { FormErrorMessage, StyledButton } from "../../styles/common.styles";
+import { failureToast, successToast } from "../../utils/toast";
 
 const QuestionUploadPage = () => {
   const [file, setFile] = useState(null);
@@ -65,10 +65,10 @@ const QuestionUploadPage = () => {
     const response = await apiFilePost("/questions/upload", formData);
     setIsLoading(false);
     if (response.responseMessage && response.responseMessage === "success") {
-      toast.success(response.successMessage, { position: "top-right" });
+      successToast(response.successMessage);
       setFile(null);
     } else {
-      toast.error(response.errorMessage, { position: "top-right" });
+      failureToast(response.errorMessage || response.error || response.message);
     }
   };
 

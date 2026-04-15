@@ -61,7 +61,7 @@ export const TableCard = styled.div`
   border-radius: ${tokens.radiusLg};
   border: 1px solid ${tokens.border};
   box-shadow: ${tokens.shadowMd};
-  overflow: scroll;
+  overflow: visible;
   animation: ${fadeSlideIn} 300ms ${tokens.ease} both;
 `;
 
@@ -119,7 +119,7 @@ export const CardTitle = styled.h2`
 
 /** Scrollable table wrapper for narrow viewports */
 export const TableScrollWrapper = styled.div`
-  overflow-x: auto;
+  overflow-x: visible;
 `;
 
 /** The <table> itself — full semantic HTML with styled-components */
@@ -298,7 +298,7 @@ export const ActionRow = styled.div`
 
 /** Base for icon button — variants applied via $variant prop */
 export const IconButton = styled.button`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;

@@ -7,14 +7,14 @@ import {
   StyledSelect,
   TextArea,
   TextInput,
-} from "../styles/common.styles";
+} from "../../styles/common.styles";
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import TopicSection from "../components/TopicSection";
-import { apiGet, apiPost, apiPut } from "../services/ApiService";
-import { failureToast, successToast } from "../utils/toast";
-import { ExamFormValidation } from "../utils/ValidationService";
+import TopicSection from "../../components/TopicSection";
+import { apiGet, apiPost, apiPut } from "../../services/ApiService";
+import { failureToast, successToast } from "../../utils/toast";
+import { ExamFormValidation } from "../../utils/ValidationService";
 
 function ExamCreationPage() {
   const [examName, setExamName] = useState("");

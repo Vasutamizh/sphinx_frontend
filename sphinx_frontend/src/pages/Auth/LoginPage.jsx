@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import EyeClosedIcon from "../components/EyeCloseIcon";
-import EyeOpenIcon from "../components/EyeOpen";
-import { apiPost } from "../services/ApiService";
-import { authActions } from "../store/AuthReducer";
+import EyeClosedIcon from "../../components/EyeCloseIcon";
+import EyeOpenIcon from "../../components/EyeOpen";
+import { apiPost } from "../../services/ApiService";
+import { authActions } from "../../store/AuthReducer";
 import {
   ErrorBox,
   FormDiv,
@@ -12,9 +12,9 @@ import {
   InputLabel,
   MandatoryInp,
   TextInput,
-} from "../styles/common.styles";
-import { loginFormValidator } from "../utils/ValidationService";
-import { failureToast, successToast } from "../utils/toast";
+} from "../../styles/common.styles";
+import { loginFormValidator } from "../../utils/ValidationService";
+import { failureToast, successToast } from "../../utils/toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();

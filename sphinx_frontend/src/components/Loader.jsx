@@ -1,23 +1,14 @@
+import { LoaderCircle } from "lucide-react";
 import { createPortal } from "react-dom";
-import { Discuss } from "react-loader-spinner";
 import { LoaderBackdrop } from "../styles/common.styles";
 
-function Loader() {
+function CustomLoader() {
   return createPortal(
     <LoaderBackdrop>
-      <Discuss
-        visible={true}
-        height="80"
-        width="80"
-        ariaLabel="discuss-loading"
-        wrapperStyle={{}}
-        wrapperClass="discuss-wrapper"
-        color="#5B7AB8"
-        backgroundColor="#E2F3EE"
-      />
+      <LoaderCircle size={25} className="animate-spin" />
     </LoaderBackdrop>,
     document.getElementById("loader-root"),
   );
 }
 
-export default Loader;
+export default CustomLoader;

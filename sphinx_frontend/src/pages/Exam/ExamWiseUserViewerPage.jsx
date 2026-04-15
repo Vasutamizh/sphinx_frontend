@@ -1,8 +1,8 @@
 import { ChevronDown, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { apiPost } from "../services/ApiService";
-import { failureToast } from "../utils/toast";
+import { apiPost } from "../../services/ApiService";
+import { failureToast } from "../../utils/toast";
 
 export default function ExamWiseUserViewer() {
   //   const exams = [

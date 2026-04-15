@@ -4,10 +4,15 @@ import {
   StyledPrimaryButton,
 } from "../styles/common.styles";
 
-function ButtonWithLoading({ isLoading, buttonText, onAction }) {
+function ButtonWithLoading({
+  isLoading,
+  buttonText,
+  onAction,
+  type = "button",
+}) {
   return (
     <div>
-      <StyledPrimaryButton disabled={isLoading} onClick={onAction}>
+      <StyledPrimaryButton disabled={isLoading} onClick={onAction} type={type}>
         {isLoading && (
           <ButtonContent>
             <Spinner viewBox="0 0 24 24" fill="none">

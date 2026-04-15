@@ -18,12 +18,9 @@ function Navbar() {
 
   const menuItems = [
     { name: "Dashboard", path: "/" },
-    // { name: "Questions", path: "/questions" },
-    // { name: "Add Questions", path: "/addQuestion" },
     { name: "Manage Questions", path: "/manageQuestions" },
-    { name: "Manage Assignments", path: "/createExam" },
-    // { name: "Exam Master", path: "/exammaster" },
-    { name: "Manage Users", path: "/userMaster" },
+    { name: "Manage Users", path: "/manageUsers" },
+    { name: "Create Assessments", path: "/createExam" },
     // { name: "Exam Wise Users", path: "/examWiseUsers" },
     // { name: "User Wise Exams", path: "/userWiseExams" },
     { name: "Logout", path: "/logout" },
@@ -33,7 +30,24 @@ function Navbar() {
     <>
       <Nav>
         <NavContainer>
-          <Logo>Sphinx Exam Management</Logo>
+          <Logo>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            Sphinx Exam Management
+          </Logo>
 
           <Menu>
             {isAuthenticated &&

@@ -1,7 +1,7 @@
 import { BookOpen, CheckCircle, ChevronDown, Clock, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "../services/ApiService";
-import { failureToast } from "../utils/toast";
+import { apiGet, apiPost } from "../../services/ApiService";
+import { failureToast } from "../../utils/toast";
 
 const UserExamDashboard = () => {
   // const users = [

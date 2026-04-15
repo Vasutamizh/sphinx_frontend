@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import AssignUserToExamModal from "../components/Modal_Components/AssignUserToExamModal";
-import ConfimationModal from "../components/Modal_Components/ConfimationModal";
-import EditAssignedUserModal from "../components/Modal_Components/EditAssignedUserModal";
-import { apiGet, apiPost, isError } from "../services/ApiService";
+import AssignUserToExamModal from "../../components/Modal_Components/AssignUserToExamModal";
+import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
+import EditAssignedUserModal from "../../components/Modal_Components/EditAssignedUserModal";
+import { apiGet, apiPost, isError } from "../../services/ApiService";
 import {
   ActionRow,
   AddButton,
@@ -36,8 +36,8 @@ import {
   THead,
   Tr,
   Wrapper,
-} from "../styles/AssignUsersPage.styles";
-import { failureToast, successToast } from "../utils/toast";
+} from "../../styles/AssignUsersPage.styles";
+import { failureToast, successToast } from "../../utils/toast";
 
 export default function AssignUsers() {
   const [currentUserForEdit, setCurrentUserForEdit] = useState({});

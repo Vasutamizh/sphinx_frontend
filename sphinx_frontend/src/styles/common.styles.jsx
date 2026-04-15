@@ -290,7 +290,7 @@ export const LayoutContainer = styled.div`
 export const LayoutContentContainer = styled.div`
   max-width: 1000px;
   // margin: 20px auto;
-  overflow: scroll;
+  // overflow: scroll;
 `;
 
 export const HelperText = styled.div`

@@ -2,20 +2,20 @@ import { Provider, useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Layout from "./components/Layout";
-import AddQuestionPage from "./pages/AddQuestionPage";
-import AddUser from "./pages/AddUser";
-import AssignUsers from "./pages/AssignUsersPage";
-import ExamCreationPage from "./pages/ExamCreationPage";
-import ExamMasterPage from "./pages/ExamMasterPage";
-import ExamQuestionsPage from "./pages/ExamQuestionsPage";
-import ExamWiseUserViewer from "./pages/ExamWiseUserViewerPage";
-import LoginPage from "./pages/LoginPage";
-import Logout from "./pages/Logout";
-import QuestionList from "./pages/QuestionListPage";
-import ManageQuestions from "./pages/Questions/ManageQuestions";
-import QuestionUploadPage from "./pages/QuestionUploadPage";
-import SignupPage from "./pages/SignupPage";
-import UserExamDashboard from "./pages/UserWiseExamPage";
+import LoginPage from "./pages/Auth/LoginPage";
+import Logout from "./pages/Auth/Logout";
+import SignupPage from "./pages/Auth/SignupPage";
+import AssignUsers from "./pages/Exam/AssignUsersPage";
+import ExamCreationPage from "./pages/Exam/ExamCreationPage";
+import ExamDetailsPage from "./pages/Exam/ExamDetailsPage";
+import ExamMasterPage from "./pages/Exam/ExamMasterPage";
+import ExamWiseUserViewer from "./pages/Exam/ExamWiseUserViewerPage";
+import AddQuestionPage from "./pages/Question/AddQuestionPage";
+import ManageQuestions from "./pages/Question/ManageQuestions";
+import QuestionUploadPage from "./pages/Question/QuestionUploadPage";
+import ManageUsers from "./pages/User/ManageUsers";
+import UserDashboardPage from "./pages/User/UserDashboardPage";
+import UserExamDashboard from "./pages/User/UserWiseExamPage";
 import store from "./store/Store";
 
 function App() {
@@ -53,99 +53,19 @@ function App() {
                   </AuthenticateProtectedRoute>
                 }
               />
-              <Route
-                path="/signup"
-                element={
-                  <AuthenticateProtectedRoute>
-                    <SignupPage />
-                  </AuthenticateProtectedRoute>
-                }
-              />
-              <Route
-                path="/addQuestion"
-                element={
-                  <ProtectedRoute>
-                    <AddQuestionPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/uploadQuestions"
-                element={
-                  <ProtectedRoute>
-                    <QuestionUploadPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/createExam"
-                element={
-                  <ProtectedRoute>
-                    <ExamCreationPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/userMaster"
-                element={
-                  <ProtectedRoute>
-                    <AddUser />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <ExamMasterPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/assignUsers"
-                element={
-                  <ProtectedRoute>
-                    <AssignUsers />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/examWiseUsers"
-                element={
-                  <ProtectedRoute>
-                    <ExamWiseUserViewer />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/userWiseExams"
-                element={
-                  <ProtectedRoute>
-                    <UserExamDashboard />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/logout"
-                element={
-                  <ProtectedRoute>
-                    <Logout />{" "}
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/ExamQuestions"
-                element={
-                  <ProtectedRoute>
-                    <ExamQuestionsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/allQuestions" Component={QuestionList} />
+              <Route path="/signup" Component={SignupPage} />
+              <Route path="/addQuestion" Component={AddQuestionPage} />
+              <Route path="/uploadQuestions" Component={QuestionUploadPage} />
+              <Route path="/createExam" Component={ExamCreationPage} />
+              <Route path="/dashboard" Component={ExamMasterPage} />
+              <Route path="/assignUsers" Component={AssignUsers} />
+              <Route path="/examWiseUsers" Component={ExamWiseUserViewer} />
+              <Route path="/userWiseExams" Component={UserExamDashboard} />
+              <Route path="/logout" Component={Logout} />
               <Route path="/manageQuestions" Component={ManageQuestions} />
+              <Route path="/manageUsers" Component={ManageUsers} />
+              <Route path="/userDashboard" Component={UserDashboardPage} />
+              <Route path="/assesmentDetails" Component={ExamDetailsPage} />
             </Routes>
           </Layout>
         </BrowserRouter>

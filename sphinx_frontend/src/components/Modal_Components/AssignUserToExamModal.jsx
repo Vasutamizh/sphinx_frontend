@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { StyledSelect, TextInput } from "../../styles/common.styles";
+import {
+  FormErrorMessage,
+  StyledSelect,
+  TextInput,
+} from "../../styles/common.styles";
 import Modal from "../Modal";
+
+const DEFAULT_ATTEMPTS = 1;
+const DEFAULT_TIMEOUT = 3;
 
 function AssignUserToExamModal({
   isOpen,
@@ -12,11 +19,36 @@ function AssignUserToExamModal({
   onClose,
 }) {
   const [selectedUserId, setSelectedUserId] = useState("");
-  const [allowedAttempts, setAttempts] = useState("");
-  const [timeoutDays, setTimeoutValue] = useState("");
+  const [allowedAttempts, setAllowedAttempts] = useState("" + DEFAULT_ATTEMPTS);
+  const [timeoutDays, setTimeoutDays] = useState("" + DEFAULT_TIMEOUT);
+  const [formErrors, setFormErrors] = useState({});
 
   const handleAddUser = () => {
-    if (!selectedUserId || !allowedAttempts || !timeoutDays) return;
+    const errors = {};
+    setFormErrors({});
+
+    if (!selectedUserId) {
+      errors.selectedUser = "Please Select a User!";
+    }
+
+    if (!allowedAttempts) {
+      errors.allowedAttempts = "Allowed Attempts is Required!";
+    } else {
+      if (!/^[0-9]+$/.test(allowedAttempts)) {
+        errors.allowedAttempts = "Numbers only Allowed!";
+      }
+    }
+
+    if (!timeoutDays) {
+      errors.timeoutDays = "Timeout Days is Required!";
+    } else {
+      if (!/^[0-9]+$/.test(timeoutDays)) {
+        errors.timeoutDays = "Numbers only Allowed!";
+      }
+    }
+
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
     const user = users.find((u) => u.partyId === selectedUserId);
 
@@ -39,8 +71,8 @@ function AssignUserToExamModal({
 
     // Reset form
     setSelectedUserId("");
-    setAttempts("");
-    setTimeoutValue("");
+    setAllowedAttempts("" + DEFAULT_ATTEMPTS);
+    setTimeoutDays("" + DEFAULT_TIMEOUT);
 
     onClose();
   };
@@ -62,11 +94,21 @@ function AssignUserToExamModal({
     );
   }, [users, alreadyAssignedUsers, newlyAssignedUsers]);
 
+  const handleClose = () => {
+    // Reset form
+    setSelectedUserId("");
+    setAllowedAttempts("" + DEFAULT_ATTEMPTS);
+    setTimeoutDays("" + DEFAULT_TIMEOUT);
+
+    setFormErrors({});
+    onClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       type={"create"}
-      onClose={onClose}
+      onClose={handleClose}
       title={"Assign New User to Exam"}
       subtitle={"Assign the users!"}
     >
@@ -96,6 +138,9 @@ function AssignUserToExamModal({
                   </option>
                 ))}
               </StyledSelect>
+              {formErrors.selectedUser && (
+                <FormErrorMessage>{formErrors.selectedUser}</FormErrorMessage>
+              )}
             </div>
 
             <div className="flex flex-col items-start">
@@ -104,13 +149,18 @@ function AssignUserToExamModal({
               </label>
               {/* Attempts */}
               <TextInput
-                type="number"
+                type="text"
                 id="attempts"
                 placeholder="Allowed Attempts"
                 value={allowedAttempts}
-                onChange={(e) => setAttempts(e.target.value)}
+                onChange={(e) => setAllowedAttempts(e.target.value)}
                 className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               />
+              {formErrors.allowedAttempts && (
+                <FormErrorMessage>
+                  {formErrors.allowedAttempts}
+                </FormErrorMessage>
+              )}
             </div>
 
             <div className="flex flex-col items-start">
@@ -119,13 +169,16 @@ function AssignUserToExamModal({
               </label>
               {/* Timeout */}
               <TextInput
-                type="number"
+                type="text"
                 id="timeout"
                 placeholder="Exam Timeout(days)"
                 value={timeoutDays}
-                onChange={(e) => setTimeoutValue(e.target.value)}
+                onChange={(e) => setTimeoutDays(e.target.value)}
                 className="border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               />
+              {formErrors.timeoutDays && (
+                <FormErrorMessage>{formErrors.timeoutDays}</FormErrorMessage>
+              )}
             </div>
 
             <div>
@@ -133,7 +186,7 @@ function AssignUserToExamModal({
               <button
                 type="button"
                 onClick={handleAddUser}
-                className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 flex items-center justify-center gap-2 mt-5"
+                className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 flex items-center justify-center gap-2 mt-5 cursor-pointer"
               >
                 {/* Plus Icon */}
                 <svg
