@@ -1,6 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import {
   LayoutContainer,
@@ -11,7 +10,9 @@ import CustomLoader from "./Loader";
 import Navbar from "./Navbar";
 
 function Layout({ children }) {
-  const navigate = useNavigate();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  });
   const isLoading = useSelector((state) => state.loader?.isLoading);
   const memoizedComps = useMemo(() => {
     return <LayoutContentContainer>{children}</LayoutContentContainer>;

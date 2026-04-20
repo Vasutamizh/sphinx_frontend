@@ -1,4 +1,4 @@
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Layout from "./components/Layout";
@@ -21,6 +21,14 @@ import UserExamDashboard from "./pages/User/UserWiseExamPage";
 import store from "./store/Store";
 
 function App() {
+  const ProtectedComp = ({ children }) => {
+    const isAuthenticated = useSelector((state) => state?.auth.isAuthenticated);
+    if (isAuthenticated) {
+      return children;
+    } else {
+      return <LoginPage />;
+    }
+  };
   return (
     <>
       <Provider store={store}>
@@ -32,7 +40,14 @@ function App() {
               <Route path="/addQuestion" Component={AddQuestionPage} />
               <Route path="/uploadQuestions" Component={QuestionUploadPage} />
               <Route path="/createExam" Component={ExamCreationPage} />
-              <Route path="/" Component={ExamMasterPage} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedComp>
+                    <ExamMasterPage />
+                  </ProtectedComp>
+                }
+              />
               <Route path="/assignUsers" Component={AssignUsers} />
               <Route path="/examWiseUsers" Component={ExamWiseUserViewer} />
               <Route path="/userWiseExams" Component={UserExamDashboard} />

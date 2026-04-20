@@ -26,7 +26,7 @@ import {
 import { failureToast } from "../../utils/toast";
 
 function UserDashboardPage() {
-  const { apiPost, isError } = useAPI();
+  const { apiGet, apiPost, isError } = useAPI();
   const partyId = useSelector((state) => state.auth?.partyId);
   const dispatch = useDispatch();
   const [newExams, setNewExams] = useState([]);
@@ -55,6 +55,31 @@ function UserDashboardPage() {
       failureToast("Failed to load Assessments!");
     } finally {
       dispatch(loaderActions.loaderOff());
+    }
+  };
+
+  const getExamResult = async (exam, partyId, examId, attemptNo = 1) => {
+    if (!exam || !partyId || !attemptNo) return;
+    const response = await apiGet(
+      `/userExam/getExamResult?partyId=${partyId}&examId=${examId}&attemptNo=${attemptNo}`,
+    );
+    // console.log("RESPONSE => ", response);
+    if (isError(response)) {
+      failureToast(response.errorMessage || response.error);
+    } else {
+      // console.log("ELSE BLOCK");
+      if (response.data) {
+        const { partyPerfomance, detailedPartyPerfomance } = response.data;
+        navigate("/assessmentResult", {
+          state: {
+            exam,
+            examResult: {
+              ...partyPerfomance,
+              topicWisePerfomance: detailedPartyPerfomance,
+            },
+          },
+        });
+      }
     }
   };
 
@@ -200,17 +225,13 @@ function UserDashboardPage() {
                         <TopicTag>React</TopicTag>
                         <TopicTag>JS</TopicTag>
                       </Topics>
-                      {exam.examStatus && (
-                        <StartButton
-                          onClick={() => {
-                            navigate("/assesmentDetails", {
-                              state: { exam },
-                            });
-                          }}
-                        >
-                          Launch <ChevronRight size={20} />
-                        </StartButton>
-                      )}
+                      <StartButton
+                        onClick={() => {
+                          getExamResult(exam, exam.partyId, exam.examId);
+                        }}
+                      >
+                        View Results <ChevronRight size={20} />
+                      </StartButton>
                     </CardFooter>
                   </AssessmentCard>
                   // </div>

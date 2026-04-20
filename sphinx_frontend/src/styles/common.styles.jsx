@@ -291,6 +291,7 @@ export const StyledTextarea = styled.textarea`
 
 export const LayoutContainer = styled.div`
   width: 100%;
+  background: #f1efe8;
 `;
 
 export const LayoutContentContainer = styled.div``;

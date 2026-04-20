@@ -52,9 +52,17 @@ export default function QuestionAttendPage() {
   const answered = selected.filter((s) => s !== null).length;
   const timePct = (timeLeft / (exam.duration * 60)) * 100;
 
-  useEffect(() => {
-    console.log("ANSWER => ", answer);
-  }, [answer]);
+  // useEffect(() => {
+  //   console.log("ANSWER => ", answer);
+  // }, [answer]);
+
+  const moveToTop = () => {
+    // window.scrollTo(0, 0);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   // Timer
   useEffect(() => {
@@ -152,6 +160,8 @@ export default function QuestionAttendPage() {
         }
       }
     }
+
+    moveToTop();
   };
 
   useEffect(() => {

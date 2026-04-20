@@ -7,7 +7,7 @@ export const successToast = (msg) => {
       background: "#28a745",
       color: "white",
       border: "none",
-      marginTop: "40px",
+      marginTop: "45px",
     },
   });
 };
@@ -19,7 +19,7 @@ export const failureToast = (msg) => {
       background: "#F54927",
       color: "white",
       border: "none",
-      marginTop: "40px",
+      marginTop: "45px",
     },
   });
 };
