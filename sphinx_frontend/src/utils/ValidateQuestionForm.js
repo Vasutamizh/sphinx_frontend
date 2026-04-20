@@ -1,14 +1,5 @@
-import { QUESTION_TYPES } from "./questionConfig";
-
 export const validateQuestionForm = (state, answer) => {
-  const {
-    questionDetail,
-    selectedTopic,
-    currentTab,
-    options,
-    selectedAnswers,
-    answerValue,
-  } = state;
+  const { questionDetail, selectedTopic, currentTab, options } = state;
 
   const errors = {};
 
@@ -24,49 +15,40 @@ export const validateQuestionForm = (state, answer) => {
     errors.questionType = "Please select a question type";
   }
 
-  if (
-    currentTab === QUESTION_TYPES.SINGLE ||
-    currentTab === QUESTION_TYPES.MULTIPLE
-  ) {
+  // console.log("currentTab => ", currentTab);
+  if (currentTab === "MULTIPLE_CHOICE" || currentTab === "SINGLE_CHOICE") {
     options.forEach((opt, idx) => {
       if (!opt || !opt.trim()) {
         errors[`option_${idx}`] = `Option ${idx + 1} is required`;
       }
     });
 
-    if (currentTab === QUESTION_TYPES.SINGLE) {
-      if (!answer[QUESTION_TYPES.SINGLE]) {
+    if (currentTab === "SINGLE_CHOICE") {
+      if (!answer["SINGLE_CHOICE"]) {
         errors.singleAnswer = "Select the correct answer";
       }
     }
-    if (currentTab === QUESTION_TYPES.MULTIPLE) {
+
+    if (currentTab === "MULTIPLE_CHOICE") {
+      // console.log("Multiple CHoice => ", answer["MULTIPLE_CHOICE"]);
       if (
-        !answer[QUESTION_TYPES.MULTIPLE] ||
-        answer[QUESTION_TYPES.MULTIPLE].length === 0
+        !answer["MULTIPLE_CHOICE"] ||
+        answer["MULTIPLE_CHOICE"].length === 0
       ) {
         errors.answers = "Select Atleast One Correct Answer";
       }
     }
   }
 
-  if (
-    currentTab === QUESTION_TYPES.FILL_UP &&
-    !answer[QUESTION_TYPES.FILL_UP]
-  ) {
+  if (currentTab === "FILL_UP" && !answer["FILL_UP"]) {
     errors.answerValue = "Answer is required";
   }
 
-  if (
-    currentTab === QUESTION_TYPES.TRUE_FALSE &&
-    !answer[QUESTION_TYPES.TRUE_FALSE]
-  ) {
+  if (currentTab === "TRUE_FALSE" && !answer["TRUE_FALSE"]) {
     errors.answerValue = "Answer is required";
   }
 
-  if (
-    currentTab === QUESTION_TYPES.DETAILED &&
-    !answer[QUESTION_TYPES.DETAILED]
-  ) {
+  if (currentTab === "DETAILED_ANSWER" && !answer["DETAILED_ANSWER"]) {
     errors.answerValue = "Answer is required";
   }
 

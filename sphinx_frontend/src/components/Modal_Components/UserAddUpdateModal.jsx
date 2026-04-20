@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { apiPost, apiPut } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
 import {
   FormErrorMessage,
@@ -14,6 +14,7 @@ import ButtonWithLoading from "../StyledButton";
 
 function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
   //   console.log("User => ", user);
+  const { apiPost, apiPut } = useAPI();
   const dispatch = useDispatch();
   const [state, setState] = useState({
     firstName: "",
@@ -70,7 +71,7 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
           payload.partyId = user.partyId;
           response = await apiPost("/auth/signup", payload);
         } else {
-          response = await apiPut("/auth", payload);
+          response = await apiPut("/user", payload);
         }
 
         if (

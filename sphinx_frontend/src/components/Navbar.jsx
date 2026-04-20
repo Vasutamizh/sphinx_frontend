@@ -13,18 +13,30 @@ import {
 
 function Navbar() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const userRole = useSelector((state) => state.auth.userRole);
 
   const [open, setOpen] = useState(false);
 
-  const menuItems = [
-    { name: "Dashboard", path: "/" },
-    { name: "Manage Questions", path: "/manageQuestions" },
-    { name: "Manage Users", path: "/manageUsers" },
-    { name: "Create Assessments", path: "/createExam" },
-    // { name: "Exam Wise Users", path: "/examWiseUsers" },
-    // { name: "User Wise Exams", path: "/userWiseExams" },
-    { name: "Logout", path: "/logout" },
-  ];
+  let menuItems;
+
+  console.log("userRole =>", userRole);
+  console.log("isAuthenticated =>", isAuthenticated);
+  if (isAuthenticated && userRole.roleTypeId === "SphinxAdmin") {
+    menuItems = [
+      { name: "Dashboard", path: "/" },
+      { name: "Manage Questions", path: "/manageQuestions" },
+      { name: "Manage Users", path: "/manageUsers" },
+      { name: "Create Assessments", path: "/createExam" },
+      // { name: "Exam Wise Users", path: "/examWiseUsers" },
+      // { name: "User Wise Exams", path: "/userWiseExams" },
+      { name: "Logout", path: "/logout" },
+    ];
+  } else {
+    menuItems = [
+      { name: "Dashboard", path: "/userDashboard" },
+      { name: "Logout", path: "/logout" },
+    ];
+  }
 
   return (
     <>
@@ -50,12 +62,12 @@ function Navbar() {
           </Logo>
 
           <Menu>
-            {isAuthenticated &&
-              menuItems.map((item, idx) => (
-                <MenuItem key={idx} to={item.path}>
-                  {item.name}
-                </MenuItem>
-              ))}
+            {/* {isAuthenticated && */}
+            {menuItems.map((item, idx) => (
+              <MenuItem key={idx} to={item.path}>
+                {item.name}
+              </MenuItem>
+            ))}
           </Menu>
 
           <Hamburger onClick={() => setOpen(true)}>

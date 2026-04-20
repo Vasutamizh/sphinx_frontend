@@ -7,8 +7,8 @@ import SingleChoiceQuestionForm from "../../components/SingleChoiceQuestionForm"
 import ButtonWithLoading from "../../components/StyledButton";
 import TopicModal from "../../components/TopicFormModal";
 import TrueFalseQuestionForm from "../../components/TrueFalseQuestionForm";
+import useAPI from "../../hooks/useAPI";
 import { useTopics } from "../../hooks/useTopics";
-import { apiPost, apiPut, isError } from "../../services/ApiService";
 import {
   BlackInputLabel,
   Form,
@@ -20,23 +20,28 @@ import {
   RadioWrapper,
   StyledButton,
   StyledSelect,
-  TextInput,
+  StyledTextarea,
 } from "../../styles/common.styles";
-import {
-  DEFAULT_OPTIONS_COUNT,
-  useQuestionConfig,
-} from "../../utils/questionConfig";
+
+import { useSelector } from "react-redux";
 import { failureToast, successToast } from "../../utils/toast";
 import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
 
 function AddQuestionPage() {
-  const location = useLocation();
+  const { apiGet, apiPost, apiPut, isError } = useAPI();
 
+  // getting states from redux.
+  const DEFAULT_OPTIONS_COUNT = useSelector(
+    (state) => state.question.DEFAULT_OPTIONS_COUNT,
+  );
+
+  const location = useLocation();
   const questionForUpdate = location.state;
 
-  // console.log("Question => ", questionForUpdate);
+  const { topics, createTopic, openModal, setOpenModal } = useTopics();
 
   const [loading, setLoading] = useState(false);
+  const [questionTypes, setQuestionTypes] = useState([]);
   const [state, setState] = useState({
     questionDetail: questionForUpdate?.questionDetail || "",
     currentTab: questionForUpdate?.questionType || "",
@@ -59,6 +64,40 @@ function AddQuestionPage() {
     TRUE_FALSE: "",
     DETAILED_ANSWER: "",
   });
+
+  // ==========================================API CALLS====================================
+
+  useEffect(() => {
+    update("errors", {});
+    if (questionForUpdate) {
+      // set Answers for Question Upadate (Not for New Questions)
+      if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
+        storeAnswer("MULTIPLE_CHOICE", questionForUpdate.answer.split(","));
+      } else {
+        storeAnswer(questionForUpdate.questionType, questionForUpdate.answer);
+      }
+    }
+
+    const getTypes = async () => {
+      try {
+        console.log("== API CALL FOR QUESTION TYPES ==");
+        const response = await apiGet("/questions/questionTypes");
+        if (!isError(response)) {
+          if (response.data) {
+            setQuestionTypes(response.data);
+          }
+        } else {
+          failureToast(
+            response.errorMessage || response.error || "Failed to Load Data!",
+          );
+        }
+      } catch (err) {
+        console.error("Error While fetching Question Types => ", err);
+        failureToast("Something Went Wrong! Try Again Later!");
+      }
+    };
+    getTypes();
+  }, []);
 
   const storeAnswer = (key, value) => {
     answer[key] = value;
@@ -100,22 +139,6 @@ function AddQuestionPage() {
       DETAILED_ANSWER: "",
     });
   };
-
-  useEffect(() => {
-    update("errors", {});
-    if (questionForUpdate) {
-      // set Answers for Question Upadate (Not for New Questions)
-      if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
-        storeAnswer("MULTIPLE_CHOICE", questionForUpdate.answer.split(","));
-      } else {
-        storeAnswer(questionForUpdate.questionType, questionForUpdate.answer);
-      }
-    }
-  }, []);
-
-  const { topics, createTopic, openModal, setOpenModal } = useTopics();
-
-  const { questionTypes } = useQuestionConfig();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -176,10 +199,6 @@ function AddQuestionPage() {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("Stored Answer => ", answer);
-  // }, [answer]);
-
   return (
     <div>
       {openModal && (
@@ -204,11 +223,7 @@ function AddQuestionPage() {
               <option value={""}>Select any topic</option>
               {topics &&
                 topics.map((item, idx) => (
-                  <option
-                    selected={idx === 0 ? true : false}
-                    value={item.topicId}
-                    key={idx}
-                  >
+                  <option value={item.topicId} key={idx}>
                     {item.topicName}
                   </option>
                 ))}
@@ -253,7 +268,7 @@ function AddQuestionPage() {
             <BlackInputLabel>
               Enter the Question <MandatoryInp>*</MandatoryInp>
             </BlackInputLabel>
-            <TextInput
+            <StyledTextarea
               value={state.questionDetail}
               onChange={(e) => update("questionDetail", e.target.value)}
               placeholder="Enter your question"

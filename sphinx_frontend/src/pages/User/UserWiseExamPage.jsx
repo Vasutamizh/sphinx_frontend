@@ -1,9 +1,10 @@
 import { BookOpen, CheckCircle, ChevronDown, Clock, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { failureToast } from "../../utils/toast";
 
 const UserExamDashboard = () => {
+  const { apiGet, apiPost } = useAPI();
   // const users = [
   //   { id: 1, name: "Arjun" },
   //   { id: 2, name: "Priya" },
@@ -34,7 +35,7 @@ const UserExamDashboard = () => {
 
   useEffect(() => {
     const getAllUsers = async () => {
-      const response = await apiGet("/auth/getAllUsers");
+      const response = await apiGet("/user/getAllUsers");
 
       if (response.responseMessage && response.responseMessage === "success") {
         setUsers(response.users || []);

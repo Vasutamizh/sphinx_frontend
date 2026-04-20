@@ -13,8 +13,9 @@ function SingleChoiceQuestionForm({
   options,
   updateState,
   answer,
-  errors,
+  errors = {},
   storeAnswer,
+  isExam = false,
 }) {
   const idxIdentifier = {
     0: "A",
@@ -23,19 +24,24 @@ function SingleChoiceQuestionForm({
     3: "D",
   };
   // const [isChecked, setIsChecked] = useState("");
-  const singleChoiceAnswer = answer["SINGLE_CHOICE"];
+  const singleChoiceAnswer = answer?.SINGLE_CHOICE;
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
-      <FormHint>
-        <strong>Tip -</strong> Enter all options and mark the correct answer by
-        clicking it.
-      </FormHint>
+
+      {isExam === false && (
+        <FormHint>
+          <strong>Tip -</strong> Enter all options and mark the correct answer
+          by clicking it.
+        </FormHint>
+      )}
 
       <Section>
         <h4>
           Options <MandatoryInp>*</MandatoryInp>
-          <HelperText>All options are mandatory</HelperText>
+          {isExam === false && (
+            <HelperText>All options are mandatory</HelperText>
+          )}
         </h4>
 
         {options.map((opt, idx) => (
@@ -59,6 +65,7 @@ function SingleChoiceQuestionForm({
                   updateState("options", newOptions);
                 }}
                 placeholder={`Option ${idx + 1}`}
+                disabled={isExam}
               />
             </OptionRow>
             {errors[`option_${idx}`] && (

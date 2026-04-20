@@ -15,7 +15,7 @@ import { useLocation } from "react-router-dom";
 import AssignUserToExamModal from "../../components/Modal_Components/AssignUserToExamModal";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import EditAssignedUserModal from "../../components/Modal_Components/EditAssignedUserModal";
-import { apiGet, apiPost, isError } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import {
   ActionRow,
   AddButton,
@@ -40,6 +40,7 @@ import {
 import { failureToast, successToast } from "../../utils/toast";
 
 export default function AssignUsers() {
+  const { apiGet, apiPost, isError } = useAPI();
   const [currentUserForEdit, setCurrentUserForEdit] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -55,7 +56,7 @@ export default function AssignUsers() {
 
   useEffect(() => {
     const getAllUsers = async () => {
-      const response = await apiGet("/auth/getAllUsers");
+      const response = await apiGet("/user/getAllUsers");
       if (response.responseMessage && response.responseMessage === "success") {
         setUsers(response.users);
       } else {

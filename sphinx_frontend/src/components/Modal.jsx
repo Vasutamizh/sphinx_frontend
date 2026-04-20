@@ -43,17 +43,11 @@ export default function Modal({
   closeOnOverlay = true,
   showCloseButton = true,
 }) {
-  //   useInjectStyles();
-  //   useScrollLock(isOpen);
-
   const panelRef = useRef(null);
-  //   useFocusTrap(panelRef, isOpen);
 
-  // Track exit animation state so we can animate out before unmounting.
   const [exiting, setExiting] = useState(false);
   const exitTimerRef = useRef(null);
 
-  // Kick off the exit animation, then call onClose after it completes.
   const handleClose = useCallback(() => {
     if (!onClose || exiting) return;
     setExiting(true);
@@ -63,18 +57,7 @@ export default function Modal({
     }, 180); // Matches CSS animation duration
   }, [onClose, exiting]);
 
-  // Clean up the exit timer if the component unmounts mid-animation.
   useEffect(() => () => clearTimeout(exitTimerRef.current), []);
-
-  // Close on Escape key.
-  //   useEffect(() => {
-  //     if (!isOpen) return;
-  //     function handleKeyUp(e) {
-  //       if (e.key === "Escape") handleClose();
-  //     }
-  //     document.addEventListener("keyup", handleKeyUp);
-  //     return () => document.removeEventListener("keyup", handleKeyUp);
-  //   }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
 
@@ -96,7 +79,6 @@ export default function Modal({
         ref={panelRef}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Header — renders when title, subtitle, icon, or close button present ── */}
         {(title || subtitle || resolvedIcon || showCloseButton) && (
           <ModalHeader>
             {resolvedIcon && (

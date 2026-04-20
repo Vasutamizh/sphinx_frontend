@@ -1,4 +1,4 @@
-import { apiPost, isError } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { StyledButton, TextInput } from "../../styles/common.styles";
 import { failureToast, successToast } from "../../utils/toast";
 import Modal from "../Modal";
@@ -13,6 +13,8 @@ function EditAssignedUserModal({
 }) {
   if (!userForEdit) return;
   if (!onSuccessUpdate) return;
+
+  const { apiPost, isError } = useAPI();
 
   const { user, flag } = userForEdit;
 

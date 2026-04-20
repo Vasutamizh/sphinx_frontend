@@ -14,7 +14,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { apiDelete, apiGet, apiPost, isError } from "../../services/ApiService";
 import {
   AddButton,
   CardFooter,
@@ -42,10 +41,12 @@ import {
 } from "../../styles/ExamMasterPage.styles";
 
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
+import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
 import { failureToast, successToast } from "../../utils/toast";
 
 function ExamMasterPage() {
+  const { apiGet, apiPost, isError, apiDelete } = useAPI();
   const dispatch = useDispatch();
   const partyId = useSelector((state) => state.auth.partyId);
 
@@ -90,7 +91,7 @@ function ExamMasterPage() {
 
   const getCounts = async () => {
     dispatch(loaderActions.loaderOn());
-    const examRes = await apiPost("/exam/examCount", { partyId });
+    const examRes = await apiPost("/exam/examCount", {});
     if (examRes.responseMessage === "success") {
       setExamCount(examRes.count);
     }
@@ -100,7 +101,7 @@ function ExamMasterPage() {
       setTopicCount(topicRes.count);
     }
 
-    const userRes = await apiGet("/auth/getAllUsersCount");
+    const userRes = await apiGet("/user/getAllUsersCount");
     if (userRes.responseMessage === "success") {
       setUsersCount(userRes.count);
     }

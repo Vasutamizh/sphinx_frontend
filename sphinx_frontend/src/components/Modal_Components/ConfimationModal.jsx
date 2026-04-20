@@ -9,7 +9,7 @@ function ConfimationModal({
   message,
   type = "warning",
 }) {
-  console.log("type => ", type);
+  // console.log("type => ", type);
   return (
     <Modal
       isOpen={isOpen}

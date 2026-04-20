@@ -1,4 +1,4 @@
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Layout from "./components/Layout";
@@ -9,9 +9,11 @@ import AssignUsers from "./pages/Exam/AssignUsersPage";
 import ExamCreationPage from "./pages/Exam/ExamCreationPage";
 import ExamDetailsPage from "./pages/Exam/ExamDetailsPage";
 import ExamMasterPage from "./pages/Exam/ExamMasterPage";
+import ExamResult from "./pages/Exam/ExamResult";
 import ExamWiseUserViewer from "./pages/Exam/ExamWiseUserViewerPage";
 import AddQuestionPage from "./pages/Question/AddQuestionPage";
 import ManageQuestions from "./pages/Question/ManageQuestions";
+import QuestionAttendPage from "./pages/Question/QuestionAttendPage";
 import QuestionUploadPage from "./pages/Question/QuestionUploadPage";
 import ManageUsers from "./pages/User/ManageUsers";
 import UserDashboardPage from "./pages/User/UserDashboardPage";
@@ -19,45 +21,18 @@ import UserExamDashboard from "./pages/User/UserWiseExamPage";
 import store from "./store/Store";
 
 function App() {
-  const ProtectedRoute = ({ children }) => {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
-    if (isAuthenticated) {
-      return children;
-    } else {
-      return <LoginPage />;
-    }
-  };
-
-  const AuthenticateProtectedRoute = ({ children }) => {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
-    if (isAuthenticated) {
-      return <ExamMasterPage />;
-    } else {
-      return children;
-    }
-  };
-
   return (
     <>
       <Provider store={store}>
         <BrowserRouter>
           <Layout>
             <Routes>
-              <Route
-                path="/"
-                element={
-                  <AuthenticateProtectedRoute>
-                    <LoginPage />
-                  </AuthenticateProtectedRoute>
-                }
-              />
+              <Route path="/login" Component={LoginPage} />
               <Route path="/signup" Component={SignupPage} />
               <Route path="/addQuestion" Component={AddQuestionPage} />
               <Route path="/uploadQuestions" Component={QuestionUploadPage} />
               <Route path="/createExam" Component={ExamCreationPage} />
-              <Route path="/dashboard" Component={ExamMasterPage} />
+              <Route path="/" Component={ExamMasterPage} />
               <Route path="/assignUsers" Component={AssignUsers} />
               <Route path="/examWiseUsers" Component={ExamWiseUserViewer} />
               <Route path="/userWiseExams" Component={UserExamDashboard} />
@@ -66,6 +41,8 @@ function App() {
               <Route path="/manageUsers" Component={ManageUsers} />
               <Route path="/userDashboard" Component={UserDashboardPage} />
               <Route path="/assesmentDetails" Component={ExamDetailsPage} />
+              <Route path="/attend" Component={QuestionAttendPage} />
+              <Route path="/assessmentResult" Component={ExamResult} />
             </Routes>
           </Layout>
         </BrowserRouter>

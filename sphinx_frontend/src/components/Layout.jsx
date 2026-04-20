@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -18,14 +16,15 @@ function Layout({ children }) {
   const memoizedComps = useMemo(() => {
     return <LayoutContentContainer>{children}</LayoutContentContainer>;
   }, [children]);
-  console.log("Children => ", children);
+  // console.log("Children => ", children);
   return (
     <LayoutContainer>
       {isLoading && <CustomLoader />}
       <Navbar />
       <Toaster />
-      <div className="mt-5 grid gap-3 grid-cols-[1fr_10fr]">
-        <div className="mt-3 flex justify-end">
+      {/* <div className="mt-5 grid gap-3 grid-cols-[1fr_10fr]"> */}
+      <div className="mx-30 mt-3">
+        {/* <div className="mt-3 flex justify-end">
           <Button
             variant="outline"
             className="cursor-pointer"
@@ -34,7 +33,7 @@ function Layout({ children }) {
             <ChevronLeft size={20} />{" "}
             <span className="font-semibold text-md">Back</span>
           </Button>
-        </div>
+        </div> */}
         {memoizedComps}
       </div>
       <Footer />

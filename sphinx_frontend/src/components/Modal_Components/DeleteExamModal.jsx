@@ -1,11 +1,13 @@
 import { Trash2 } from "lucide-react";
 import { FcCancel } from "react-icons/fc";
-import { apiDelete } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
 import Modal from "../Modal";
 
 function DeleteExamModal({ open, onClose, examId, onDeleteSuccess, message }) {
   if (!open) return null;
+
+  const { apiDelete } = useAPI();
 
   const handleDelete = async () => {
     try {

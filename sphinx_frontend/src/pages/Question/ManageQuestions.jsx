@@ -24,9 +24,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
+import useAPI from "../../hooks/useAPI";
 import { useTopics } from "../../hooks/useTopics";
 import { questionTypes } from "../../lib/data";
-import { apiDelete, apiPost, isError } from "../../services/ApiService";
 import {
   CardHeader,
   CardTitle,
@@ -42,6 +42,7 @@ import {
 import { failureToast, successToast } from "../../utils/toast";
 
 function ManageQuestions() {
+  const { apiDelete, apiPost, isError } = useAPI();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);

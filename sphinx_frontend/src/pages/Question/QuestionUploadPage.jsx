@@ -3,11 +3,13 @@ import FileCard from "../../components/FileCard";
 import FileUpload from "../../components/FileUpload";
 import FormHint from "../../components/FormHint";
 import Loader from "../../components/Loader";
-import { apiFileGet, apiFilePost } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { FormErrorMessage, StyledButton } from "../../styles/common.styles";
 import { failureToast, successToast } from "../../utils/toast";
 
 const QuestionUploadPage = () => {
+  const { apiFileGet, apiFilePost } = useAPI();
+
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

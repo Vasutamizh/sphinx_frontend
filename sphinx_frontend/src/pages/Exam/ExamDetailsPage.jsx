@@ -1,245 +1,275 @@
-import {
-  AlertCircle,
-  BookOpen,
-  Calendar,
-  ChevronRight,
-  Clock,
-  Info,
-  Play,
-  RefreshCw,
-  Target,
-} from "lucide-react";
-import { useState } from "react";
-import { MdTopic } from "react-icons/md";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
+import SecurityCodeModal from "../../components/Modal_Components/SecurityCodeModal";
+import useAPI from "../../hooks/useAPI";
+import { failureToast, successToast } from "../../utils/toast";
 
-function ExamDetailsPage() {
+function formatDate(ms) {
+  return new Date(ms).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export default function ExamDetailsPage() {
+  const navigate = useNavigate();
+  const { apiPost, isError } = useAPI();
   const location = useLocation();
 
-  const exam = location.state?.exam || {
-    examName: "Java Certification Test",
-    description: "Basic Java programming assessment",
-    noOfQuestions: 50,
-    duration: 60,
-    passPercentage: 40,
-    allowNegativeMarks: false,
-    fromDate: "2026-04-01T10:00:00",
-    thruDate: "2026-04-30T18:00:00",
-    examId: "EXAM1001",
-    partyId: "USER123",
-    allowedAttempts: 3,
-    noOfAttempts: 1,
-    timeoutDays: 7,
+  const [data, setData] = useState(location.state?.exam || {});
+  const [started, setStarted] = useState(false);
+  const [confirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const attemptsLeft = data.allowedAttempts - data.noOfAttempts;
+  const [startExamPayload, setStartExamPayload] = useState({
+    partyId: data?.partyId,
+    examId: data?.examId,
+    remainingTime: data?.duration,
+    totalAnswered: 0,
+    totalRemaining: data?.noOfQuestions,
+    isExamActive: 1,
+    currentSplitAttempt: 0,
+  });
+
+  const startExam = async () => {
+    const response = await apiPost("/userExam", startExamPayload);
+
+    if (isError(response)) {
+      failureToast(
+        response.errorMessage ||
+          response.error ||
+          "Failed to verify Security code!",
+      );
+    } else {
+      successToast(response.successMessage);
+      navigate("/attend", {
+        state: { exam: data, totalQuestions: response.totalQuestions },
+      });
+    }
   };
 
-  function formatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+  const verifyOtp = async (securityCode) => {
+    const response = await apiPost("/userExam/verifyOtp", {
+      examId: data.examId,
+      partyId: data.partyId,
+      securityCode,
     });
-  }
 
-  function avgMinutes(questions, duration) {
-    return (duration / questions).toFixed(1);
-  }
+    if (isError(response)) {
+      failureToast(
+        response.errorMessage ||
+          response.error ||
+          "Failed to verify Security code!",
+      );
+    } else {
+      successToast(response.successMessage);
+      // start the exam.
+      startExam();
+    }
+  };
 
-  const attemptsLeft = exam.allowedAttempts - exam.noOfAttempts;
-  const attemptPct = (exam.noOfAttempts / exam.allowedAttempts) * 100;
+  useEffect(() => {
+    if (location.state === null || location.state === undefined) {
+      navigate("/userDashboard");
+    }
+  }, []);
 
-  const [launching, setLaunching] = useState(false);
-
-  function handleLaunch() {
-    setLaunching(true);
-    // your logic here
-    setTimeout(() => setLaunching(false), 2000);
-  }
   return (
-    <div className="min-h-screen bg-white rounded-2xl text-black font-['Sora',sans-serif] px-4 py-10">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-        .mono { font-family: 'Space Mono', monospace; }
-        .glow-green { box-shadow: 0 0 0 1px #22c55e33, 0 0 24px #22c55e18; }
-        .glow-btn { box-shadow: 0 0 0 1px #facc15aa, 0 4px 32px #facc1540; }
-        .glow-btn:hover { box-shadow: 0 0 0 1px #facc15, 0 4px 48px #facc1560; }
-        .stat-tile { background: white; color: black; border: 1px solid #252525; transition: border-color 0.2s; }
-        .stat-tile:hover { border-color: #333; }
-        .progress-track { background: #1e1e1e; border-radius: 999px; overflow: hidden; }
-        .progress-fill { background: linear-gradient(90deg, #22c55e, #86efac); border-radius: 999px; transition: width 0.8s ease; }
-        .tag-pill { font-family: 'Space Mono', monospace; font-size: 11px; border-radius: 4px; padding: 2px 8px; letter-spacing: 0.05em; }
-        .section-card { background: white;  border-radius: 16px; }
-        .rule-row { border-bottom: 1px solid #1a1a1a; }
-        .rule-row:last-child { border-bottom: none; }
-        .accent-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; display: inline-block; }
-      `}</style>
+    <>
+      <SecurityCodeModal
+        isOpen={otpModalOpen}
+        onClose={() => setOtpModalOpen(false)}
+        onOk={verifyOtp}
+        type="success"
+      />
 
-      <div className="max-w-2xl mx-auto space-y-5">
-        {/* Header */}
-        <div className="section-card p-6">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-2xl font-bold text-black leading-tight mb-1">
-                {exam.examName}
-              </h1>
-              <p className="text-sm text-neutral-400">{exam.description}</p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <span className="text-xs rounded-[4px] px-[8px] py-[2px] tracking-[0.05em] bg-green-600 text-white border border-green-800/50">
-                Eligible
-              </span>
-            </div>
+      <ConfimationModal
+        isOpen={confirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
+        onOk={() => setOtpModalOpen(true)}
+        onCancel={() => setIsConfirmationModalOpen(false)}
+        message={
+          "Once you begin, the timer will start and cannot be paused. Please ensure you have a stable connection and are ready to complete the exam without interruptions."
+        }
+        type="info"
+      />
+
+      <div className="title flex justify-between items-center">
+        <div className="titleText">
+          <span className="text-2xl block">ASSESSMENT DETAILS</span>
+          <span className="text-gray-500 text-sm">
+            Detailed Information about Assessment
+          </span>
+        </div>
+      </div>
+
+      <div className="font-[Inter] bg-white min-h-screen px-6 py-10 rounded mx-auto">
+        <div className="flex items-start">
+          <div>
+            <h1 className="text-[18px] font-bold text-gray-900 leading-tight mb-1.5">
+              {data.examName}
+            </h1>
+
+            <p className="text-[14px] text-gray-500 mb-8">
+              Advanced level · Available from {formatDate(data.fromDate)}
+            </p>
           </div>
 
-          {/* Attempt progress */}
-          <div className="mt-5 bg-white rounded-xl p-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-neutral-400 flex items-center gap-1.5">
-                <RefreshCw size={13} className="text-neutral-500" />
-                Attempts used
-              </span>
-              <div>
-                <span className="font-bold text-black">
-                  {exam.noOfAttempts} out of {exam.allowedAttempts} used{"  "}
-                </span>
-                <span>
-                  ( Remaining : {attemptsLeft} attempt
-                  {attemptsLeft !== 1 ? "s" : ""})
-                </span>
-              </div>
-            </div>
-            <div className="progress-track h-1.5 w-full">
-              <div
-                className="progress-fill h-full"
-                style={{ width: `${attemptPct}%` }}
-              />
-            </div>
-          </div>
+          <span className="ml-auto text-[12px] bg-green-50 text-green-600 px-3 py-[3px] rounded-full font-medium">
+            Active
+          </span>
         </div>
 
-        {/* Stat tiles */}
-        <div className="grid grid-cols-4 gap-3">
+        {/* Stats row */}
+        <div className="flex gap-8 mb-9 pb-8 border-b border-gray-100">
           {[
+            { label: "Duration", value: `${data.duration} min` },
+            { label: "Questions", value: data.noOfQuestions },
+            { label: "Pass Percentage", value: `${data.passPercentage}%` },
             {
-              icon: <BookOpen size={14} className="text-blue-400" />,
-              label: "Questions",
-              value: exam.noOfQuestions,
-              sub: "items",
+              label: "Attempts",
+              value: `${data.noOfAttempts}/${data.allowedAttempts}`,
             },
-            {
-              icon: <Clock size={14} className="text-amber-400" />,
-              label: "Duration",
-              value: exam.duration,
-              sub: "minutes",
-            },
-            {
-              icon: <Target size={14} className="text-red-400" />,
-              label: "Pass mark",
-              value: `${exam.passPercentage}%`,
-              sub: "required",
-            },
-            {
-              icon: <MdTopic size={14} className="text-purple-400" />,
-              label: "Topics",
-              value: 10,
-              sub: "topics",
-            },
-          ].map((s) => (
-            <div key={s.label} className="stat-tile rounded-xl p-3.5">
-              <div className="flex items-center gap-1.5 mb-2">
-                {s.icon}
-                <span className="text-xs text-neutral-500">{s.label}</span>
-              </div>
-              <p className="mono text-xl font-bold text-black">{s.value}</p>
-              <p className="text-xs text-neutral-600 mt-0.5">{s.sub}</p>
+            { label: "Timeout Period", value: `${data.timeoutDays} days` },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex flex-col gap-1">
+              <span className="text-[11px] text-gray-400 uppercase tracking-[0.6px]">
+                {label}
+              </span>
+              <span className="text-[20px] font-bold text-gray-900">
+                {value}
+              </span>
             </div>
           ))}
         </div>
 
-        {/* Schedule + Rules */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="section-card p-5">
-            <p className="text-xs text-neutral-500 uppercase tracking-widest mono mb-4">
-              Schedule
-            </p>
-            <div className="space-y-3">
-              <div className="rule-row pb-3">
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500 mb-1">
-                  <Calendar size={11} /> Opens
-                </div>
-                <p className="font-semibold text-black">
-                  {formatDate(exam.fromDate)}
-                </p>
-              </div>
-              <div className="rule-row pb-3">
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500 mb-1">
-                  <Calendar size={11} /> Closes
-                </div>
-                <p className="font-semibold text-black">
-                  {formatDate(exam.thruDate)}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Rules */}
+        <div className="mb-9">
+          <h2 className="text-[13px] font-semibold text-gray-400 uppercase tracking-[0.6px] mb-4">
+            Rules
+          </h2>
 
-          <div className="section-card p-5">
-            <p className="text-xs text-neutral-500 uppercase tracking-widest mono mb-4">
-              Rules
-            </p>
-            <div className="space-y-3">
-              <div className="rule-row pb-3 flex justify-between items-center">
-                <div className="flex gap-2 items-center text-xs text-neutral-400">
-                  <AlertCircle size={11} /> <span> Negative marks</span>
-                </div>
-                <span
-                  className={`tag-pill ${exam.allowNegativeMarks ? "bg-red-950 text-red-400 border border-red-800/50" : "bg-green-950 text-green-400 border border-green-800/50"}`}
-                >
-                  {exam.allowNegativeMarks ? "YES" : "NO"}
+          <div className="grid grid-cols-2 gap-y-[10px] gap-x-6">
+            {[
+              [
+                "Negative marking",
+                data.allowNegativeMarks ? "Enabled" : "Disabled",
+              ],
+              ["Allowed attempts", `${data.allowedAttempts} attempt`],
+              ["Auto-timeout", `${data.timeoutDays} days`],
+              ["Validity", "No expiry"],
+              ["Party ID", data.partyId],
+            ].map(([k, v]) => (
+              <div
+                key={k}
+                className="flex justify-between items-center py-2.5 border-b border-gray-100"
+              >
+                <span className="text-[13px] text-gray-500">{k}</span>
+                <span className="text-[13px] font-semibold text-gray-900">
+                  {v}
                 </span>
               </div>
-              <div className="rule-row pb-3 flex justify-between items-center">
-                <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                  <RefreshCw size={11} className="text-neutral-500" /> Max
-                  attempts
-                </div>
-                <span className="mono text-sm font-bold text-black">
-                  {exam.allowedAttempts}
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="flex items-start gap-2.5 px-1">
-          <Info size={13} className="text-neutral-600 mt-0.5" />
-          <p className="text-xs text-neutral-600 leading-relaxed">
-            Once launched, the {exam.duration}-minute timer begins immediately
-            and cannot be paused. Ensure a stable internet connection before
-            starting.
-          </p>
+        {/* Topics */}
+        <div className="mb-10">
+          <h2 className="text-[13px] font-semibold text-gray-400 uppercase tracking-[0.6px] mb-4">
+            Topics Involved
+          </h2>
+
+          <div className="flex flex-col gap-3.5">
+            {data.topics &&
+              data.topics.map((t, i) => (
+                <div key={i}>
+                  <div className="flex justify-between mb-1.5">
+                    <span className="text-[13px] text-gray-700 font-medium">
+                      Topic : {t.topicName}
+                    </span>
+                    <span className="text-[12px] text-gray-400">
+                      {t.percentage}%
+                    </span>
+                  </div>
+
+                  <div className="bg-gray-100 rounded-full h-1">
+                    <div
+                      className="h-1 rounded-full transition-all duration-700"
+                      style={{
+                        width: `${t.percentage}%`,
+                        background: `hsl(${220 + i * 18}, 70%, 55%)`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+          </div>
         </div>
 
-        <button
-          onClick={handleLaunch}
-          disabled={launching}
-          className="bg-[#facc15] hover:bg-[#fde047] text-[#0d0d0d] rounded-[12px] font-[700] text-md letter-[0.02em] glow-btn w-full py-4 flex items-center justify-center gap-3 cursor-pointer  disabled:opacity-[0.6] disabled:cursor-not-allowed;"
-        >
-          {launching ? (
-            <>
-              <RefreshCw size={18} className="animate-spin" />
-              Launching…
-            </>
-          ) : (
-            <>
-              <Play size={18} fill="#0d0d0d" />
-              Launch Assessment
-              <ChevronRight size={18} />
-            </>
-          )}
-        </button>
+        {/* Instructions */}
+
+        <div className="mb-10">
+          <h2 className="text-[13px] font-semibold text-gray-400 uppercase tracking-[0.6px] mb-4">
+            Assesment Instructions
+          </h2>
+          <ul className="pl-5">
+            {[
+              "Avoid using the back button or refreshing the page during the exam.",
+              "Do not refresh or close the browser tab once the exam has started. Doing so may result in loss of progress.",
+              "Ensure you have a stable internet connection throughout the exam.",
+              "Do not navigate away from the exam window. Switching tabs or minimizing the browser may be recorded.",
+              "The exam is time-bound. Make sure to complete all questions before the timer ends.",
+              "All questions are important. Attempt every question to maximize your score.",
+              "If negative marking is enabled, answer carefully—incorrect answers may reduce your score.",
+              "Do not use external help, including books, notes, or online resources, unless explicitly allowed.",
+              "Once submitted, the exam cannot be retaken unless additional attempts are permitted.",
+              "Your progress may be auto-submitted if the time limit is exceeded.",
+              "Carefully read each question before answering.",
+            ].map((ins, idx) => (
+              <li key={idx} className="list-disc">
+                {ins}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+          <div>
+            <span className="text-[13px] text-gray-500">
+              {attemptsLeft > 0
+                ? `${attemptsLeft} attempt remaining`
+                : "No attempts left"}
+            </span>
+
+            {data.allowNegativeMarks === 0 && (
+              <p className="text-[12px] text-gray-400 mt-1">
+                No negative marking — attempt all questions
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={() => setIsConfirmationModalOpen(true)}
+            disabled={attemptsLeft === 0}
+            className={`cursor-pointer px-7 py-[11px] rounded-[10px] text-[14px] font-semibold transition 
+        ${
+          attemptsLeft === 0
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : started
+              ? "bg-green-600 text-white hover:bg-green-700"
+              : "bg-gray-900 text-white hover:bg-black"
+        }`}
+          >
+            {started
+              ? "✓ Started"
+              : attemptsLeft === 0
+                ? "Unavailable"
+                : "Start Assessment →"}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-export default ExamDetailsPage;

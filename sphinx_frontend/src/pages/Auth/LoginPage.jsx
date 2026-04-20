@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import EyeClosedIcon from "../../components/EyeCloseIcon";
 import EyeOpenIcon from "../../components/EyeOpen";
-import { apiPost } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { authActions } from "../../store/AuthReducer";
 import {
   ErrorBox,
@@ -18,6 +18,7 @@ import { failureToast, successToast } from "../../utils/toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { apiPost } = useAPI();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -66,8 +67,17 @@ export default function LoginPage() {
           response.responseMessage === "success"
         ) {
           successToast(response.successMessage);
-          dispatch(authActions.authenticate({ partyId: response.partyId }));
-          navigate("/");
+          dispatch(
+            authActions.authenticate({
+              partyId: response.partyId,
+              userRole: response.userRole,
+            }),
+          );
+          if (response?.userRole.roleTypeId === "SphinxUser") {
+            navigate("/userDashboard");
+          } else {
+            navigate("/");
+          }
         } else {
           failureToast(
             response.errorMessage ||

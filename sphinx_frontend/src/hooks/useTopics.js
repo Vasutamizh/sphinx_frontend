@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { apiGet, apiPost } from "../services/ApiService";
 import { failureToast, successToast } from "../utils/toast";
+import useAPI from "./useAPI";
 
 export const useTopics = () => {
+  const { apiGet, apiPost } = useAPI();
+
   const [topics, setTopics] = useState([]);
-  const [questionTypes, setQuestionTypes] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
   const fetchAll = async () => {
     try {
-      const [typesRes, topicsRes] = await Promise.all([
-        apiGet("/questions/questionTypes"),
-        apiGet("/topics"),
-      ]);
-
-      if (typesRes.responseMessage === "success") {
-        setQuestionTypes(typesRes.data);
-      }
+      const [topicsRes] = await Promise.all([apiGet("/topics")]);
 
       if (topicsRes.responseMessage === "success") {
         setTopics(topicsRes.topicList);
@@ -46,8 +40,6 @@ export const useTopics = () => {
 
   return {
     topics,
-    questionTypes,
-
     createTopic,
     openModal,
     setOpenModal,

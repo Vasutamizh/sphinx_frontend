@@ -8,14 +8,16 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function DescriptiveQuestionForm({ answer, errors, storeAnswer }) {
+function DescriptiveQuestionForm({ answer, errors = {}, storeAnswer, isExam }) {
   const descriptiveAnswer = answer["DETAILED_ANSWER"];
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
-      <FormHint>
-        <strong>Tip - </strong> Enter the correct answer in below textbox
-      </FormHint>
+      {isExam === false && (
+        <FormHint>
+          <strong>Tip - </strong> Enter the correct answer in below textbox
+        </FormHint>
+      )}
       <Section>
         <label>
           Answer <MandatoryInp>*</MandatoryInp>{" "}

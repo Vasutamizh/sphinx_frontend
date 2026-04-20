@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import EyeClosedIcon from "../../components/EyeCloseIcon";
 import EyeOpenIcon from "../../components/EyeOpen";
-import { apiPost, isError } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import {
   BorderedFlexDiv,
   ErrorBox,
@@ -18,6 +18,7 @@ import { signupFormValidator } from "../../utils/ValidationService";
 import { failureToast, successToast } from "../../utils/toast";
 
 export default function SignupPage() {
+  const { apiPost, isError } = useAPI();
   const [state, setState] = useState({
     userName: "",
     firstName: "",
@@ -78,7 +79,7 @@ export default function SignupPage() {
         role: "admin",
       };
       try {
-        const response = await apiPost("/auth/signup", payload);
+        const response = await apiPost("/user/signup", payload);
         if (!isError(response)) {
           successToast(
             response.successMessage || "Account Created Successfully!",

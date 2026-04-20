@@ -12,7 +12,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import UserAddUpdateModal from "../../components/Modal_Components/UserAddUpdateModal";
-import { apiDelete, apiGet, isError } from "../../services/ApiService";
+
+import useAPI from "../../hooks/useAPI";
 import {
   CardHeader,
   CardTitle,
@@ -28,6 +29,7 @@ import {
 import { failureToast, successToast } from "../../utils/toast";
 
 function ManageUsers() {
+  const { apiGet, apiDelete, isError } = useAPI();
   const [users, setUsers] = useState([]);
   const [selectParticulars, setSelectParticulars] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -43,7 +45,7 @@ function ManageUsers() {
   const getAllUsers = async () => {
     setLoading(true);
 
-    const response = await apiGet("/auth/getAllUsers");
+    const response = await apiGet("/user/getAllUsers");
 
     if (isError(response)) {
       failureToast(
@@ -58,7 +60,7 @@ function ManageUsers() {
   };
 
   const handleDelete = async () => {
-    const response = await apiDelete("/auth", { partyIds: selectParticulars });
+    const response = await apiDelete("/user", { partyIds: selectParticulars });
     if (isError(response)) {
       failureToast(
         response.errorMessage || response.error || "Failed to Delete User(s)!",

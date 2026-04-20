@@ -13,8 +13,9 @@ function MultipleChoicQuestionForm({
   options,
   updateState,
   selectedAnswers,
-  errors,
+  errors = {},
   storeAnswer,
+  isExam = false,
 }) {
   const idxIdentifier = {
     0: "A",
@@ -28,9 +29,12 @@ function MultipleChoicQuestionForm({
     if (selectedAnswers.includes(answer)) {
       newAnswers = selectedAnswers.filter((i) => i !== answer);
     } else {
+      // newAnswers.push(answer);
       newAnswers = [...selectedAnswers, answer];
     }
-    updateState("selectedAnswers", newAnswers);
+    if (updateState) {
+      updateState("selectedAnswers", newAnswers);
+    }
     storeAnswer("MULTIPLE_CHOICE", newAnswers);
   };
 
@@ -41,14 +45,21 @@ function MultipleChoicQuestionForm({
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
-      <FormHint>
-        <strong>Tip - </strong> Enter all options and mark the correct answer(s)
-        using the checkbox.
-      </FormHint>
+      {!isExam && (
+        <FormHint>
+          <strong>Tip - </strong> Enter all options and mark the correct
+          answer(s) using the checkbox.
+        </FormHint>
+      )}
       <Section>
         <h4>
-          Options <MandatoryInp>*</MandatoryInp>
-          <HelperText>All options are mandatory</HelperText>
+          Options
+          {!isExam && (
+            <>
+              <MandatoryInp>*</MandatoryInp>
+              <HelperText>All options are mandatory</HelperText>
+            </>
+          )}
         </h4>
 
         {options.map((opt, idx) => (
@@ -59,6 +70,7 @@ function MultipleChoicQuestionForm({
                 name="check"
                 checked={selectedAnswers.includes(idxIdentifier[idx])}
                 onChange={() => handleCheck(idx)}
+                className="cursor-pointer"
               />
 
               <TextInput
@@ -69,6 +81,7 @@ function MultipleChoicQuestionForm({
                   updateState("options", newOptions);
                 }}
                 placeholder={`Option ${idx + 1}`}
+                disabled={isExam}
               />
             </OptionRow>
             {errors[`option_${idx}`] && (

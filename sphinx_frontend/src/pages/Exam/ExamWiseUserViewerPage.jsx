@@ -1,7 +1,7 @@
 import { ChevronDown, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { apiPost } from "../../services/ApiService";
+import useAPI from "../../hooks/useAPI";
 import { failureToast } from "../../utils/toast";
 
 export default function ExamWiseUserViewer() {
@@ -20,6 +20,7 @@ export default function ExamWiseUserViewer() {
   //       users: [],
   //     },
   //   ];
+  const { apiPost } = useAPI();
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState("");
   const [assignedUsers, setAssignedUsers] = useState([]);

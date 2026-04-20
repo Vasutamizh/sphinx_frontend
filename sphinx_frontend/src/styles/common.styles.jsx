@@ -36,6 +36,11 @@ export const TextInput = styled.input`
     box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.25);
     background: white;
   }
+
+  &:disabled {
+    border: none;
+    background: white;
+  }
 `;
 
 export const TextArea = styled.textarea`
@@ -275,6 +280,7 @@ export const OptionRow = styled.div`
 `;
 
 export const StyledTextarea = styled.textarea`
+  background: white;
   width: 100%;
   min-height: 120px;
   padding: 0.75rem;
@@ -287,11 +293,7 @@ export const LayoutContainer = styled.div`
   width: 100%;
 `;
 
-export const LayoutContentContainer = styled.div`
-  max-width: 1000px;
-  // margin: 20px auto;
-  // overflow: scroll;
-`;
+export const LayoutContentContainer = styled.div``;
 
 export const HelperText = styled.div`
   font-size: 12px;

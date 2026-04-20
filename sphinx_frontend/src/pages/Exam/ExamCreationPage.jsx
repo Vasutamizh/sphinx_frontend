@@ -12,11 +12,14 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import TopicSection from "../../components/TopicSection";
-import { apiGet, apiPost, apiPut } from "../../services/ApiService";
+
+import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
 import { ExamFormValidation } from "../../utils/ValidationService";
 
 function ExamCreationPage() {
+  const { apiGet, apiPost, apiPut } = useAPI();
+
   const [examName, setExamName] = useState("");
   const [description, setDescription] = useState("");
   const [noOfQuestions, setNoOfQuestions] = useState("");

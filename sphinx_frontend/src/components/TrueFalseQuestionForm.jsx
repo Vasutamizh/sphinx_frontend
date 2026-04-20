@@ -7,7 +7,7 @@ import {
 } from "../styles/common.styles";
 import FormHint from "./FormHint";
 
-function TrueFalseQuestionForm({ errors, answer, storeAnswer }) {
+function TrueFalseQuestionForm({ errors = {}, answer, storeAnswer, isExam }) {
   const options = [
     { key: "True", value: "true" },
     { key: "False", value: "false" },
@@ -15,9 +15,11 @@ function TrueFalseQuestionForm({ errors, answer, storeAnswer }) {
   return (
     <div>
       <BlackInputLabel className="mt-5">Enter the Answer</BlackInputLabel>
-      <FormHint>
-        <strong>Tip -</strong> Select the true or false as answer
-      </FormHint>
+      {isExam === true && (
+        <FormHint>
+          <strong>Tip -</strong> Select the true or false as answer
+        </FormHint>
+      )}
       <Section>
         <label>Select One Answer</label>
 

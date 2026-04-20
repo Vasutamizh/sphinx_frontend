@@ -13,6 +13,11 @@ export async function apiPost(endpoint, data) {
       },
     });
 
+    console.log("RESPONSE STATUS => ", response.status);
+    if (response.status === 401) {
+      return;
+    }
+
     const result = await response.json();
 
     return result;
@@ -27,6 +32,8 @@ export async function apiGet(endpoint) {
       method: "GET",
       credentials: "include",
     });
+
+    console.log("RESPONSE STATUS => ", response.status);
 
     const result = await response.json();
 
@@ -69,6 +76,8 @@ export async function apiPut(endpoint, data) {
         "Content-Type": "application/json",
       },
     });
+
+    console.log("RESPONSE STATUS => ", response.status);
 
     const result = await response.json();
     return result;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { apiPost } from "../services/ApiService";
+import useAPI from "../hooks/useAPI";
 import {
   BlackInputLabel,
   ErrorBox,
@@ -28,6 +28,8 @@ function ExamForm() {
   const [formError, setFormError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [examId, setExamId] = useState("");
+
+  const { apiPost } = useAPI;
 
   const location = useLocation();
   const exam = location.state?.exam;

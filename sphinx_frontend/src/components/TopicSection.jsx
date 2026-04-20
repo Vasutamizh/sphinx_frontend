@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { apiDelete, apiGet, apiPost, apiPut } from "../services/ApiService";
+import useAPI from "../hooks/useAPI";
 import {
   BlackInputLabel,
   FormErrorMessage,
   MandatoryInp,
-  StyledButton,
   StyledSelect,
   TextInput,
 } from "../styles/common.styles";
@@ -22,6 +21,8 @@ function TopicSection({ examId, noOfQuestions }) {
   const [passPercentage, setPassPercentage] = useState("");
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [editTopicId, setEditTopicId] = useState(null);
+
+  const { apiGet, apiPost, apiPut, apiDelete } = useAPI();
 
   useEffect(() => {
     const getAllTopics = async () => {
@@ -378,10 +379,6 @@ function TopicSection({ examId, noOfQuestions }) {
           No topics added yet.
         </p>
       )}
-
-      <StyledButton onClick={generateQuestions}>
-        Generate Questions
-      </StyledButton>
     </div>
   );
 }
