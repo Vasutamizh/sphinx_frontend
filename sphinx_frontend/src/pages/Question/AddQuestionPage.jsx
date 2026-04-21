@@ -153,6 +153,8 @@ function AddQuestionPage() {
     if (state.currentTab === "MULTIPLE_CHOICE") {
       numOfAnswers = finalAnswer.length;
       finalAnswer = finalAnswer.join(",");
+    } else {
+      numOfAnswers = 1;
     }
 
     const payload = {

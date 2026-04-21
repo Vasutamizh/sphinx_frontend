@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import UserAddUpdateModal from "../../components/Modal_Components/UserAddUpdateModal";
 
+import { useDispatch } from "react-redux";
 import useAPI from "../../hooks/useAPI";
 import {
   CardHeader,
@@ -29,11 +30,11 @@ import {
 import { failureToast, successToast } from "../../utils/toast";
 
 function ManageUsers() {
+  const dispatcher = useDispatch();
   const { apiGet, apiDelete, isError } = useAPI();
   const [users, setUsers] = useState([]);
   const [selectParticulars, setSelectParticulars] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [popupMode, setPopupMode] = useState("create");
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState(false);
   const [paginationInfo, setPaginationInfo] = useState({});
@@ -180,9 +181,9 @@ function ManageUsers() {
                 >
                   Create User
                 </Button>
-                <Button onClick={() => {}} className="p-5 cursor-pointer">
+                {/* <Button onClick={() => {}} className="p-5 cursor-pointer">
                   Upload Users
-                </Button>
+                </Button> */}
               </ButtonGroup>
             </div>
           </div>

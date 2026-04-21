@@ -160,17 +160,19 @@ function UserDashboardPage() {
 
                     <CardMeta>
                       <MetaItem>
-                        <Clock10 size={16} /> Duration: {exam.duration}
+                        <Clock10 size={16} /> Duration: {exam.duration} Mins
                       </MetaItem>
                       <MetaItem>
-                        <Calendar size={16} /> Deadline:{" "}
-                        {new Date(exam.thruDate).toLocaleDateString()}
+                        Assigned Date:
+                        {new Date(exam.fromDate).toLocaleDateString()}
                       </MetaItem>
                     </CardMeta>
                     <CardFooter>
                       <Topics>
-                        <TopicTag>React</TopicTag>
-                        <TopicTag>JS</TopicTag>
+                        {exam.topics &&
+                          exam.topics.map((t, idx) => (
+                            <TopicTag key={idx}>{t.topicId}</TopicTag>
+                          ))}
                       </Topics>
                       {exam.examStatus && (
                         <StartButton
