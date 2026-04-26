@@ -15,7 +15,7 @@ function formatDate(ms) {
 
 export default function ExamDetailsPage() {
   const navigate = useNavigate();
-  const { apiPost, isError } = useAPI();
+  const { apiGet, apiPost, isError } = useAPI();
   const location = useLocation();
 
   const [data, setData] = useState(location.state?.exam || {});
@@ -70,6 +70,22 @@ export default function ExamDetailsPage() {
     }
   };
 
+  const sendOTP = async () => {
+    const response = await apiGet(
+      `/securityCode?examId=${data?.examId}&partyId=${data?.partyId}`,
+    );
+
+    if (isError(response)) {
+      failureToast(
+        response.errorMessage ||
+          response.error ||
+          "Failed to verify Security code!",
+      );
+    } else {
+      successToast(response.successMessage);
+    }
+  };
+
   useEffect(() => {
     if (location.state === null || location.state === undefined) {
       navigate("/userDashboard");
@@ -88,7 +104,10 @@ export default function ExamDetailsPage() {
       <ConfimationModal
         isOpen={confirmationModalOpen}
         onClose={() => setIsConfirmationModalOpen(false)}
-        onOk={() => setOtpModalOpen(true)}
+        onOk={() => {
+          sendOTP();
+          setOtpModalOpen(true);
+        }}
         onCancel={() => setIsConfirmationModalOpen(false)}
         message={
           "Once you begin, the timer will start and cannot be paused. Please ensure you have a stable connection and are ready to complete the exam without interruptions."

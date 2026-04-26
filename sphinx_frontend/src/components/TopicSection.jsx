@@ -22,6 +22,8 @@ function TopicSection({ examId, noOfQuestions }) {
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [editTopicId, setEditTopicId] = useState(null);
 
+  const [addedTopics, setAddedTopics] = useState([]);
+
   const { apiGet, apiPost, apiPut, apiDelete } = useAPI();
 
   useEffect(() => {
@@ -74,6 +76,12 @@ function TopicSection({ examId, noOfQuestions }) {
       return;
     }
     setTopicError({});
+
+    if (addedTopics.includes(selectedTopicId)) {
+      setTopicError({ selectedTopicId: "Selected Topic is already Present!" });
+      return;
+    }
+    setAddedTopics((prev) => [...prev, selectedTopicId]);
     setIsTopicLoading(true);
 
     const payload = {

@@ -101,20 +101,31 @@ export const ExamFormValidation = (formData) => {
   if (!formData.duration) {
     errors.duration = "Exam Duration is required ";
   }
-  if (formData.duration > 180) {
-    errors.duration = "Exam duration should be less than 180 minutes";
+  if (
+    !/^\d+$/.test(formData.duration) ||
+    formData.duration > 180 ||
+    formData.duration < 15
+  ) {
+    errors.duration = "Exam duration should be in between 15 and 180 minutes";
   }
   if (!formData.passPercentage) {
     errors.passPercentage = "Exam Pass Percentage is required ";
   }
-  if (formData.passPercentage > 100) {
-    errors.passPercentage = "Pass percentage should be less than 100";
+  if (
+    !/^\d+$/.test(formData.passPercentage) ||
+    formData.passPercentage > 100 ||
+    formData.passPercentage < 0
+  ) {
+    errors.passPercentage = "Pass percentage should be in between 0 and 100";
   }
   if (!formData.questionsRandomized) {
     errors.questionsRandomized = "Question Random option is required ";
   }
   if (!formData.answersMust) {
     errors.answersMust = "Minimun Answers to attend is required";
+  }
+  if (!/^\d+$/.test(formData.answersMust)) {
+    errors.answersMust = "Minimun Answers must be a Number!";
   }
   if (Number(formData.answersMust) > Number(formData.noOfQuestions)) {
     // console.log(typeof formData.answersMust);

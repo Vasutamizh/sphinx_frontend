@@ -46,8 +46,12 @@ function UserDashboardPage() {
         );
       } else {
         if (response.data) {
-          setCompletedExams(response.data.filter((e) => e.examStatus === 0));
-          setNewExams(response.data.filter((e) => e.examStatus === 1));
+          setCompletedExams(
+            response.data.filter((e) => e.allowedAttempts <= e.noOfAttempts),
+          );
+          setNewExams(
+            response.data.filter((e) => e.allowedAttempts > e.noOfAttempts),
+          );
         }
       }
     } catch (err) {
@@ -160,6 +164,10 @@ function UserDashboardPage() {
 
                     <CardMeta>
                       <MetaItem>
+                        Attempt Made: {exam.noOfAttempts} of {"  "}
+                        {exam.allowedAttempts}
+                      </MetaItem>
+                      <MetaItem>
                         <Clock10 size={16} /> Duration: {exam.duration} Mins
                       </MetaItem>
                       <MetaItem>
@@ -213,6 +221,10 @@ function UserDashboardPage() {
                     <CardDescription>{exam.description}</CardDescription>
 
                     <CardMeta>
+                      <MetaItem>
+                        Attempt Made: {exam.noOfAttempts} of
+                        {exam.allowedAttempts}
+                      </MetaItem>
                       <MetaItem>
                         <Clock10 size={16} /> Duration: {exam.duration}
                       </MetaItem>

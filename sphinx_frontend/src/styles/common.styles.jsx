@@ -290,11 +290,9 @@ export const StyledTextarea = styled.textarea`
 `;
 
 export const LayoutContainer = styled.div`
-  width: 100%;
+  // width: 100%;
   background: #f1efe8;
 `;
-
-export const LayoutContentContainer = styled.div``;
 
 export const HelperText = styled.div`
   font-size: 12px;

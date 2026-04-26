@@ -52,5 +52,6 @@ export const validateQuestionForm = (state, answer) => {
     errors.answerValue = "Answer is required";
   }
 
+  console.log("ERRORS => ", errors);
   return errors;
 };

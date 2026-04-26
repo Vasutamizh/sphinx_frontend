@@ -1,3 +1,4 @@
+import { Container, Paper } from "@mantine/core";
 import { useState } from "react";
 import FileCard from "../../components/FileCard";
 import FileUpload from "../../components/FileUpload";
@@ -75,35 +76,37 @@ const QuestionUploadPage = () => {
   };
 
   return (
-    <div>
-      {isLoading && <Loader />}
-      <div className="flex justify-between items-center">
-        <h1>Excel Upload</h1>
-        <StyledButton onClick={downloadTemplate}>
-          Download Sample Template
-        </StyledButton>
-      </div>
-
-      <FormHint>
-        <strong>Tip -</strong> Click the Download Sample Template to download
-        the sample template for questions.
-      </FormHint>
-
-      {file && (
-        <div>
-          <FileCard file={file} onUpload={uploadFile} />
+    <Container size="lg" py="xl">
+      <Paper shadow="md" radius="md" withBorder>
+        {isLoading && <Loader />}
+        <div className="flex justify-between items-center">
+          <h1>Excel Upload</h1>
+          <StyledButton onClick={downloadTemplate}>
+            Download Sample Template
+          </StyledButton>
         </div>
-      )}
-      <div className="mt-20 w-full flex justify-center">
-        <FileUpload onFileUpload={handleFileUpload} />
-      </div>
 
-      {error && (
-        <div className="text-center">
-          <FormErrorMessage>{error}</FormErrorMessage>
+        <FormHint>
+          <strong>Tip -</strong> Click the Download Sample Template to download
+          the sample template for questions.
+        </FormHint>
+
+        {file && (
+          <div>
+            <FileCard file={file} onUpload={uploadFile} />
+          </div>
+        )}
+        <div className="mt-20 w-full flex justify-center">
+          <FileUpload onFileUpload={handleFileUpload} />
         </div>
-      )}
-    </div>
+
+        {error && (
+          <div className="text-center">
+            <FormErrorMessage>{error}</FormErrorMessage>
+          </div>
+        )}
+      </Paper>
+    </Container>
   );
 };
 

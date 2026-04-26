@@ -535,7 +535,7 @@ function ManageQuestions() {
                   <ButtonGroup
                     orientation="horizontal"
                     aria-label="Media controls"
-                    className="h-fit"
+                    className="w-fit"
                   >
                     <Button
                       variant="outline"
@@ -545,8 +545,11 @@ function ManageQuestions() {
                       <ChevronsLeftIcon size={16} />
                     </Button>
 
-                    <Button variant="outline" size="icon">
-                      {nextPageNumber.current + 1}
+                    <Button variant="outline" size="icon" className="w-25">
+                      Page {nextPageNumber.current + 1} of{" "}
+                      {Math.ceil(
+                        paginationInfo.totalRecords / paginationInfo.viewSize,
+                      )}
                     </Button>
                     <Button
                       variant="outline"

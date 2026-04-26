@@ -1,3 +1,4 @@
+import "@mantine/core/styles.css";
 import { Provider, useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -5,6 +6,7 @@ import Layout from "./components/Layout";
 import LoginPage from "./pages/Auth/LoginPage";
 import Logout from "./pages/Auth/Logout";
 import SignupPage from "./pages/Auth/SignupPage";
+import { AssessmentCreationWizard } from "./pages/Exam/AssessmentCreationWrapper";
 import AssignUsers from "./pages/Exam/AssignUsersPage";
 import ExamCreationPage from "./pages/Exam/ExamCreationPage";
 import ExamDetailsPage from "./pages/Exam/ExamDetailsPage";
@@ -58,6 +60,10 @@ function App() {
               <Route path="/assesmentDetails" Component={ExamDetailsPage} />
               <Route path="/attend" Component={QuestionAttendPage} />
               <Route path="/assessmentResult" Component={ExamResult} />
+              <Route
+                path="/create-assessment"
+                Component={AssessmentCreationWizard}
+              />
             </Routes>
           </Layout>
         </BrowserRouter>

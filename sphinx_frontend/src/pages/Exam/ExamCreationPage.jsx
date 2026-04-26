@@ -1,13 +1,4 @@
 import { useLocation } from "react-router-dom";
-import {
-  BlackInputLabel,
-  ErrorBox,
-  FormErrorMessage,
-  MandatoryInp,
-  StyledSelect,
-  TextArea,
-  TextInput,
-} from "../../styles/common.styles";
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -121,7 +112,7 @@ function ExamCreationPage() {
       passPercentage,
       questionsRandomized,
       answersMust,
-      allowNegativeMarks,
+      allowNegativeMarks: "0",
       negativeMarkValue,
     };
 
@@ -139,191 +130,332 @@ function ExamCreationPage() {
   const activeExamId = isUpdateMode ? exam.examId : createdExamId;
 
   return (
-    <>
-      <h1>{isUpdateMode ? "Update Exam" : "Create Exam"}</h1>
-
-      {responseError && <ErrorBox>{responseError}</ErrorBox>}
-
-      <form onSubmit={isUpdateMode ? handleUpdate : handleSubmit}>
-        <BlackInputLabel htmlFor="examName">
-          Exam name <MandatoryInp>*</MandatoryInp>
-        </BlackInputLabel>
-        <TextInput
-          id="examName"
-          type="text"
-          value={examName}
-          onChange={(e) => setExamName(e.target.value)}
-          placeholder="Enter exam name"
-        />
-        {formError.examName && (
-          <FormErrorMessage>{formError.examName}</FormErrorMessage>
-        )}
-
-        <br />
-        <br />
-
-        <BlackInputLabel htmlFor="description">
-          Exam Description <MandatoryInp>*</MandatoryInp>
-        </BlackInputLabel>
-        <TextArea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter Exam Description"
-        />
-        {formError.description && (
-          <FormErrorMessage>{formError.description}</FormErrorMessage>
-        )}
-        <br />
-        <br />
-
-        <div className="flex flex-colum gap-3">
-          <div>
-            <BlackInputLabel htmlFor="noOfQuestions">
-              Total Number Of Questions <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <TextInput
-              id="noOfQuestions"
-              type="number"
-              value={noOfQuestions}
-              onChange={(e) => setNoOfQuestions(e.target.value)}
-              placeholder="Enter No Of Questions"
-            />
-            {formError.noOfQuestions && (
-              <FormErrorMessage>{formError.noOfQuestions}</FormErrorMessage>
-            )}
+    <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        {/* Header Card */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+          <div className=" px-8 py-6">
+            <h1 className="text-3xl font-bold  tracking-tight">
+              {isUpdateMode ? "Update Assessment" : "Create New Assessment"}
+            </h1>
+            <p className="mt-1 text-sm">
+              {isUpdateMode
+                ? "Modify exam details and manage topics"
+                : "Fill in the details to create a new assessment"}
+            </p>
           </div>
 
-          <div>
-            <BlackInputLabel htmlFor="duration">
-              Exam Duration (In Minutes) <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <TextInput
-              id="duration"
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="Enter Exam Duration"
-            />
-            {formError.duration && (
-              <FormErrorMessage>{formError.duration}</FormErrorMessage>
+          <div className="p-6 md:p-8">
+            {/* Error Alert */}
+            {responseError && (
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{responseError}</p>
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
 
-          <div>
-            <BlackInputLabel htmlFor="passPercentage">
-              Exam Pass Percentage (%) <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <TextInput
-              id="passPercentage"
-              type="number"
-              value={passPercentage}
-              onChange={(e) => setPassPercentage(e.target.value)}
-              placeholder="Enter Exam Pass Percentage"
-            />
-            {formError.passPercentage && (
-              <FormErrorMessage>{formError.passPercentage}</FormErrorMessage>
-            )}
-          </div>
-        </div>
-        <br />
-        <br />
-
-        <div className="flex flex-colum gap-25">
-          <div>
-            <BlackInputLabel>
-              Select Question Visibility <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <StyledSelect
-              value={questionsRandomized}
-              onChange={(e) => setQuestionsRandomized(e.target.value)}
+            <form
+              onSubmit={isUpdateMode ? handleUpdate : handleSubmit}
+              className="space-y-8"
             >
-              <option value="0">Random Order</option>
-              <option value="1">Same Order</option>
-            </StyledSelect>
-          </div>
-
-          <div>
-            <BlackInputLabel htmlFor="mustAnswer">
-              Minimum Questions To Attend <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <TextInput
-              id="mustAnswer"
-              type="number"
-              value={answersMust}
-              onChange={(e) => setAnswersMust(e.target.value)}
-              placeholder="Enter the Minimum questions to attend"
-            />
-          </div>
-        </div>
-        {formError.answersMust && (
-          <FormErrorMessage>{formError.answersMust}</FormErrorMessage>
-        )}
-        <br />
-
-        <div className="flex flex-colum gap-70">
-          <div>
-            <BlackInputLabel>
-              Allow Negative Marks <MandatoryInp>*</MandatoryInp>
-            </BlackInputLabel>
-            <StyledSelect
-              value={allowNegativeMarks}
-              onChange={(e) => setAllowNegativeMarks(e.target.value)}
-            >
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </StyledSelect>
-          </div>
-
-          <div>
-            {allowNegativeMarks === "1" && (
-              <>
-                <BlackInputLabel htmlFor="negativeMarkValue">
-                  Negative Marks Value <MandatoryInp>*</MandatoryInp>
-                </BlackInputLabel>
-                <TextInput
-                  id="negativeMarkValue"
-                  type="number"
-                  value={negativeMarkValue}
-                  onChange={(e) => setNegativeMarkValue(e.target.value)}
-                  placeholder="Enter Negative Marks"
+              {/* Exam Name */}
+              <div>
+                <label
+                  htmlFor="examName"
+                  className="block text-sm font-semibold text-gray-700 mb-1"
+                >
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="examName"
+                  type="text"
+                  value={examName}
+                  onChange={(e) => setExamName(e.target.value)}
+                  placeholder="e.g., Frontend Developer Assessment"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                           focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                           transition-all duration-200 outline-none
+                           placeholder:text-gray-400 text-gray-800"
                 />
-                {formError.negativeMarkValue && (
-                  <FormErrorMessage>
-                    {formError.negativeMarkValue}
-                  </FormErrorMessage>
+                {formError.examName && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formError.examName}
+                  </p>
                 )}
-              </>
-            )}
+              </div>
+
+              {/* Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-semibold text-gray-700 mb-1"
+                >
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  placeholder="Describe the purpose, topics covered, and any special instructions..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                           focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                           transition-all duration-200 outline-none resize-y
+                           placeholder:text-gray-400 text-gray-800"
+                />
+                {formError.description && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formError.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Three-column grid for numeric fields */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label
+                    htmlFor="noOfQuestions"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
+                    Total Questions <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="noOfQuestions"
+                    type="number"
+                    min="1"
+                    value={noOfQuestions}
+                    onChange={(e) => setNoOfQuestions(e.target.value)}
+                    placeholder="e.g., 30"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                             focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                             transition-all duration-200 outline-none"
+                  />
+                  {formError.noOfQuestions && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formError.noOfQuestions}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="duration"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
+                    Duration (minutes) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="duration"
+                    type="number"
+                    min="1"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder="e.g., 60"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                             focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                             transition-all duration-200 outline-none"
+                  />
+                  {formError.duration && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formError.duration}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="passPercentage"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
+                    Pass Percentage (%) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="passPercentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={passPercentage}
+                    onChange={(e) => setPassPercentage(e.target.value)}
+                    placeholder="e.g., 70"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                             focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                             transition-all duration-200 outline-none"
+                  />
+                  {formError.passPercentage && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formError.passPercentage}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Two-column for visibility & minimum questions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Question Visibility <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={questionsRandomized}
+                    onChange={(e) => setQuestionsRandomized(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                             focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                             transition-all duration-200 outline-none bg-white"
+                  >
+                    <option value="0">Random Order</option>
+                    <option value="1">Same Order</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="mustAnswer"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
+                    Minimum Questions to Attend{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="mustAnswer"
+                    type="number"
+                    min="1"
+                    value={answersMust}
+                    onChange={(e) => setAnswersMust(e.target.value)}
+                    placeholder="Minimum required answers"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 shadow-sm
+                             focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                             transition-all duration-200 outline-none"
+                  />
+                  {formError.answersMust && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formError.answersMust}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Negative Marks Section (commented toggle, but we keep conditional field) */}
+              {/* Hidden negative marks toggle - can be uncommented if needed */}
+              {allowNegativeMarks === "1" && (
+                <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
+                  <label
+                    htmlFor="negativeMarkValue"
+                    className="block text-sm font-semibold text-amber-800 mb-1"
+                  >
+                    Negative Marks Value <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="negativeMarkValue"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={negativeMarkValue}
+                    onChange={(e) => setNegativeMarkValue(e.target.value)}
+                    placeholder="e.g., 0.25"
+                    className="w-full px-4 py-2.5 rounded-xl border border-amber-300 bg-white
+                             focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+                             transition-all duration-200 outline-none"
+                  />
+                  {formError.negativeMarkValue && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formError.negativeMarkValue}
+                    </p>
+                  )}
+                  <p className="text-xs text-amber-600 mt-2">
+                    ⚠️ Negative marks will be deducted for incorrect answers.
+                  </p>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading || (!isUpdateMode && !!createdExamId)}
+                className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white
+                         bg-gradient-to-r from-indigo-600 to-violet-600
+                         hover:from-indigo-500 hover:to-violet-500
+                         active:scale-[0.98] transform transition-all duration-200
+                         shadow-lg shadow-indigo-500/30
+                         disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100
+                         flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {isUpdateMode ? "Updating..." : "Creating..."}
+                  </>
+                ) : isUpdateMode ? (
+                  "Update Exam"
+                ) : createdExamId ? (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Exam Created ✓
+                  </>
+                ) : (
+                  "Create Exam"
+                )}
+              </button>
+            </form>
           </div>
+          {/* Topic Section - only shown after exam creation */}
+          {activeExamId && (
+            <div className="my-8 px-10">
+              <TopicSection
+                examId={activeExamId}
+                noOfQuestions={noOfQuestions}
+              />
+            </div>
+          )}
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading || (!isUpdateMode && !!createdExamId)}
-          className="w-full mt-6 py-3 px-4 rounded-xl text-sm font-semibold text-white
-                     bg-gradient-to-r from-indigo-600 to-violet-600
-                     hover:from-indigo-500 hover:to-violet-500
-                     active:scale-[0.98] transition-all duration-200
-                     shadow-lg shadow-indigo-500/25
-                     disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isLoading
-            ? isUpdateMode
-              ? "Updating..."
-              : "Creating..."
-            : isUpdateMode
-              ? "Update Exam"
-              : createdExamId
-                ? "Exam Created ✓"
-                : "Create Exam"}
-        </button>
-      </form>
-
-      {activeExamId && (
-        <TopicSection examId={activeExamId} noOfQuestions={noOfQuestions} />
-      )}
-    </>
+      </div>
+    </div>
   );
 }
 

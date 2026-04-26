@@ -1,6 +1,8 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { StyledButton } from "../../styles/common.styles";
 
 export default function ExamResult() {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { exam, examResult } = location.state;
@@ -197,6 +199,15 @@ export default function ExamResult() {
                     "% to pass."}
               </p>
             </div>
+          </div>
+          <div className="flex mt-5">
+            <StyledButton
+              onClick={() => {
+                navigate("/userDashboard");
+              }}
+            >
+              Back to Dashboard
+            </StyledButton>
           </div>
         </div>
       </div>

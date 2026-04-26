@@ -1,17 +1,5 @@
-import {
-  AlignLeft,
-  Clock,
-  FileText,
-  HelpCircle,
-  Pencil,
-  Percent,
-  ShieldCheck,
-  Trash2,
-  UserPlus,
-  UserPlus2,
-} from "lucide-react";
+import { Pencil, ShieldCheck, Trash2, UserPlus, UserPlus2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import EditAssignedUserModal from "../../components/Modal_Components/EditAssignedUserModal";
 import useAPI from "../../hooks/useAPI";
@@ -40,7 +28,7 @@ import { failureToast, successToast } from "../../utils/toast";
 import { useMemo } from "react";
 import MultiSelectModal from "../../components/Modal_Components/MultiUserAssignModal";
 
-export default function AssignUsers() {
+export default function AssignUsers({ asssessmentInfo }) {
   const { apiGet, apiPost, isError } = useAPI();
   const [currentUserForEdit, setCurrentUserForEdit] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -50,10 +38,6 @@ export default function AssignUsers() {
   const [alreadyAssignedUsers, setAlreadyAssignedUsers] = useState([]);
   const [newlyAssignedUsers, setNewlyAssignedUsers] = useState([]);
   const [selectedUsersConfig, setSelectedUsersConfig] = useState([]);
-
-  // getting exam from state location.
-  const location = useLocation();
-  const exam = location.state?.exam || {};
 
   // Compute available users (not already assigned and not in newly assigned)
   const availableUsers = useMemo(() => {
@@ -79,11 +63,11 @@ export default function AssignUsers() {
 
   useEffect(() => {
     const getUsersForExam = async () => {
-      if (!exam.examId) {
+      if (!asssessmentInfo.examId) {
         return;
       }
       const response = await apiPost("/exam/getAssignedUsers", {
-        examId: exam.examId,
+        examId: asssessmentInfo.examId,
       });
 
       if (response.responseMessage && response.responseMessage === "success") {
@@ -123,12 +107,16 @@ export default function AssignUsers() {
   };
 
   const onDeleteOk = () => {
-    if (!currentUserForEdit || !currentUserForEdit.partyId || !exam?.examId)
+    if (
+      !currentUserForEdit ||
+      !currentUserForEdit.partyId ||
+      !asssessmentInfo?.examId
+    )
       return;
     const deleteUser = async () => {
       const response = await apiPost("/exam/removeAssignedUserFromExam", {
         partyId: currentUserForEdit.partyId,
-        examId: exam.examId,
+        examId: asssessmentInfo.examId,
       });
       if (isError(response)) {
         failureToast(
@@ -172,7 +160,7 @@ export default function AssignUsers() {
         // console.log("USER => ", u);
         return {
           partyId: u.partyId,
-          examId: exam.examId,
+          examId: asssessmentInfo.examId,
           allowedAttempts: Number(u.allowedAttempts),
           timeoutDays: Number(u.timeoutDays),
         };
@@ -286,18 +274,18 @@ export default function AssignUsers() {
     setIsMultiSelectModalOpen(false);
   };
 
-  if (!exam.examId) {
-    return (
-      <div className="p-6 text-center text-gray-500">No exam data found</div>
-    );
-  }
+  //   if (!asssessmentInfo.examId) {
+  //     return (
+  //       <div className="p-6 text-center text-gray-500">No exam data found</div>
+  //     );
+  //   }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <EditAssignedUserModal
         open={isEditModalOpen}
         userForEdit={currentUserForEdit}
-        examId={exam.examId}
+        examId={asssessmentInfo.examId}
         setUser={setCurrentUserForEdit}
         onClose={() => {
           setIsEditModalOpen(false);
@@ -334,58 +322,6 @@ export default function AssignUsers() {
         <UserPlus size={28} className="text-blue-600" />
         Assign Users to Exam
       </h2>
-
-      {/* Exam Details Card */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 mb-8 border border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <FileText size={20} className="text-blue-600" />
-          Exam Details
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3">
-            <FileText className="text-blue-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Exam Name</p>
-              <p className="font-bold text-gray-800">{exam.examName}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <AlignLeft className="text-purple-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Description</p>
-              <p className="font-medium text-gray-800">
-                {exam.description || "—"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <HelpCircle className="text-green-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Questions</p>
-              <p className="font-bold text-gray-800">{exam.noOfQuestions}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Clock className="text-orange-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Duration</p>
-              <p className="font-bold text-gray-800">{exam.duration} mins</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Percent className="text-red-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Pass Percentage</p>
-              <p className="font-bold text-gray-800">{exam.passPercentage}%</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Table Card */}
       <Wrapper>
@@ -466,89 +402,6 @@ export default function AssignUsers() {
                 </StyledTable>
               </>
             )}
-
-            {/* Newly Assigned Users Section */}
-            {/*  <CardHeader>
-              <div>
-                <CardTitle>
-                  <ShieldCheck size={18} strokeWidth={2} />
-                  Newly Assigned Users
-                </CardTitle>
-              </div>
-              <AddButton onClick={() => setIsMultiSelectModalOpen(true)}>
-                <UserPlus2 size={20} aria-label="add-users-button" />
-                Add Users
-              </AddButton>
-            </CardHeader>
-
-            <StyledTable>
-              <THead>
-                <tr role="row">
-                  <Th>Name</Th>
-                  <Th>Allowed Attempts</Th>
-                  <Th>Timeout Days</Th>
-                  <Th $align="center">Action</Th>
-                </tr>
-              </THead>
-              <TBody>
-                {newlyAssignedUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={4}>
-                      <EmptyState>
-                        <UserPlus size={36} strokeWidth={1.5} />
-                        No users assigned yet. Click "Add Multiple Users" to get
-                        started.
-                      </EmptyState>
-                    </td>
-                  </tr>
-                ) : (
-                  newlyAssignedUsers.map((user, index) => (
-                    <Tr key={index} role="row" $index={index}>
-                      <Td>
-                        <NameCell>
-                          <Avatar
-                            $hue={nameToHue(user.firstName)}
-                            aria-hidden="true"
-                          >
-                            {initials(user.firstName + " " + user.lastName)}
-                          </Avatar>
-                          <div>
-                            <FullName>
-                              {user.firstName + " " + user.lastName}
-                            </FullName>
-                            <div className="text-xs text-gray-500">
-                              {user.email}
-                            </div>
-                          </div>
-                        </NameCell>
-                      </Td>
-                      <Td>{user.allowedAttempts}</Td>
-                      <Td>{user.timeoutDays}</Td>
-                      <Td $align="center">
-                        <ActionRow>
-                          <IconButton
-                            $variant="edit"
-                            onClick={() => handleEdit(user, "NU")}
-                            aria-label={`Edit ${user.name}`}
-                            title="Edit"
-                          >
-                            <Pencil size={14} strokeWidth={2} />
-                          </IconButton>
-                          <IconButton
-                            $variant="delete"
-                            onClick={() => handleRemoveFromNewlyAssigned(user)}
-                            aria-label={`Remove ${user.name}`}
-                            title="Remove"
-                          >
-                            <Trash2 size={14} strokeWidth={2} />
-                          </IconButton>
-                        </ActionRow>
-                      </Td>
-                    </Tr>
-                  ))
-                )}
-              </TBody>
-            </StyledTable> */}
           </TableScrollWrapper>
 
           <CardFooter>
@@ -561,28 +414,6 @@ export default function AssignUsers() {
           </CardFooter>
         </TableCard>
       </Wrapper>
-
-      {/* Submit Button */}
-      {/* <div className="mt-6 flex justify-end">
-        <button
-          disabled={newlyAssignedUsers.length === 0}
-          onClick={handleSubmit}
-          className="bg-green-600 text-white px-6 py-2.5 rounded-lg 
-            hover:bg-green-700 shadow-md hover:shadow-lg 
-            transition-all duration-200 flex items-center gap-2 disabled:bg-green-300 disabled:cursor-not-allowed"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeWidth={2.5} d="M5 13l4 4L19 7" />
-          </svg>
-          Submit All ({newlyAssignedUsers.length})
-        </button>
-      </div> */}
     </div>
   );
 }
