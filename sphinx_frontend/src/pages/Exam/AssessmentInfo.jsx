@@ -90,51 +90,45 @@ export function AssessmentInfoStep({ assessment, updateAssessment, navProps }) {
   }, []);
 
   const handleForm = async (formValues) => {
-    try {
-      dispatch(loaderActions.loaderOn());
-      let payload = {
-        examName: formValues.examName,
-        description: formValues.description,
-        noOfQuestions: String(formValues.noOfQuestions),
-        duration: String(formValues.duration),
-        passPercentage: String(formValues.passPercentage),
-        questionsRandomized: "0", // default value for now.
-        answersMust: String(formValues.answersMust),
-        allowNegativeMarks: "1",
-        negativeMarkValue: "0",
-      };
+  try {
+    dispatch(loaderActions.loaderOn());
 
-      // console.log("EXAM CREATION PAYLOAD => ", payload);
-      // return;
-      
-      let response;
-      if (assessment.examId) {
-        // exam id is available, hence update the exam, else create.
-        response = await apiPut("/exam", payload);
-      } else {
-        payload.examId = assessment.examId;
-        response = await apiPost("/exam", payload);
-      }
+    let payload = {
+      examName: formValues.examName,
+      description: formValues.description,
+      noOfQuestions: String(formValues.noOfQuestions),
+      duration: String(formValues.duration),
+      passPercentage: String(formValues.passPercentage),
+      questionsRandomized: "0",
+      answersMust: String(formValues.answersMust),
+      allowNegativeMarks: "1",
+      negativeMarkValue: "0",
+    };
 
-      if (isError(response)) {
-        failureToast(response.errorMessage || response.error);
-      } else {
-        formValues.examId = response.examId;
-        successToast(response.successMessage);
-      }
-
-      // go to the next page.
-      handleNext();
-    } catch (err) {
-      console.error("Error While Creating Assessment => ", err);
-    } finally {
-      dispatch(loaderActions.loaderOff());
+    let response;
+    if (assessment.examId) {
+      payload.examId = assessment.examId;
+      response = await apiPut("/exam", payload);
+    } else {
+      response = await apiPost("/exam", payload);
     }
 
-    // finally update the assessment locally.
-    updateAssessment(formValues);
-  };
+    if (isError(response)) {
+      failureToast(response.errorMessage || response.error);
+      return;
+    }
 
+    formValues.examId = response.examId;
+    successToast(response.successMessage);
+    updateAssessment(formValues);
+    handleNext();
+
+  } catch (err) {
+    console.error("Error While Creating Assessment => ", err);
+  } finally {
+    dispatch(loaderActions.loaderOff());
+  }
+};
   return (
     <form
       onSubmit={form.onSubmit(

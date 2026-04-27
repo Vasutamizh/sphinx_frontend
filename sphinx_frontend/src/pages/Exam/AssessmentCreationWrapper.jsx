@@ -366,6 +366,7 @@ export function AssessmentCreationWizard() {
 
             {activeStep === 2 && (
               <AddQuestionToAssessmentWrapper
+                assessmentId={assessment.examId}
                 navProps={{ handleBack, handleNext, isLastStep, isFirstStep }}
               />
             )}

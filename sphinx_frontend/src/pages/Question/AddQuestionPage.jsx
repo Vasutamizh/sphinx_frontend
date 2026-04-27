@@ -6,6 +6,7 @@ import {
   Grid,
   Group,
   LoadingOverlay,
+  NativeSelect,
   Paper,
   Radio,
   Select,
@@ -20,10 +21,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
-import { useTopics } from "../../hooks/useTopics";
 import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
 
-function AddQuestionPage() {
+function AddQuestionPage({ assessmentId }) {
+  console.log(assessmentId);
   const { apiGet, apiPost, apiPut, isError } = useAPI();
   const DEFAULT_OPTIONS_COUNT = useSelector(
     (state) => state.question.DEFAULT_OPTIONS_COUNT,
@@ -31,8 +32,7 @@ function AddQuestionPage() {
   const location = useLocation();
   const questionForUpdate = location.state;
 
-  const { topics } = useTopics();
-
+  const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [questionTypes, setQuestionTypes] = useState([]);
   const [questionType, setQuestionType] = useState(
@@ -58,7 +58,6 @@ function AddQuestionPage() {
       : Array(DEFAULT_OPTIONS_COUNT).fill(""),
   );
 
-  // Answer states per question type
   const [singleChoiceAnswer, setSingleChoiceAnswer] = useState("");
   const [multipleChoiceAnswer, setMultipleChoiceAnswer] = useState([]);
   const [fillUpAnswer, setFillUpAnswer] = useState("");
@@ -67,7 +66,6 @@ function AddQuestionPage() {
 
   const [errors, setErrors] = useState({});
 
-  // Load question types on mount
   useEffect(() => {
     if (questionForUpdate) {
       if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
@@ -82,6 +80,23 @@ function AddQuestionPage() {
         setDetailedAnswer(questionForUpdate.answer);
       }
     }
+
+    const getTopicList = async () => {
+      try {
+        const response = await apiGet(`/exam/topics?${assessmentId}`);
+        if (!isError(response) && response.examTopicList) {
+          setTopics(response.examTopicList);
+        } else { 
+          notifications.show({
+            title: "Error",
+            message: response.errorMessage || "Failed to load topics!",
+            color: "red",
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching topics:", err);
+      }
+    };
 
     const getTypes = async () => {
       try {
@@ -104,8 +119,10 @@ function AddQuestionPage() {
         });
       }
     };
+
+    getTopicList();
     getTypes();
-  }, []);
+  }, [assessmentId]);
 
   const validate = () => {
     let currentAnswer = "";
@@ -225,14 +242,12 @@ function AddQuestionPage() {
     }
   };
 
-  // Helper to update a specific option
   const updateOption = (index, value) => {
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
   };
 
-  // Get answer for current question type
   const getCurrentAnswer = () => {
     switch (questionType) {
       case "SINGLE_CHOICE":
@@ -250,7 +265,6 @@ function AddQuestionPage() {
     }
   };
 
-  // Render dynamic form based on question type
   const renderQuestionTypeForm = () => {
     switch (questionType) {
       case "SINGLE_CHOICE":
@@ -274,7 +288,6 @@ function AddQuestionPage() {
                 ))}
               </Stack>
             </Radio.Group>
-            {/* { errors.answers &&  } */}
           </Paper>
         );
 
@@ -357,12 +370,6 @@ function AddQuestionPage() {
   return (
     <Container size="lg" py="xl">
       <LoadingOverlay visible={loading} overlayBlur={2} />
-      {/* 
-      <TopicModal
-        isOpen={openModal}
-        onSave={createTopic}
-        onClose={() => setOpenModal(false)}
-      /> */}
 
       <Paper shadow="md" radius="lg" p="xl" withBorder>
         <Title order={2} mb="lg" ta="center">
@@ -371,21 +378,23 @@ function AddQuestionPage() {
 
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
-            {/* Topic Selection */}
             <Grid>
               <Grid.Col span={{ base: 12, sm: 8 }}>
-                <Select
+                <NativeSelect
                   label="Select Topic"
-                  placeholder="Choose a topic"
                   value={selectedTopic}
-                  onChange={setSelectedTopic}
-                  data={topics?.map((t) => ({
-                    value: t.topicId,
-                    label: t.topicName,
-                  }))}
+                  onChange={(e) => setSelectedTopic(e.currentTarget.value)}
+                  data={[
+                    { value: "", label: "Choose a topic" },
+                    ...(topics ?? [])
+                      .filter((t) => t.topicId && t.topicName)
+                      .map((t) => ({
+                        value: t.topicId,
+                        label: t.topicName,
+                      })),
+                  ]}
                   error={errors.topic}
                   required
-                  clearable
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 4 }}>
@@ -399,18 +408,9 @@ function AddQuestionPage() {
                     { value: "Hard", label: "Hard" },
                   ]}
                 />
-                {/* <Button
-                  fullWidth
-                  mt="28px"
-                  variant="outline"
-                  onClick={() => setOpenModal(true)}
-                >
-                  + Add Topic
-                </Button> */}
               </Grid.Col>
             </Grid>
 
-            {/* Question Type */}
             <Radio.Group
               label="Question Type"
               value={questionType}
@@ -429,7 +429,6 @@ function AddQuestionPage() {
               </Group>
             </Radio.Group>
 
-            {/* Question Detail & Difficulty */}
             <Grid>
               <Grid.Col span={{ base: 12, md: 12 }}>
                 <Textarea
@@ -441,22 +440,8 @@ function AddQuestionPage() {
                   resize="vertical"
                 />
               </Grid.Col>
-              {/* <Grid.Col span={{ base: 12, md: 4 }}>
-                <Select
-                  label="Difficulty Level"
-                  value={difficultyLevel}
-                  onChange={setDifficultyLevel}
-                  data={[
-                    { value: "Easy", label: "Easy" },
-                    { value: "Medium", label: "Medium" },
-                    { value: "Hard", label: "Hard" },
-                  ]}
-                  required
-                />
-              </Grid.Col> */}
             </Grid>
 
-            {/* Options (for MCQs) - Only show when needed */}
             {(questionType === "SINGLE_CHOICE" ||
               questionType === "MULTIPLE_CHOICE") && (
               <Paper withBorder p="md" radius="md">
@@ -483,10 +468,8 @@ function AddQuestionPage() {
               </Paper>
             )}
 
-            {/* Dynamic Form based on question type */}
             {questionType && renderQuestionTypeForm()}
 
-            {/* Action Buttons */}
             <Group justify="flex-end" mt="md">
               <Button variant="outline" onClick={resetForm} type="button">
                 Clear

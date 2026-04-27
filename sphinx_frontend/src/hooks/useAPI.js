@@ -64,6 +64,34 @@ const useAPI = () => {
       return { data: null };
     }
   }
+  async function apiGetFile(endpoint) {
+  try {
+    const response = await fetch(LOCAL_URL + endpoint, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (response.status === 401) {
+      navigateToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch file");
+    }
+
+    const blob = await response.blob();
+
+    return {
+      blob,
+      filename: getFileNameFromHeader(response)
+    };
+
+  } catch (err) {
+    console.error("Error downloading file =>", err);
+    return null;
+  }
+}
 
   async function apiDelete(endpoint, data) {
     // console.log("DELETE Request Data => ", data);

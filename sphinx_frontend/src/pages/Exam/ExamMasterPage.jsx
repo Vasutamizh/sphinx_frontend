@@ -14,6 +14,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 import {
   AddButton,
   CardFooter,
@@ -51,6 +52,7 @@ function ExamMasterPage() {
   const partyId = useSelector((state) => state.auth.partyId);
 
   const [examList, setExamList] = useState([]);
+  const [examSearchList, setExamSearchList] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [examCount, setExamCount] = useState(0);
   const [topicCount, setTopicCount] = useState(0);
@@ -112,6 +114,15 @@ function ExamMasterPage() {
     getAllExam();
     getCounts();
   }, []);
+
+  const searchExam = async (e) => {
+    const response = await apiGet(`/search-exam?examName=${e.target.value}`);
+    if (response.responseMessage === "success") {
+      setExamSearchList(response.examList);
+    } else {
+      failureToast(response.errorMessage);
+    }
+  };
 
   const handleDelete = async () => {
     if (!currentIdRef) return;
@@ -185,6 +196,13 @@ function ExamMasterPage() {
           <StatsValue>{examList.length}</StatsValue>
         </StatsCard>
       </StatsWrapper>
+
+      <Input
+        type="text"
+        placeholder="Search Users ..."
+        className="bg-white p-5 w-100"
+        onChange={searchExam}
+      />
 
       <Wrapper>
         <TableCard>

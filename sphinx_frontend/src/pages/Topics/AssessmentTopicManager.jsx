@@ -38,6 +38,7 @@ export function AssessmentTopicManager({
   const form = useForm({
     mode: "controlled",
     initialValues: {
+      examId: "",
       topicId: "",
       percentage: 0,
       passPercentage: 75,
