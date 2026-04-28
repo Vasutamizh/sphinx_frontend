@@ -1,20 +1,14 @@
-import {
-  AlignLeft,
-  Clock,
-  FileText,
-  HelpCircle,
-  Pencil,
-  Percent,
-  ShieldCheck,
-  Trash2,
-  UserPlus,
-  UserPlus2,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Pencil, Trash2, UserPlus2, Users } from "lucide-react";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import AssignUserModal from "../../components/Modal_Components/AssignUserModal";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import EditAssignedUserModal from "../../components/Modal_Components/EditAssignedUserModal";
+
 import useAPI from "../../hooks/useAPI";
+import { failureToast, successToast } from "../../utils/toast";
+
 import {
   ActionRow,
   AddButton,
@@ -22,6 +16,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  EmptyState,
   FullName,
   IconButton,
   NameCell,
@@ -35,554 +30,261 @@ import {
   Tr,
   Wrapper,
 } from "../../styles/AssignUsersPage.styles";
-import { failureToast, successToast } from "../../utils/toast";
 
-import { useMemo } from "react";
-import MultiSelectModal from "../../components/Modal_Components/MultiUserAssignModal";
-
-export default function AssignUsers() {
+export default function AssignUsers({ assessmentId }) {
   const { apiGet, apiPost, isError } = useAPI();
-  const [currentUserForEdit, setCurrentUserForEdit] = useState({});
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isMultiSelectModalOpen, setIsMultiSelectModalOpen] = useState(false);
+
   const [users, setUsers] = useState([]);
   const [alreadyAssignedUsers, setAlreadyAssignedUsers] = useState([]);
-  const [newlyAssignedUsers, setNewlyAssignedUsers] = useState([]);
-  const [selectedUsersConfig, setSelectedUsersConfig] = useState([]);
 
-  // getting exam from state location.
-  const location = useLocation();
-  const exam = location.state?.exam || {};
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Compute available users (not already assigned and not in newly assigned)
-  const availableUsers = useMemo(() => {
-    const assignedIds = new Set([
-      ...alreadyAssignedUsers.map((u) => u.partyId),
-      ...newlyAssignedUsers.map((u) => u.partyId),
-    ]);
-    return users.filter((user) => !assignedIds.has(user.partyId));
-  }, [users, alreadyAssignedUsers, newlyAssignedUsers]);
+  const [currentUserForEdit, setCurrentUserForEdit] = useState(null);
+  const currentUserRef = useRef(null);
 
+  const assignedIds = useMemo(
+    () => new Set(alreadyAssignedUsers.map((u) => u.partyId)),
+    [alreadyAssignedUsers],
+  );
+
+  // fetch user
   useEffect(() => {
-    const getAllUsers = async () => {
-      const response = await apiGet("/user/getAllUsers");
-      if (response.responseMessage && response.responseMessage === "success") {
-        setUsers(response.users);
-      } else {
-        failureToast(response.errorMessage || response.error);
+    const fetchUsers = async () => {
+      const res = await apiGet("/user/getAllUsers");
+      if (res?.responseMessage === "success") {
+        setUsers(res.users || []);
       }
     };
-
-    getAllUsers();
+    fetchUsers();
   }, []);
 
+  //fetch assigned ser
+
   useEffect(() => {
-    const getUsersForExam = async () => {
-      if (!exam.examId) {
-        return;
-      }
-      const response = await apiPost("/exam/getAssignedUsers", {
-        examId: exam.examId,
+    if (!assessmentId) return;
+
+    const fetchAssigned = async () => {
+      const res = await apiPost("/exam/getAssignedUsers", {
+        examId: assessmentId,
       });
 
-      if (response.responseMessage && response.responseMessage === "success") {
-        setAlreadyAssignedUsers(response.data);
-      } else {
-        failureToast(
-          response.errorMessage || response.error || "Failed to Load data!",
-        );
-        setAlreadyAssignedUsers([]);
+      if (res?.responseMessage === "success") {
+        setAlreadyAssignedUsers(res.users || []);
       }
     };
-    getUsersForExam();
-  }, []);
 
-  /** Derive avatar initials from a full name string */
-  function initials(name) {
-    return name
-      .split(" ")
-      .slice(0, 2)
-      .map((n) => n[0]?.toUpperCase() ?? "")
-      .join("");
-  }
+    fetchAssigned();
+  }, [assessmentId]);
 
-  /** Map a string to a stable hue 0-360 for avatar coloring */
-  function nameToHue(name) {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  // assign user
+  const openAssignModal = (user) => {
+    currentUserRef.current = user;
+    setIsAssignModalOpen(true);
+  };
+
+  const handleAssignUser = async ({ allowedAttempts, timeoutDays }) => {
+    const user = currentUserRef.current;
+
+    if (!user || !assessmentId) {
+      failureToast("Exam not available");
+      return;
     }
-    return Math.abs(hash) % 360;
-  }
 
-  const handleRemove = (user) => {
-    if (!user) return;
-    setCurrentUserForEdit(user);
+    const payload = {
+      users: [
+        {
+          partyId: user.partyId,
+          examId: assessmentId,
+          allowedAttempts,
+          timeoutDays,
+        },
+      ],
+    };
+
+    const res = await apiPost("/exam/assignUser", payload);
+
+    if (res?.responseMessage === "success") {
+      successToast("User assigned");
+
+      setAlreadyAssignedUsers((prev) => [
+        ...prev,
+        { ...user, allowedAttempts, timeoutDays },
+      ]);
+    } else {
+      failureToast("Assign failed");
+    }
+
+    setIsAssignModalOpen(false);
+  };
+
+  // remove user
+  const openRemoveConfirm = (user) => {
+    currentUserRef.current = user;
     setIsConfirmModalOpen(true);
   };
 
-  const onDeleteOk = () => {
-    if (!currentUserForEdit || !currentUserForEdit.partyId || !exam?.examId)
-      return;
-    const deleteUser = async () => {
-      const response = await apiPost("/exam/removeAssignedUserFromExam", {
-        partyId: currentUserForEdit.partyId,
-        examId: exam.examId,
-      });
-      if (isError(response)) {
-        failureToast(
-          response.errorMessage || response.error || "Failed to delete User!",
-        );
-      } else {
-        successToast(
-          response.successMessage || "User removed from Exam Successfully!",
-        );
-        setAlreadyAssignedUsers((prev) =>
-          prev.filter((u) => currentUserForEdit.partyId !== u.partyId),
-        );
-      }
-    };
+  const handleRemove = async () => {
+    const user = currentUserRef.current;
 
-    deleteUser();
+    const res = await apiPost("/exam/removeAssignedUserFromExam", {
+      partyId: user.partyId,
+      examId: assessmentId,
+    });
+
+    if (!isError(res)) {
+      successToast("Removed");
+
+      setAlreadyAssignedUsers((prev) =>
+        prev.filter((u) => u.partyId !== user.partyId),
+      );
+    } else {
+      failureToast("Remove failed");
+    }
+
     setIsConfirmModalOpen(false);
   };
 
-  const handleEdit = (user, flag) => {
-    if (!flag) return;
+  // edit user
+  const handleEdit = (user) => {
+    setCurrentUserForEdit({
+      user: {
+        ...user,
+        allowedAttempts: user.allowedAttempts || 1,
+        timeoutDays: user.timeoutDays || 3,
+      },
+      flag: "AU",
+    });
 
-    setCurrentUserForEdit({ user, flag });
     setIsEditModalOpen(true);
   };
 
-  const handleRemoveFromNewlyAssigned = (userToRemove) => {
-    setNewlyAssignedUsers((prev) =>
-      prev.filter((u) => u.partyId !== userToRemove.partyId),
-    );
-  };
-
-  const handleSubmit = async (usersForAssign = []) => {
-    if (usersForAssign.length === 0) {
-      alert("Please assign at least one user.");
-      return;
-    }
-    // console.log("usersForAssign => ", usersForAssign);
-    const payload = {
-      users: usersForAssign[0].map((u) => {
-        // console.log("USER => ", u);
-        return {
-          partyId: u.partyId,
-          examId: exam.examId,
-          allowedAttempts: Number(u.allowedAttempts),
-          timeoutDays: Number(u.timeoutDays),
-        };
-      }),
-    };
-
-    // console.log("PAYLOAD => ", payload);
-    // return;
-
-    const response = await apiPost("/exam/assignUser", payload);
-
-    if (response.responseMessage && response.responseMessage === "success") {
-      successToast(response.successMessage || "User Assigned Successfully!");
-      setAlreadyAssignedUsers((prev) => [...prev, ...usersForAssign[0]]);
-      setNewlyAssignedUsers([]);
-    } else {
-      failureToast(response.errorMessage || response.error || "Action Failed!");
-    }
-  };
-
-  const onSuccessUpdate = (userWithFlag) => {
-    const { user, flag } = userWithFlag;
-    if (!user || !flag) return;
-    if (flag === "AU") {
-      const filteredUsers = alreadyAssignedUsers.filter(
-        (u) => u.partyId !== user.partyId,
-      );
-      filteredUsers.push(user);
-      setAlreadyAssignedUsers(filteredUsers);
-    } else {
-      const filteredUsers = newlyAssignedUsers.filter(
-        (u) => u.partyId !== user.partyId,
-      );
-      filteredUsers.push(user);
-      setNewlyAssignedUsers(filteredUsers);
-    }
-  };
-
-  // Handle checkbox selection and update config
-  const handleUserSelection = (user, isChecked) => {
-    if (isChecked) {
-      setSelectedUsersConfig((prev) => [
-        ...prev,
-        {
-          user,
-          allowedAttempts: 1,
-          timeoutDays: 3,
-        },
-      ]);
-    } else {
-      setSelectedUsersConfig((prev) =>
-        prev.filter((item) => item.user.partyId !== user.partyId),
-      );
-    }
-  };
-
-  const handleUserSelectAll = (checked) => {
-    if (checked) {
-      for (let i = 0; i < availableUsers.length; i++) {
-        handleUserSelection(availableUsers[i], true);
-      }
-    } else {
-      setSelectedUsersConfig([]);
-    }
-  };
-
-  // Update allowed attempts for a selected user
-  const updateAllowedAttempts = (userId, value) => {
-    setSelectedUsersConfig((prev) =>
-      prev.map((item) =>
-        item.user.partyId === userId
-          ? { ...item, allowedAttempts: parseInt(value) || 3 }
-          : item,
-      ),
-    );
-  };
-
-  // Update timeout days for a selected user
-  const updateTimeoutDays = (userId, value) => {
-    console.log("value => ", value);
-    setSelectedUsersConfig((prev) =>
-      prev.map((item) =>
-        item.user.partyId === userId
-          ? { ...item, timeoutDays: parseInt(value) || 0 }
-          : item,
-      ),
-    );
-  };
-
-  // Add selected users to newlyAssignedUsers
-  const addSelectedUsers = () => {
-    if (selectedUsersConfig.length === 0) {
-      alert("Please select at least one user to assign.");
-      return;
-    }
-
-    const newUsers = selectedUsersConfig.map(
-      ({ user, allowedAttempts, timeoutDays }) => ({
-        ...user,
-        allowedAttempts,
-        timeoutDays,
-      }),
-    );
-
-    // const usersForAssign = newlyAssignedUsers;
-    // usersForAssign.push();
-    handleSubmit(newUsers);
-    // setNewlyAssignedUsers((prev) => [...prev, ...newUsers]);
-    setNewlyAssignedUsers(newUsers);
-    setSelectedUsersConfig([]);
-    setIsMultiSelectModalOpen(false);
-  };
-
-  if (!exam.examId) {
-    return (
-      <div className="p-6 text-center text-gray-500">No exam data found</div>
-    );
-  }
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <EditAssignedUserModal
-        open={isEditModalOpen}
-        userForEdit={currentUserForEdit}
-        examId={exam.examId}
-        setUser={setCurrentUserForEdit}
-        onClose={() => {
-          setIsEditModalOpen(false);
-        }}
-        onSuccessUpdate={onSuccessUpdate}
-      />
-      <ConfimationModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => {
-          setIsConfirmModalOpen(false);
-        }}
-        onOk={onDeleteOk}
-        onCancel={() => {
-          setIsConfirmModalOpen(false);
-        }}
-        message={"Are you sure you want to remove this user?"}
-      />
-      <MultiSelectModal
-        isMultiSelectModalOpen={isMultiSelectModalOpen}
-        setIsMultiSelectModalOpen={setIsMultiSelectModalOpen}
-        availableUsers={availableUsers}
-        selectedUsersConfig={selectedUsersConfig}
-        handleUserSelection={handleUserSelection}
-        nameToHue={nameToHue}
-        initials={initials}
-        updateAllowedAttempts={updateAllowedAttempts}
-        updateTimeoutDays={updateTimeoutDays}
-        addSelectedUsers={addSelectedUsers}
-        handleUserSelectAll={handleUserSelectAll}
-      />
-
-      {/* Header */}
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-        <UserPlus size={28} className="text-blue-600" />
-        Assign Users to Exam
-      </h2>
-
-      {/* Exam Details Card */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 mb-8 border border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <FileText size={20} className="text-blue-600" />
-          Exam Details
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="flex items-start gap-3">
-            <FileText className="text-blue-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Exam Name</p>
-              <p className="font-bold text-gray-800">{exam.examName}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <AlignLeft className="text-purple-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Description</p>
-              <p className="font-medium text-gray-800">
-                {exam.description || "—"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <HelpCircle className="text-green-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Questions</p>
-              <p className="font-bold text-gray-800">{exam.noOfQuestions}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Clock className="text-orange-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Duration</p>
-              <p className="font-bold text-gray-800">{exam.duration} mins</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Percent className="text-red-500 mt-1" size={18} />
-            <div>
-              <p className="text-sm text-gray-500">Pass Percentage</p>
-              <p className="font-bold text-gray-800">{exam.passPercentage}%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Table Card */}
       <Wrapper>
         <TableCard>
+          <CardHeader>
+            <CardTitle>
+              <Users size={18} />
+              All Users ({users.length})
+            </CardTitle>
+          </CardHeader>
+
           <TableScrollWrapper>
-            {/* Already Assigned Users Section */}
-            {alreadyAssignedUsers.length > 0 && (
-              <>
-                <CardHeader>
-                  <div>
-                    <CardTitle>
-                      <ShieldCheck size={18} strokeWidth={2} />
-                      Assigned Users
-                    </CardTitle>
-                  </div>
-                  <AddButton onClick={() => setIsMultiSelectModalOpen(true)}>
-                    <UserPlus2 size={20} aria-label="add-users-button" />
-                    Add Users
-                  </AddButton>
-                </CardHeader>
+            <StyledTable>
+              <THead>
+                <Tr>
+                  <Th>S.No</Th>
+                  <Th>Name</Th>
+                  <Th>Email</Th>
+                  <Th>Status</Th>
+                  <Th>Actions</Th>
+                </Tr>
+              </THead>
 
-                <StyledTable role="table" aria-label="Assigned users table">
-                  <THead>
-                    <tr role="row">
-                      <Th>Name</Th>
-                      <Th>Allowed Attempts</Th>
-                      <Th>Timeout Days</Th>
-                      <Th $align="center">Action</Th>
-                    </tr>
-                  </THead>
+              <TBody>
+                {users.length === 0 ? (
+                  <Tr>
+                    <Td colSpan="5">
+                      <EmptyState>No users found</EmptyState>
+                    </Td>
+                  </Tr>
+                ) : (
+                  users.map((user, index) => {
+                    const isAssigned = assignedIds.has(user.partyId);
+                    const assignedUser = alreadyAssignedUsers.find(
+                      (u) => u.partyId === user.partyId,
+                    );
 
-                  <TBody>
-                    {alreadyAssignedUsers.map((user, index) => (
-                      <Tr key={index} role="row" $index={index}>
+                    return (
+                      <Tr key={user.partyId}>
+                        <Td>{index + 1}</Td>
+
                         <Td>
                           <NameCell>
-                            <Avatar
-                              $hue={nameToHue(user.firstName)}
-                              aria-hidden="true"
-                            >
-                              {initials(user.firstName + " " + user.lastName)}
-                            </Avatar>
-                            <div>
-                              <FullName>
-                                {user.firstName + " " + user.lastName}
-                              </FullName>
-                              <div className="text-xs text-gray-500">
-                                {user.email}
-                              </div>
-                            </div>
+                            <Avatar $hue={120}>{user.firstName[0]}</Avatar>
+                            <FullName>
+                              {user.firstName} {user.lastName}
+                            </FullName>
                           </NameCell>
                         </Td>
-                        <Td>{user.allowedAttempts}</Td>
-                        <Td>{user.timeoutDays}</Td>
-                        <Td $align="center">
+
+                        <Td>{user.email}</Td>
+
+                        <Td>{isAssigned ? "Assigned" : "Not Assigned"}</Td>
+
+                        <Td>
                           <ActionRow>
-                            <IconButton
-                              $variant="edit"
-                              onClick={() => handleEdit(user, "AU")}
-                              aria-label={`Edit ${user.name}`}
-                              title="Edit"
-                            >
-                              <Pencil size={14} strokeWidth={2} />
-                            </IconButton>
-                            <IconButton
-                              $variant="delete"
-                              onClick={() => handleRemove(user)}
-                              aria-label={`Remove ${user.name}`}
-                              title="Remove"
-                            >
-                              <Trash2 size={14} strokeWidth={2} />
-                            </IconButton>
+                            {isAssigned ? (
+                              <>
+                                <IconButton
+                                  onClick={() => handleEdit(assignedUser)}
+                                >
+                                  <Pencil size={14} />
+                                </IconButton>
+
+                                <IconButton
+                                  onClick={() =>
+                                    openRemoveConfirm(assignedUser)
+                                  }
+                                >
+                                  <Trash2 size={14} />
+                                </IconButton>
+                              </>
+                            ) : (
+                              <AddButton onClick={() => openAssignModal(user)}>
+                                <UserPlus2 size={14} />
+                                Assign
+                              </AddButton>
+                            )}
                           </ActionRow>
                         </Td>
                       </Tr>
-                    ))}
-                  </TBody>
-                </StyledTable>
-              </>
-            )}
-
-            {/* Newly Assigned Users Section */}
-            {/*  <CardHeader>
-              <div>
-                <CardTitle>
-                  <ShieldCheck size={18} strokeWidth={2} />
-                  Newly Assigned Users
-                </CardTitle>
-              </div>
-              <AddButton onClick={() => setIsMultiSelectModalOpen(true)}>
-                <UserPlus2 size={20} aria-label="add-users-button" />
-                Add Users
-              </AddButton>
-            </CardHeader>
-
-            <StyledTable>
-              <THead>
-                <tr role="row">
-                  <Th>Name</Th>
-                  <Th>Allowed Attempts</Th>
-                  <Th>Timeout Days</Th>
-                  <Th $align="center">Action</Th>
-                </tr>
-              </THead>
-              <TBody>
-                {newlyAssignedUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={4}>
-                      <EmptyState>
-                        <UserPlus size={36} strokeWidth={1.5} />
-                        No users assigned yet. Click "Add Multiple Users" to get
-                        started.
-                      </EmptyState>
-                    </td>
-                  </tr>
-                ) : (
-                  newlyAssignedUsers.map((user, index) => (
-                    <Tr key={index} role="row" $index={index}>
-                      <Td>
-                        <NameCell>
-                          <Avatar
-                            $hue={nameToHue(user.firstName)}
-                            aria-hidden="true"
-                          >
-                            {initials(user.firstName + " " + user.lastName)}
-                          </Avatar>
-                          <div>
-                            <FullName>
-                              {user.firstName + " " + user.lastName}
-                            </FullName>
-                            <div className="text-xs text-gray-500">
-                              {user.email}
-                            </div>
-                          </div>
-                        </NameCell>
-                      </Td>
-                      <Td>{user.allowedAttempts}</Td>
-                      <Td>{user.timeoutDays}</Td>
-                      <Td $align="center">
-                        <ActionRow>
-                          <IconButton
-                            $variant="edit"
-                            onClick={() => handleEdit(user, "NU")}
-                            aria-label={`Edit ${user.name}`}
-                            title="Edit"
-                          >
-                            <Pencil size={14} strokeWidth={2} />
-                          </IconButton>
-                          <IconButton
-                            $variant="delete"
-                            onClick={() => handleRemoveFromNewlyAssigned(user)}
-                            aria-label={`Remove ${user.name}`}
-                            title="Remove"
-                          >
-                            <Trash2 size={14} strokeWidth={2} />
-                          </IconButton>
-                        </ActionRow>
-                      </Td>
-                    </Tr>
-                  ))
+                    );
+                  })
                 )}
               </TBody>
-            </StyledTable> */}
+            </StyledTable>
           </TableScrollWrapper>
 
           <CardFooter>
-            <span>
-              {alreadyAssignedUsers.length} user
-              {alreadyAssignedUsers.length !== 1 ? "s" : ""} assigned
-              {newlyAssignedUsers.length > 0 &&
-                ` + ${newlyAssignedUsers.length} pending`}
-            </span>
+            {users.length} users — {assignedIds.size} assigned
           </CardFooter>
         </TableCard>
       </Wrapper>
 
-      {/* Submit Button */}
-      {/* <div className="mt-6 flex justify-end">
-        <button
-          disabled={newlyAssignedUsers.length === 0}
-          onClick={handleSubmit}
-          className="bg-green-600 text-white px-6 py-2.5 rounded-lg 
-            hover:bg-green-700 shadow-md hover:shadow-lg 
-            transition-all duration-200 flex items-center gap-2 disabled:bg-green-300 disabled:cursor-not-allowed"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeWidth={2.5} d="M5 13l4 4L19 7" />
-          </svg>
-          Submit All ({newlyAssignedUsers.length})
-        </button>
-      </div> */}
+      <AssignUserModal
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        onAssign={handleAssignUser}
+        user={currentUserRef.current}
+      />
+
+      <ConfimationModal
+        isOpen={isConfirmModalOpen}
+        onOk={handleRemove}
+        onClose={() => setIsConfirmModalOpen(false)}
+        message="Remove this user?"
+        type="warning"
+      />
+
+      <EditAssignedUserModal
+        open={isEditModalOpen}
+        userForEdit={currentUserForEdit}
+        examId={assessmentId}
+        setUser={setCurrentUserForEdit}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccessUpdate={(data) => {
+          const updatedUser = data.user;
+
+          setAlreadyAssignedUsers((prev) =>
+            prev.map((u) =>
+              u.partyId === updatedUser.partyId ? updatedUser : u,
+            ),
+          );
+        }}
+      />
     </div>
   );
 }

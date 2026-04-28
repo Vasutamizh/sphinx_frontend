@@ -116,9 +116,11 @@ function ExamMasterPage() {
   }, []);
 
   const searchExam = async (e) => {
-    const response = await apiGet(`/search-exam?examName=${e.target.value}`);
+    const response = await apiGet(
+      `/exam/search-exam?examName=${e.target.value}`,
+    );
     if (response.responseMessage === "success") {
-      setExamSearchList(response.examList);
+      setExamList(response.examList);
     } else {
       failureToast(response.errorMessage);
     }
@@ -212,7 +214,7 @@ function ExamMasterPage() {
               Available Assessments
             </CardTitle>
             <SubContainer>
-              <AddButton onClick={() => navigate("/createExam")}>
+              <AddButton onClick={() => navigate("/create-assessment")}>
                 <NotepadText size={20} aria-label="add-users-button" /> Create
                 Assessment
               </AddButton>

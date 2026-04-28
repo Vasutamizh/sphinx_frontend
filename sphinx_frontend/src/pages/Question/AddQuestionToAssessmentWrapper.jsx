@@ -2,7 +2,9 @@ import { Button, Group, Tabs, useMantineTheme } from "@mantine/core";
 import AddQuestionPage from "./AddQuestionPage";
 import QuestionUploadPage from "./QuestionUploadPage";
 
-function AddQuestionToAssessmentWrapper({ navProps, assessmentId }) {
+function AddQuestionToAssessmentWrapper({ navProps, assessmentId}) {
+  console.log("STEP 3 - wrapper assessmentId => ", assessmentId);
+
   const theme = useMantineTheme();
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;
   return (
@@ -14,7 +16,7 @@ function AddQuestionToAssessmentWrapper({ navProps, assessmentId }) {
         </Tabs.List>
 
         <Tabs.Panel value="single">
-          <AddQuestionPage assessmentId={assessmentId} />
+          <AddQuestionPage assessmentId={assessmentId}  />
         </Tabs.Panel>
         <Tabs.Panel value="bulk">
           <QuestionUploadPage />

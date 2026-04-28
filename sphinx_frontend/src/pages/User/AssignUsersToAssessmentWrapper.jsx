@@ -1,13 +1,13 @@
 import { Button, Group, Paper, useMantineTheme } from "@mantine/core";
 import AssignUsers from "../Exam/AssignUsersPage";
 
-function AssignUsersToAssessmentWrapper({ navProps }) {
+function AssignUsersToAssessmentWrapper({ navProps, assessmentId }) {
   const theme = useMantineTheme();
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;
   return (
     <div>
       <Paper shadow="md" radius="md" withBorder>
-        <AssignUsers />
+        <AssignUsers assessmentId={assessmentId} />
       </Paper>
       <Group justify="space-between" mt="xl">
         <Button variant="default" onClick={handleBack} disabled={isFirstStep}>

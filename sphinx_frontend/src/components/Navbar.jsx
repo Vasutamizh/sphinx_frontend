@@ -17,7 +17,7 @@ function Navbar() {
       { name: "Dashboard", path: "/" },
       { name: "Manage Questions", path: "/manageQuestions" },
       { name: "Manage Users", path: "/manageUsers" },
-      { name: "Create Assessments", path: "/createExam" },
+      { name: "Create Assessments", path: "/create-assessment" },
     ];
   } else if (isAuthenticated && userRole.roleTypeId === "SphinxUser") {
     menuItems = [{ name: "Dashboard", path: "/userDashboard" }];

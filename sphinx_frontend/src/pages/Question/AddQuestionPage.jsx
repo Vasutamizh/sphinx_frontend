@@ -24,7 +24,8 @@ import useAPI from "../../hooks/useAPI";
 import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
 
 function AddQuestionPage({ assessmentId }) {
-  console.log(assessmentId);
+  console.log("STEP 4 - AddQuestionPage assessmentId => ", assessmentId);
+
   const { apiGet, apiPost, apiPut, isError } = useAPI();
   const DEFAULT_OPTIONS_COUNT = useSelector(
     (state) => state.question.DEFAULT_OPTIONS_COUNT,
@@ -83,10 +84,11 @@ function AddQuestionPage({ assessmentId }) {
 
     const getTopicList = async () => {
       try {
-        const response = await apiGet(`/exam/topics?${assessmentId}`);
+        const response = await apiGet(`/exam/examtopics/${assessmentId}`);
         if (!isError(response) && response.examTopicList) {
+          console.log("first topic fields => ", response.examTopicList[0]);
           setTopics(response.examTopicList);
-        } else { 
+        } else {
           notifications.show({
             title: "Error",
             message: response.errorMessage || "Failed to load topics!",
@@ -202,6 +204,7 @@ function AddQuestionPage({ assessmentId }) {
       difficultyLevel,
       answerValue: finalAnswer,
     };
+
 
     setLoading(true);
     try {
