@@ -1,16 +1,25 @@
 // AssessmentCreationWizard.tsx
 import {
+  ActionIcon,
+  Card,
+  Flex,
   Grid,
   Paper,
   Progress,
+  ScrollArea,
+  Stack,
   Stepper,
+  Switch,
   Text,
   Title,
+  Tooltip,
   useMantineTheme,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 
 // Child components (import your actual implementations)
+import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
@@ -75,7 +84,7 @@ export function AssessmentCreationWizard() {
 
   const handleDeleteTopic = async (topicId) => {
     const response = await apiDelete("/exam/topics", {
-      examId: assessment.assessmentId,
+      examId: assessment.examId,
       topicId,
     });
     if (response.responseMessage === "success") {
@@ -87,12 +96,10 @@ export function AssessmentCreationWizard() {
     }
   };
 
-  const handleTopicEdit = (topicId) => {
-    const tempTopic = topics.find((t) => t.topicId === topicId);
-    if (!tempTopic) return;
-    setTopicForEdit(tempTopic);
-    setActiveStep(1); // set current step for topicEdit 1 => Topic Add page.
-    setTopicIdxForShow(""); // close the pop over for topic here.
+  const handleTopicEdit = (topic) => {
+    setTopicForEdit(topic);
+    setActiveStep(1);
+    setTopicIdxForShow("");
   };
 
   const totalPct = useMemo(() => {
@@ -106,7 +113,7 @@ export function AssessmentCreationWizard() {
   return (
     <Paper shadow="sm" radius="md" p="xl" withBorder>
       <Grid>
-        <Grid.Col span={12}>
+        <Grid.Col span={9}>
           <Title order={2} mb="md">
             Create New Assessment
           </Title>
@@ -165,6 +172,117 @@ export function AssessmentCreationWizard() {
               navProps={{ handleBack, handleNext, isLastStep, isFirstStep }}
             />
           )}
+        </Grid.Col>
+        <Grid.Col span={3}>
+          {/* style={{ height: "80vh" }} */}
+          <ScrollArea type="always" style={{ height: "100%" }}>
+            <Stack my={10}>
+              {assessment.examName && (
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Title order={4} mb="sm">
+                    Assessment Info
+                  </Title>
+                  <Flex>
+                    <Text size="sm" fw={500}>
+                      Name:
+                    </Text>
+                    <Text size="sm" fw={600}>
+                      {assessment.examName}
+                    </Text>
+                  </Flex>
+                  <Text size="sm" mt="xs">
+                    Description: {assessment.description}
+                  </Text>
+                  <Text size="sm" mt="xs">
+                    Duration: {assessment.duration} minutes
+                  </Text>
+                  <Text size="sm" mt="xs">
+                    Pass Percentage: {assessment.passPercentage}%
+                  </Text>
+                  <Text size="sm" mt="xs">
+                    Total Questions: {assessment.noOfQuestions}
+                  </Text>
+                  <Text size="sm" mt="xs">
+                    Answers Must: {assessment.answersMust}
+                  </Text>
+                </Card>
+              )}
+              {topics && topics.length > 0 && (
+                <>
+                  <Flex align="center" gap="xs">
+                    <ShieldCheck color="blue" size={18} />
+                    <Text>Assigned Topics </Text>
+                  </Flex>
+                  <Text size="sm" c="dimmed">
+                    Total Weightage:{totalPct}%
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    Remaining Weightage: {100 - totalPct}%
+                  </Text>
+                  <Progress.Root size={30} mt="sm" mb="md">
+                    {topics.map((topic) => (
+                      <Tooltip label={`${topic.topicId}: ${topic.percentage}%`}>
+                        <Progress.Section
+                          key={topic.topicId}
+                          value={topic.percentage}
+                        >
+                          <Progress.Label>{topic.topicId}</Progress.Label>
+                        </Progress.Section>
+                      </Tooltip>
+                    ))}
+                  </Progress.Root>
+
+                  {topics.map((topic, index) => (
+                    <Card shadow="sm" padding="lg" radius="md" withBorder>
+                      <Flex align="center" gap="xs" justify="space-between">
+                        <Text weight={600} size="lg">
+                          {topic.topicId}
+                        </Text>
+
+                        <Flex align="center" gap="xs">
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => handleDeleteTopic(topic.topicId)}
+                          >
+                            <IconTrash size={18} />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            color="blue"
+                            onClick={() => handleTopicEdit(topic)}
+                          >
+                            <IconEdit size={18} />
+                          </ActionIcon>
+                        </Flex>
+                      </Flex>
+
+                      <Text size="sm" mt="xs">
+                        Question Weightage: {topic.percentage}%
+                      </Text>
+
+                      <Progress
+                        value={topic.percentage}
+                        color={theme.colors.forestGreen[6]}
+                        mt="sm"
+                      />
+
+                      <Text size="sm" mt="sm">
+                        Pass Percentage: {topic.passPercentage}%
+                      </Text>
+
+                      <Switch
+                        checked={topic.savePermanently}
+                        label="Save Permanently"
+                        mt="md"
+                        readOnly
+                      />
+                    </Card>
+                  ))}
+                </>
+              )}
+            </Stack>
+          </ScrollArea>
         </Grid.Col>
       </Grid>
     </Paper>

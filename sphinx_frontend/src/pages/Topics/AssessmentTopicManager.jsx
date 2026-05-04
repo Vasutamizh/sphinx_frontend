@@ -103,6 +103,7 @@ export function AssessmentTopicManager({
         topicName: topicData.topicId,
         percentage: String(topicData.percentage),
         topicPassPercentage: String(topicData.passPercentage),
+        savePermanently: topicData.savePermanently,
       };
       // console.log("TOPIC PAYLOAD => ", payload);
       // return;
@@ -112,16 +113,15 @@ export function AssessmentTopicManager({
         return;
       } else {
         successToast(response.successMessage);
-        if (topicData.savePermanently) {
-          const response = await apiPost("/topics", {
-            topicName: topicData.topicId,
-          });
-          if (isError(response)) {
-            failureToast(response.errorMessage || response.error);
-            return;
-          }
-        }
-
+        // if (topicData.savePermanently) {
+        //   const response = await apiPost("/topics", {
+        //     topicName: topicData.topicId,
+        //   });
+        //   if (isError(response)) {
+        //     failureToast(response.errorMessage || response.error);
+        //     return;
+        //   }
+        // }
         setTopics(modifiedTopics); // set local changes
       }
     } catch (err) {
