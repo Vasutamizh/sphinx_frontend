@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import {
   BarChart3,
   BookOpen,
@@ -14,7 +15,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import {
   AddButton,
   CardFooter,
@@ -41,6 +41,7 @@ import {
   SubContainer,
 } from "../../styles/ExamMasterPage.styles";
 
+import { Flex } from "@mantine/core";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
@@ -199,12 +200,14 @@ function ExamMasterPage() {
         </StatsCard>
       </StatsWrapper>
 
-      <Input
-        type="text"
-        placeholder="Search Users ..."
-        className="bg-white p-5 w-100"
-        onChange={searchExam}
-      />
+      <Flex justify="end" my="xl">
+        <Input
+          type="text"
+          placeholder="Search Assessments ..."
+          className="bg-white p-5 w-100"
+          onChange={searchExam}
+        />
+      </Flex>
 
       <Wrapper>
         <TableCard>

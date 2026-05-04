@@ -7,16 +7,25 @@ import {
   Stack,
   TextInput,
   Textarea,
+  Title,
   useMantineTheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
 import { failureToast, successToast } from "../../utils/toast";
 
-export function AssessmentInfoStep({ assessment, updateAssessment, navProps }) {
+export function AssessmentInfoStep({
+  assessment,
+  updateAssessment,
+  navProps = {},
+}) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  assessment = assessment || location.state?.exam;
   const dispatch = useDispatch();
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;
   // console.log("ASSESSMENT => ", assessment);
@@ -90,45 +99,52 @@ export function AssessmentInfoStep({ assessment, updateAssessment, navProps }) {
   }, []);
 
   const handleForm = async (formValues) => {
-  try {
-    dispatch(loaderActions.loaderOn());
+    try {
+      dispatch(loaderActions.loaderOn());
 
-    let payload = {
-      examName: formValues.examName,
-      description: formValues.description,
-      noOfQuestions: String(formValues.noOfQuestions),
-      duration: String(formValues.duration),
-      passPercentage: String(formValues.passPercentage),
-      questionsRandomized: "0",
-      answersMust: String(formValues.answersMust),
-      allowNegativeMarks: "1",
-      negativeMarkValue: "0",
-    };
+      let payload = {
+        examName: formValues.examName,
+        description: formValues.description,
+        noOfQuestions: String(formValues.noOfQuestions),
+        duration: String(formValues.duration),
+        passPercentage: String(formValues.passPercentage),
+        questionsRandomized: "0",
+        answersMust: String(formValues.answersMust),
+        allowNegativeMarks: "1",
+        negativeMarkValue: "0",
+      };
 
-    let response;
-    if (assessment.examId) {
-      payload.examId = assessment.examId;
-      response = await apiPut("/exam", payload);
-    } else {
-      response = await apiPost("/exam", payload);
+      let response;
+      if (assessment.examId) {
+        payload.examId = assessment.examId;
+        response = await apiPut("/exam", payload);
+      } else {
+        response = await apiPost("/exam", payload);
+      }
+
+      if (isError(response)) {
+        failureToast(response.errorMessage || response.error);
+        return;
+      }
+
+      formValues.examId = response.examId;
+      successToast(response.successMessage);
+      if (updateAssessment) {
+        updateAssessment(formValues);
+      }
+      if (location.state?.exam) {
+        navigate("/");
+        return;
+      }
+      if (handleNext) {
+        handleNext();
+      }
+    } catch (err) {
+      console.error("Error While Creating Assessment => ", err);
+    } finally {
+      dispatch(loaderActions.loaderOff());
     }
-
-    if (isError(response)) {
-      failureToast(response.errorMessage || response.error);
-      return;
-    }
-
-    formValues.examId = response.examId;
-    successToast(response.successMessage);
-    updateAssessment(formValues);
-    handleNext();
-
-  } catch (err) {
-    console.error("Error While Creating Assessment => ", err);
-  } finally {
-    dispatch(loaderActions.loaderOff());
-  }
-};
+  };
   return (
     <form
       onSubmit={form.onSubmit(
@@ -137,6 +153,11 @@ export function AssessmentInfoStep({ assessment, updateAssessment, navProps }) {
       )}
     >
       <Stack>
+        {location.state?.exam && (
+          <>
+            <Title>Update Assessment</Title>
+          </>
+        )}
         <Grid>
           <Grid.Col span={6}>
             <TextInput
@@ -191,15 +212,21 @@ export function AssessmentInfoStep({ assessment, updateAssessment, navProps }) {
         </Grid>
         {/* Navigation buttons */}
         <Group justify="space-between" mt="xl">
-          <Button variant="default" onClick={handleBack} disabled={isFirstStep}>
-            Back
-          </Button>
+          {!location.state?.exam && (
+            <Button
+              variant="default"
+              onClick={handleBack}
+              disabled={isFirstStep}
+            >
+              Back
+            </Button>
+          )}
           <Button
             type="submit"
             c={theme.colors.slate[0]}
             color={isLastStep ? "green" : "blue"}
           >
-            {isLastStep ? "Submit" : "Save & Next"}
+            {location.state?.exam ? "Update" : "Save & Next"}
           </Button>
         </Group>
       </Stack>

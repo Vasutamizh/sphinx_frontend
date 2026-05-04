@@ -1,5 +1,5 @@
 import { Clock10 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DescriptiveQuestionForm from "../../components/DescriptiveQuestionForm";
 import FillUpQuestionForm from "../../components/FillUpQuestionForm";
@@ -92,10 +92,11 @@ export default function QuestionAttendPage() {
   };
 
   // Submit answer for current question
-  const submitCurrentAnswer = useCallback(async () => {
-    if (!question) return;
+  const submitCurrentAnswer = async () => {
+    console.log("INSIDE", question);
+    if (!question) return false;
     let selectedAnswer = answer[question.questionType];
-    if (!selectedAnswer) return; // nothing to submit
+    if (!selectedAnswer) return false; // nothing to submit
 
     if (question.questionType === "MULTIPLE_CHOICE") {
       selectedAnswer = selectedAnswer.join(",");
@@ -114,6 +115,7 @@ export default function QuestionAttendPage() {
       failureToast(response.errorMessage || response.error);
       return false;
     }
+    console.log("Answer Submitted");
     // Mark this question as answered
     setQuestionStatus((prev) => {
       const updated = [...prev];
@@ -125,7 +127,7 @@ export default function QuestionAttendPage() {
       return updated;
     });
     return true;
-  }, [question, answer, exam, current, questionStatus, apiPost, isError]);
+  };
 
   // Load a specific question by number
   const getQuestion = async (questionNumber) => {
@@ -136,6 +138,7 @@ export default function QuestionAttendPage() {
       failureToast(response.errorMessage || response.error);
       return;
     }
+
     const questionData = response.data[0].question;
     const existingAnswer = response.data[0].answer;
 
@@ -242,7 +245,11 @@ export default function QuestionAttendPage() {
     };
     const response = await apiPost("/userExam/submit", payload);
     if (isError(response)) {
-      failureToast(response.errorMessage || response.error);
+      failureToast(
+        response.errorMessage ||
+          response.error ||
+          "Assessment Submission Failed!",
+      );
     } else {
       successToast(response.successMessage);
       navigate("/assessmentResult", { state: { exam, examResult: response } });
@@ -250,7 +257,10 @@ export default function QuestionAttendPage() {
   };
 
   const handleFinalSubmit = async () => {
-    await submitCurrentAnswer();
+    const isAnswerSubmitted = await submitCurrentAnswer();
+    if (!isAnswerSubmitted) {
+      failureToast("Failed to Submit Answer!");
+    }
     setIsConfirmationModalOpen(true);
   };
 
@@ -406,7 +416,7 @@ export default function QuestionAttendPage() {
                 </span>
 
                 <h2 className="text-lg font-semibold text-gray-900 leading-relaxed mb-8">
-                  {question.questionDetail}
+                  Question: {question.questionDetail}
                 </h2>
 
                 {/* Answer forms */}

@@ -4,6 +4,7 @@ import FileCard from "../../components/FileCard";
 import FileUpload from "../../components/FileUpload";
 import FormHint from "../../components/FormHint";
 import Loader from "../../components/Loader";
+import BulkUploadResultModal from "../../components/Modal_Components/QuestionBulkUploadResponseComponent";
 import useAPI from "../../hooks/useAPI";
 import { FormErrorMessage, StyledButton } from "../../styles/common.styles";
 import { failureToast, successToast } from "../../utils/toast";
@@ -12,8 +13,10 @@ const QuestionUploadPage = () => {
   const { apiFileGet, apiFilePost } = useAPI();
 
   const [file, setFile] = useState(null);
+  const [uploadResponse, setUploadResponse] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [modelOpened, setModalOpened] = useState(false);
 
   const downloadTemplate = async () => {
     setIsLoading(true);
@@ -70,6 +73,8 @@ const QuestionUploadPage = () => {
     if (response.responseMessage && response.responseMessage === "success") {
       successToast(response.successMessage);
       setFile(null);
+      setUploadResponse(response);
+      setModalOpened(true);
     } else {
       failureToast(response.errorMessage || response.error || response.message);
     }
@@ -77,6 +82,11 @@ const QuestionUploadPage = () => {
 
   return (
     <Container size="lg" py="xl">
+      <BulkUploadResultModal
+        opened={modelOpened}
+        onClose={() => setModalOpened(false)}
+        responseData={uploadResponse}
+      />
       <Paper shadow="md" radius="md" withBorder>
         {isLoading && <Loader />}
         <div className="flex justify-between items-center">

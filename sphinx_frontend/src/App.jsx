@@ -7,8 +7,8 @@ import LoginPage from "./pages/Auth/LoginPage";
 import Logout from "./pages/Auth/Logout";
 import SignupPage from "./pages/Auth/SignupPage";
 import { AssessmentCreationWizard } from "./pages/Exam/AssessmentCreationWrapper";
+import { AssessmentInfoStep } from "./pages/Exam/AssessmentInfo";
 import AssignUsers from "./pages/Exam/AssignUsersPage";
-import ExamCreationPage from "./pages/Exam/ExamCreationPage";
 import ExamDetailsPage from "./pages/Exam/ExamDetailsPage";
 import ExamMasterPage from "./pages/Exam/ExamMasterPage";
 import ExamResult from "./pages/Exam/ExamResult";
@@ -16,6 +16,7 @@ import ExamWiseUserViewer from "./pages/Exam/ExamWiseUserViewerPage";
 import AddQuestionPage from "./pages/Question/AddQuestionPage";
 import ManageQuestions from "./pages/Question/ManageQuestions";
 import QuestionAttendPage from "./pages/Question/QuestionAttendPage";
+import QuestionSelectionPage from "./pages/Question/QuestionSelectionPage";
 import QuestionUploadPage from "./pages/Question/QuestionUploadPage";
 import ManageUsers from "./pages/User/ManageUsers";
 import UserDashboardPage from "./pages/User/UserDashboardPage";
@@ -41,7 +42,7 @@ function App() {
               <Route path="/signup" Component={SignupPage} />
               <Route path="/addQuestion" Component={AddQuestionPage} />
               <Route path="/uploadQuestions" Component={QuestionUploadPage} />
-              <Route path="/createExam" Component={ExamCreationPage} />
+              <Route path="/createExam" Component={AssessmentInfoStep} />
               <Route
                 path="/"
                 element={
@@ -64,6 +65,7 @@ function App() {
                 path="/create-assessment"
                 Component={AssessmentCreationWizard}
               />
+              <Route path="/select" Component={QuestionSelectionPage} />
             </Routes>
           </Layout>
         </BrowserRouter>

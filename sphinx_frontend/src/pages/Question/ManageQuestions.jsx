@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Command,
   CommandDialog,
@@ -12,9 +11,8 @@ import {
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 
+import { Checkbox, Pagination } from "@mantine/core";
 import {
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   ListFilter,
   LoaderCircle,
   Pencil,
@@ -59,6 +57,8 @@ function ManageQuestions() {
   const [debounceLoading, setDebounceLoading] = useState(false);
   const [topicfilterOpen, setTopicfilterOpen] = useState(false);
   const [typefilterOpen, setTypefilterOpen] = useState(false);
+
+  const [activePage, setPage] = useState(1);
 
   const { topics } = useTopics();
 
@@ -172,6 +172,10 @@ function ManageQuestions() {
     }
   };
 
+  useEffect(() => {
+    loadQuestions();
+  }, [activePage]);
+
   // Handle function for select a single row.
   const handleParticularSelect = (checked, questionId) => {
     if (checked) {
@@ -191,6 +195,7 @@ function ManageQuestions() {
 
   // select All Function for deletion.
   const handleSelectAll = (checked) => {
+    console.log("Checked => ", checked);
     if (checked) {
       setSelectParticulars(questions.map((q) => q.questionId));
       // setSelectAll(true);
@@ -348,6 +353,7 @@ function ManageQuestions() {
                               }}
                             >
                               <Checkbox
+                                className="cursor-pointer"
                                 checked={typeFilter.includes(type.id)}
                                 // onCheckedChange={(checkedValue) =>
                                 //   handleSelect("type", type.id)
@@ -420,9 +426,7 @@ function ManageQuestions() {
                           checked={
                             questions.length === selectParticulars.length
                           }
-                          onCheckedChange={(checked) =>
-                            handleSelectAll(checked)
-                          }
+                          onChange={(e) => handleSelectAll(e.target.checked)}
                         />
                       </Th>
                       <Th>S.No</Th>
@@ -452,8 +456,11 @@ function ManageQuestions() {
                                 selectAll ||
                                 selectParticulars.includes(q.questionId)
                               }
-                              onCheckedChange={(checked) => {
-                                handleParticularSelect(checked, q.questionId);
+                              onChange={(e) => {
+                                handleParticularSelect(
+                                  e.target.checked,
+                                  q.questionId,
+                                );
                               }}
                             />
                           </Td>
@@ -532,7 +539,7 @@ function ManageQuestions() {
                       )}
                     </div>
                   </div>
-                  <ButtonGroup
+                  {/* <ButtonGroup
                     orientation="horizontal"
                     aria-label="Media controls"
                     className="w-fit"
@@ -558,7 +565,15 @@ function ManageQuestions() {
                     >
                       <ChevronsRightIcon size={16} />
                     </Button>
-                  </ButtonGroup>
+                  </ButtonGroup> */}
+                  <div>
+                    <Pagination
+                      total={Math.ceil(
+                        paginationInfo.totalRecords / paginationInfo.viewSize,
+                      )}
+                      onChange={setPage}
+                    />
+                  </div>
                 </div>
               )}
             </>

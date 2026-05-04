@@ -85,58 +85,60 @@ function Navbar() {
               ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
             />
           </button>
-          <div>
-            <div className="relative">
-              {/* Profile Button */}
-              <button
-                onClick={() => setDropdownOpen((prev) => !prev)}
-                className="flex items-center space-x-2 focus:outline-none group"
-              >
-                <div className="cursor-pointer">
-                  <User2Icon size={18} />
-                </div>
-                <svg
-                  className={`cursor-pointer w-4 h-4 text-gray-500 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          {isAuthenticated && (
+            <div>
+              <div className="relative">
+                {/* Profile Button */}
+                <button
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="flex items-center space-x-2 focus:outline-none group"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-
-              {/* Dropdown Menu */}
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-5 w-72 rounded-2xl shadow-2xl bg-white z-50 transition-all duration-200">
-                  <div className="p-3" onClick={() => setDropdownOpen(false)}>
-                    <Link to="/logout">
-                      <button className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors duration-200">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                          />
-                        </svg>
-                        Sign out
-                      </button>
-                    </Link>
+                  <div className="cursor-pointer">
+                    <User2Icon size={18} />
                   </div>
-                </div>
-              )}
+                  <svg
+                    className={`cursor-pointer w-4 h-4 text-gray-500 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-5 w-72 rounded-2xl shadow-2xl bg-white z-50 transition-all duration-200">
+                    <div className="p-3" onClick={() => setDropdownOpen(false)}>
+                      <Link to="/logout">
+                        <button className="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors duration-200">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            />
+                          </svg>
+                          Sign out
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
 

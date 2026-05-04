@@ -1,7 +1,7 @@
+import { Container } from "@mantine/core";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Toaster } from "sonner";
-import { LayoutContainer } from "../styles/common.styles";
 import Footer from "./Footer";
 import CustomLoader from "./Loader";
 import Navbar from "./Navbar";
@@ -16,13 +16,15 @@ function Layout({ children }) {
   // }, [children]);
   // console.log("Children => ", children);
   return (
-    <LayoutContainer>
+    <div>
       {isLoading && <CustomLoader />}
       <Navbar />
       <Toaster />
-      <div className="mt-3">{children}</div>
+      <Container size="xl" my="xl">
+        {children}
+      </Container>
       <Footer />
-    </LayoutContainer>
+    </div>
   );
 }
 

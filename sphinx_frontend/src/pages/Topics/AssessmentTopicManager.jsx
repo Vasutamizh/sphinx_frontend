@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { PlusIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
@@ -30,7 +30,9 @@ export function AssessmentTopicManager({
   //   const [selectedTopic, setSelectedTopic] = useState();
 
   const theme = useMantineTheme();
-  const { apiPost, apiPut, isError } = useAPI();
+  const { apiGet, apiPost, apiPut, isError } = useAPI();
+  const [savedTopics, setSavedTopics] = useState([]);
+
   const dispatch = useDispatch();
 
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;
@@ -38,7 +40,6 @@ export function AssessmentTopicManager({
   const form = useForm({
     mode: "controlled",
     initialValues: {
-      examId: "",
       topicId: "",
       percentage: 0,
       passPercentage: 75,
@@ -137,6 +138,23 @@ export function AssessmentTopicManager({
     if (topicForEdit) {
       form.setInitialValues(topicForEdit);
     }
+
+    const getAllTopicIds = async () => {
+      const response = await apiGet("/topics");
+      if (isError(response)) {
+        failureToast(response.errorMessage || response.error);
+      } else {
+        if (response.topicList) {
+          const newArr = response.topicList.map((t) => {
+            return { label: t.topicId, value: t.topicId };
+          });
+          // console.log("NEW ARR => ", newArr);
+          setSavedTopics(newArr || []);
+        }
+      }
+    };
+
+    getAllTopicIds();
   }, []);
 
   // Render your topic list + form here (similar to earlier design)
@@ -146,19 +164,24 @@ export function AssessmentTopicManager({
       <form
         onSubmit={form.onSubmit(
           (values) => {
-            console.log("SUBMITTED", values);
+            // console.log("SUBMITTED", values);
             addTopic(values);
           },
           (errors) => {
-            console.log("VALIDATION ERRORS", errors);
+            // console.log("VALIDATION ERRORS", errors);
           },
         )}
       >
         <Select
-          {...form.getInputProps("topicId")}
+          // {...form.getInputProps("topicId")}
           label="Available Topic (Template)"
-          data={["JavaScript", "React", "CSS", "System Design"]}
-          placeholder="Select template"
+          data={savedTopics}
+          placeholder="Select Saved Topic"
+          onChange={(event) => {
+            // console.log("EVENT => ", event);
+            // console.log("CHANGED VALUE => ", event);
+            form.setFieldValue("topicId", event || "");
+          }}
         />
         <Text>(or)</Text>
         <TextInput
@@ -197,6 +220,7 @@ export function AssessmentTopicManager({
           onClick={handleNext}
           c={theme.colors.slate[0]}
           variant="filled"
+          disabled={totalPct !== 100}
         >
           {isLastStep ? "Submit" : "Proceed to Add Question"}
         </Button>

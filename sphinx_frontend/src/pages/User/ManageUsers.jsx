@@ -2,17 +2,12 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import {
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  Pencil,
-  ShieldCheck,
-  Trash2,
-} from "lucide-react";
+import { Pencil, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import UserAddUpdateModal from "../../components/Modal_Components/UserAddUpdateModal";
 
+import { Pagination } from "@mantine/core";
 import { useDispatch } from "react-redux";
 import useAPI from "../../hooks/useAPI";
 import {
@@ -42,6 +37,7 @@ function ManageUsers() {
   const nextPageNumber = useRef(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [userForEdit, setUserForEdit] = useState({});
+  const [activePage, setPage] = useState(1);
 
   const getAllUsers = async () => {
     setLoading(true);
@@ -76,7 +72,7 @@ function ManageUsers() {
 
   useEffect(() => {
     getAllUsers();
-  }, []);
+  }, [activePage]);
 
   // Handle function for select a single row.
   const handleParticularSelect = (checked, p_partyId) => {
@@ -336,7 +332,7 @@ function ManageUsers() {
                     )} */}
                     </div>
                   </div>
-                  <ButtonGroup
+                  {/* <ButtonGroup
                     orientation="horizontal"
                     aria-label="Media controls"
                     className="h-fit"
@@ -362,7 +358,15 @@ function ManageUsers() {
                     >
                       <ChevronsRightIcon size={16} />
                     </Button>
-                  </ButtonGroup>
+                  </ButtonGroup> */}
+                  <div>
+                    <Pagination
+                      total={Math.ceil(
+                        paginationInfo.totalRecords / paginationInfo.viewSize,
+                      )}
+                      onChange={setPage}
+                    />
+                  </div>
                 </div>
               )}
             </>

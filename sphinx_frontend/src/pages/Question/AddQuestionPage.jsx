@@ -203,8 +203,8 @@ function AddQuestionPage({ assessmentId }) {
       numAnswers: numOfAnswers,
       difficultyLevel,
       answerValue: finalAnswer,
+      examId: assessmentId,
     };
-
 
     setLoading(true);
     try {
