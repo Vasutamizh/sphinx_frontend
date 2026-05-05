@@ -130,12 +130,12 @@ export function AssessmentInfoStep({
       formValues.examId = response.examId;
       successToast(response.successMessage);
       if (updateAssessment) {
-        updateAssessment(formValues);
+        updateAssessment(payload);
       }
-      if (location.state?.exam) {
-        navigate("/");
-        return;
-      }
+      // if (location.state?.exam) {
+      //   navigate("/");
+      //   return;
+      // }
       if (handleNext) {
         handleNext();
       }

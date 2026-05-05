@@ -3,7 +3,7 @@ import AddQuestionPage from "./AddQuestionPage";
 import QuestionUploadPage from "./QuestionUploadPage";
 
 function AddQuestionToAssessmentWrapper({ navProps, assessmentId }) {
-  console.log("STEP 3 - wrapper assessmentId => ", assessmentId);
+  // console.log("STEP 3 - wrapper assessmentId => ", assessmentId);
 
   const theme = useMantineTheme();
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;

@@ -89,10 +89,12 @@ export default function AssignUsers({
   // Fetch users
   const fetchUsers = async () => {
     try {
-      const res = await apiGet("/user/getAllUsers");
+      const res = await apiGet(
+        `/exam/getUsersNotAssignedToExam?examId=${assessmentId || exam.examId}`,
+      );
       if (!isError(res)) {
-        setUsers(res.users || []);
-        console.log("User Setted", res.users);
+        setUsers(res.data || []);
+        console.log("User Setted", res.data);
       }
     } catch (error) {
       console.error("Error while fetching users => ", error);
@@ -117,27 +119,10 @@ export default function AssignUsers({
     }
   };
 
-  const filterAssignedUsers = () => {
-    // console.log("Filtering Starting....");
-    // console.log("Users  => ", users, alreadyAssignedUsers);
-    if (users !== null && alreadyAssignedUsers !== null) {
-      const filteredUsers = users.filter((u) => {
-        const isPresent = alreadyAssignedUsers.find(
-          (user) => user.partyId === u.partyId,
-        );
-        console.log(" Users present ", u.partyId, "=> ", isPresent);
-        return !isPresent;
-      });
-      console.log("Filtered Users  => ", filteredUsers);
-      setUsers(filteredUsers);
-    }
-  };
-
   useEffect(() => {
     const loadInitialdata = async () => {
       await fetchAssigned();
       await fetchUsers();
-      // filterAssignedUsers();
     };
 
     loadInitialdata();
@@ -222,10 +207,12 @@ export default function AssignUsers({
         setAlreadyAssignedUsers((prev) => [...prev, ...newlyAssigned]);
         setSelectedUnassignedIds([]);
         setBulkAssignValues({});
+        fetchUsers();
       } else {
         failureToast(res.errorMessage || "Assignment failed");
       }
     } catch (error) {
+      console.error("Error While Assign the User to Assessment => ", error);
       failureToast("Assignment failed");
     }
   };
@@ -293,6 +280,7 @@ export default function AssignUsers({
         failureToast("Update failed");
       }
     } catch (error) {
+      console.error("Error While Updating the Assigned User => ", error);
       failureToast("Update failed");
     }
   };
@@ -331,7 +319,10 @@ export default function AssignUsers({
     }));
   };
 
-  const isAllSelected = paginatedUsers.every((u) => isSelected(u.partyId));
+  // const isAllSelected = paginatedUsers.every((u) => isSelected(u.partyId));
+  const isAllSelected =
+    paginatedUsers.length > 0 &&
+    paginatedUsers.every((u) => isSelected(u.partyId));
 
   const isIndeterminate =
     paginatedUsers.some((u) => isSelected(u.partyId)) && !isAllSelected;
@@ -463,9 +454,9 @@ export default function AssignUsers({
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      // onClick={() => {
+                      // onClick = {() => {
                       //   setQuestionToDelete(question.id);
-                      //   //   openDeleteModal();
+                      //   openDeleteModal();
                       // }}
                     >
                       <IconTrash size={18} />
@@ -512,6 +503,13 @@ export default function AssignUsers({
           </Table.Thead>
 
           <Table.Tbody>
+            {paginatedUsers.length === 0 && (
+              <Table.Tr>
+                <Table.Td align="center" colSpan={6}>
+                  No users Available!
+                </Table.Td>
+              </Table.Tr>
+            )}
             {paginatedUsers.map((user, index) => {
               const selected = isSelected(user.partyId);
               const values = selectedUsers[user.partyId] || {

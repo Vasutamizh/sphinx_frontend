@@ -18,7 +18,7 @@ const QuestionUploadPage = () => {
   const [error, setError] = useState("");
   const [modelOpened, setModalOpened] = useState(false);
 
-  const downloadTemplate = async () => {
+  const downloadTemplate = async ({ assessmentId, topicId }) => {
     setIsLoading(true);
     const response = await apiFileGet("/questions/downloadTemplate");
 

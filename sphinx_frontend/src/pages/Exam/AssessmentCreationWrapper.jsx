@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 // Child components (import your actual implementations)
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { ShieldCheck } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
 import AddQuestionPage from "../Question/AddQuestionPage";
@@ -32,20 +32,23 @@ import { AssessmentInfoStep } from "./AssessmentInfo";
 
 export function AssessmentCreationWizard() {
   const theme = useMantineTheme();
+  const location = useLocation();
+  const exam = location.state?.exam;
   const [activeStep, setActiveStep] = useState(0);
   const [topicIdxForShow, setTopicIdxForShow] = useState("");
   const [topicForEdit, setTopicForEdit] = useState("");
-  const { apiDelete } = useAPI();
+  const { apiDelete, apiGet, isError } = useAPI();
   const navigate = useNavigate();
 
   // Central state for the whole assessment
   const [assessment, setAssessment] = useState({
-    examName: "",
-    description: "",
-    duration: 0,
-    passPercentage: 0,
-    noOfQuestions: 0,
-    answersMust: 0,
+    examId: exam?.examId || assessment?.examId || "",
+    examName: exam?.examName || "",
+    description: exam?.description || "",
+    duration: exam?.duration || 0,
+    passPercentage: exam?.passPercentage || 0,
+    noOfQuestions: exam?.noOfQuestions || 0,
+    answersMust: exam?.answerMust || 0,
   });
   const [topics, setTopics] = useState([]);
 
@@ -84,7 +87,7 @@ export function AssessmentCreationWizard() {
 
   const handleDeleteTopic = async (topicId) => {
     const response = await apiDelete("/exam/topics", {
-      examId: assessment.examId,
+      examId: assessment.examId || exam?.examId,
       topicId,
     });
     if (response.responseMessage === "success") {
@@ -109,6 +112,24 @@ export function AssessmentCreationWizard() {
   useEffect(() => {
     setTopicIdxForShow("");
   }, [topics]);
+
+  useEffect(() => {
+    const fetchAssignedTopics = async () => {
+      const response = await apiGet(
+        `/exam/examTopics?examId=${assessment.examId || exam.examId}`,
+      );
+      if (!isError(response)) {
+        setTopics(response.examTopicList || []);
+        console.log("TOPIC RESPONSE => ", response);
+      } else {
+        failureToast(response.errorMessage || response.error);
+      }
+    };
+    // get assigned topics if the assessment already has topics assigned (edit flow)
+    if (location.state?.exam && exam?.examId) {
+      fetchAssignedTopics();
+    }
+  }, []);
 
   return (
     <Paper shadow="sm" radius="md" p="xl" withBorder>
@@ -141,7 +162,7 @@ export function AssessmentCreationWizard() {
           )}
           {activeStep === 1 && (
             <AssessmentTopicManager
-              assessmentId={assessment.examId}
+              assessmentId={assessment.examId || exam?.examId}
               topics={topics}
               topicForEdit={topicForEdit}
               setTopicForEdit={setTopicForEdit}
@@ -239,22 +260,24 @@ export function AssessmentCreationWizard() {
                           {topic.topicId}
                         </Text>
 
-                        <Flex align="center" gap="xs">
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            onClick={() => handleDeleteTopic(topic.topicId)}
-                          >
-                            <IconTrash size={18} />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="subtle"
-                            color="blue"
-                            onClick={() => handleTopicEdit(topic)}
-                          >
-                            <IconEdit size={18} />
-                          </ActionIcon>
-                        </Flex>
+                        {activeStep === 1 && (
+                          <Flex align="center" gap="xs">
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              onClick={() => handleDeleteTopic(topic.topicId)}
+                            >
+                              <IconTrash size={18} />
+                            </ActionIcon>
+                            <ActionIcon
+                              variant="subtle"
+                              color="blue"
+                              onClick={() => handleTopicEdit(topic)}
+                            >
+                              <IconEdit size={18} />
+                            </ActionIcon>
+                          </Flex>
+                        )}
                       </Flex>
 
                       <Text size="sm" mt="xs">
@@ -268,7 +291,7 @@ export function AssessmentCreationWizard() {
                       />
 
                       <Text size="sm" mt="sm">
-                        Pass Percentage: {topic.passPercentage}%
+                        Pass Percentage: {topic.topicPassPercentage}%
                       </Text>
 
                       <Switch

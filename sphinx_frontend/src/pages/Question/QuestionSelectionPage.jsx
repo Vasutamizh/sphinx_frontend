@@ -6,8 +6,10 @@ import {
   Card,
   Checkbox,
   Divider,
+  Flex,
   Grid,
   Group,
+  Pagination,
   Progress,
   Select,
   Stack,
@@ -18,7 +20,8 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDeviceFloppy, IconEdit, IconTrash } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
 
@@ -56,23 +59,36 @@ export default function QuestionSelectionPage({
   );
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [questionToDelete, setQuestionToDelete] = useState(null);
-  const [randomCount, setRandomCount] = useState(2);
 
-  const { apiPost, apiGet, isError, apiPut } = useAPI();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const viewIndex = useRef(0);
+  const viewSize = useRef(10);
+  const totalQuestionsCount = useRef(0);
+
+  const { apiPost, apiGet, isError } = useAPI();
 
   // get all questions for current topic
   async function getQuestionsByTopic() {
     if (!currentTopicId) return [];
-    const response = await apiGet(`/questions?topicId=${currentTopicId}`);
+    const response = await apiGet(
+      `/questions?topicId=${currentTopicId}&viewIndex=${viewIndex.current}&viewSize=${viewSize.current}`,
+    );
     if (isError(response)) {
       failureToast(response.errorMessage || "Failed to load Questions!");
     } else {
       setQuestions(response.data);
+      totalQuestionsCount.current = response.totalCount;
+      viewIndex.current = response.viewIndex;
+      viewSize.current = response.viewSize;
     }
   }
 
   async function getAllTopics() {
-    const response = await apiGet(`/examTopics?examId=${assessmentId}`);
+    console.log("Assessment => ", assessment, assessmentId);
+    const response = await apiGet(
+      `/examTopics?examId=${assessmentId || assessment.examId}`,
+    );
     if (isError(response)) {
       failureToast(response.errorMessage || "Failed to load Questions!");
     } else {
@@ -378,8 +394,20 @@ export default function QuestionSelectionPage({
   //     </Modal>
   //   );
 
+  const handlePageChange = (pageNumber) => {
+    viewIndex.current = pageNumber - 1; // 0 based page number
+    getQuestionsByTopic();
+  };
+
   return (
     <Stack p="md" style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      <ConfimationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={handleNext}
+        message="You have selected less questions than the target, Remaining Questions will be randomly selected. Do you want to proceed?"
+      />
       {/* Header */}
       <Group justify="space-between" align="center">
         <div>
@@ -395,7 +423,6 @@ export default function QuestionSelectionPage({
           Total Selected: {totalSelected}
         </Badge>
       </Group>
-
       {/* Progress Section */}
       <Card withBorder shadow="sm" p="md">
         <Group justify="space-between" mb="xs">
@@ -438,11 +465,10 @@ export default function QuestionSelectionPage({
             onClick={handleSaveAssessment}
             leftSection={<IconDeviceFloppy size={16} />}
           >
-            Save Assessment
+            Save Questions To Assessment
           </Button>
         </Group>
       </Card>
-
       <Grid>
         {/* Topic Selector & Metadata */}
         <Grid.Col span={4}>
@@ -582,22 +608,36 @@ export default function QuestionSelectionPage({
                   </Table.Tbody>
                 </Table>
               </Box>
+              <Flex justify="center" mt="md">
+                <Pagination
+                  onChange={handlePageChange}
+                  total={Math.ceil(
+                    totalQuestionsCount.current / viewSize.current,
+                  )}
+                />
+              </Flex>
             </Stack>
           </Card>
         </Grid.Col>
       </Grid>
-
       {/* Modals
       {renderEditModal()}
       {renderDeleteModal()} */}
-
       <Group justify="space-between" mt="xl">
         <Button variant="default" onClick={handleBack} disabled={isFirstStep}>
           Back
         </Button>
         <Button
           type="submit"
-          onClick={handleNext}
+          onClick={() => {
+            if (
+              Array(selectedQuestionIds.keys).length <= targetTotalQuestions
+            ) {
+              setIsModalOpen(true);
+              return;
+            }
+            handleNext();
+          }}
           c={theme.colors.slate[0]}
           variant="filled"
         >

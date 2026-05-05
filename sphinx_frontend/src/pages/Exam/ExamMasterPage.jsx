@@ -332,7 +332,10 @@ function ExamMasterPage() {
                             </li>
                             <li
                               onClick={() => {
-                                navigate("/createExam", { state: { exam } });
+                                // navigate("/createExam", { state: { exam } });
+                                navigate("/create-assessment", {
+                                  state: { exam },
+                                });
                               }}
                               role="menuitem"
                               class="cursor-pointer gap-3 text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"

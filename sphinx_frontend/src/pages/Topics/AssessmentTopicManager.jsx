@@ -72,34 +72,13 @@ export function AssessmentTopicManager({
       );
       return;
     }
-    const existingTopic = topics.find((t) => t.topicId === topicData.topicId);
-    let modifiedTopics = [];
-    if (existingTopic) {
-      existingTopic.percentage =
-        existingTopic.percentage + topicData.percentage;
-
-      if (existingTopic.passPercentage + topicData.passPercentage > 100) {
-        failureToast("Pass Percentage, Reduce to 100%");
-        return;
-      }
-      existingTopic.passPercentage =
-        existingTopic.passPercentage + topicData.passPercentage;
-      modifiedTopics = [...topics];
-      modifiedTopics.filter((t) => t.topicId !== topicData.topicId);
-      modifiedTopics.push(existingTopic);
-    } else {
-      modifiedTopics = [
-        ...topics,
-        { id: topicData.topicId, ...topicData, questions: [] },
-      ];
-    }
 
     // api call to add topic in db.
     try {
       dispatch(loaderActions.loaderOn());
       const payload = {
         examId: assessmentId,
-        topicId: topicData.topicId,
+        topicId: topicData.topicId.toUpperCase(),
         topicName: topicData.topicId,
         percentage: String(topicData.percentage),
         topicPassPercentage: String(topicData.passPercentage),
@@ -122,6 +101,31 @@ export function AssessmentTopicManager({
         //     return;
         //   }
         // }
+        const existingTopic = topics.find(
+          (t) => t.topicId.toUpperCase() === topicData.topicId.toUpperCase(),
+        );
+
+        let modifiedTopics = [];
+        if (existingTopic) {
+          existingTopic.percentage =
+            topicData.percentage + existingTopic.percentage;
+          existingTopic.topicPassPercentage =
+            topicData.topicPassPercentage + existingTopic.topicPassPercentage;
+          modifiedTopics = topics.filter(
+            (t) => t.topicId.toUpperCase() !== topicData.topicId.toUpperCase(),
+          );
+          modifiedTopics.push(existingTopic);
+          setTopics(modifiedTopics); // set local changes
+        } else {
+          modifiedTopics = [
+            ...topics,
+            {
+              id: topicData.topicId.toUpperCase(),
+              ...topicData,
+              questions: [],
+            },
+          ];
+        }
         setTopics(modifiedTopics); // set local changes
       }
     } catch (err) {
