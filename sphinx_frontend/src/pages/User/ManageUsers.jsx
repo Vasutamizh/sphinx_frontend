@@ -37,12 +37,15 @@ function ManageUsers() {
   const nextPageNumber = useRef(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [userForEdit, setUserForEdit] = useState({});
-  const [activePage, setPage] = useState(1);
+  // const [activePage, setPage] = useState(1);
+  const [usernameSearchTerm, setUsernameSearchTerm] = useState("");
 
   const getAllUsers = async () => {
     setLoading(true);
 
-    const response = await apiGet("/user/getAllUsers");
+    const response = await apiGet(
+      `/user/getAllUsers?viewIndex=${nextPageNumber.current}&viewSize=${rowsPerPage}&usernameSearchTerm=${usernameSearchTerm}`,
+    );
 
     if (isError(response)) {
       failureToast(
@@ -50,7 +53,7 @@ function ManageUsers() {
       );
     } else {
       setUsers(response.users || []);
-      setPaginationInfo(response.meta || {});
+      setPaginationInfo(response.paginationInfo || {});
     }
 
     setLoading(false);
@@ -70,9 +73,18 @@ function ManageUsers() {
     }
   };
 
+  // useEffect(() => {
+  //   getAllUsers();
+  // }, [activePage]);
+
   useEffect(() => {
-    getAllUsers();
-  }, [activePage]);
+    const delayDebounceFn = setTimeout(() => {
+      nextPageNumber.current = 0;
+      getAllUsers();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [usernameSearchTerm]);
 
   // Handle function for select a single row.
   const handleParticularSelect = (checked, p_partyId) => {
@@ -98,36 +110,36 @@ function ManageUsers() {
     }
   };
 
-  // pagination functions for next page.
-  const nextPage = () => {
-    if (
-      paginationInfo &&
-      paginationInfo.totalRecords &&
-      paginationInfo.viewSize
-    ) {
-      if (
-        paginationInfo.totalRecords >
-        paginationInfo.viewSize * (paginationInfo.viewIndex + 1)
-      ) {
-        nextPageNumber.current = nextPageNumber.current + 1;
-        getAllUsers();
-      }
-    }
-  };
+  // // pagination functions for next page.
+  // const nextPage = () => {
+  //   if (
+  //     paginationInfo &&
+  //     paginationInfo.totalRecords &&
+  //     paginationInfo.viewSize
+  //   ) {
+  //     if (
+  //       paginationInfo.totalRecords >
+  //       paginationInfo.viewSize * (paginationInfo.viewIndex + 1)
+  //     ) {
+  //       nextPageNumber.current = nextPageNumber.current + 1;
+  //       getAllUsers();
+  //     }
+  //   }
+  // };
 
-  // pagination functions for previours page.
-  const prevPage = () => {
-    if (
-      paginationInfo &&
-      paginationInfo.totalRecords &&
-      paginationInfo.viewSize
-    ) {
-      if (paginationInfo.viewIndex > 0) {
-        nextPageNumber.current = nextPageNumber.current - 1;
-        getAllUsers();
-      }
-    }
-  };
+  // // pagination functions for previours page.
+  // const prevPage = () => {
+  //   if (
+  //     paginationInfo &&
+  //     paginationInfo.totalRecords &&
+  //     paginationInfo.viewSize
+  //   ) {
+  //     if (paginationInfo.viewIndex > 0) {
+  //       nextPageNumber.current = nextPageNumber.current - 1;
+  //       getAllUsers();
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
     console.log("User for Edit => ", userForEdit);
@@ -196,7 +208,7 @@ function ManageUsers() {
                 placeholder="Search Users ..."
                 className="bg-white p-5 w-100"
                 //   value={questionDetailFilter}
-                //   onChange={(e) => setQuestionDetailFilter(e.target.value)}
+                onChange={(e) => setUsernameSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -237,7 +249,10 @@ function ManageUsers() {
                     <tr role="row">
                       <Th>
                         <Checkbox
-                          checked={users.length === selectParticulars.length}
+                          checked={
+                            users.length > 0 &&
+                            users.length === selectParticulars.length
+                          }
                           onCheckedChange={(checked) =>
                             handleSelectAll(checked)
                           }
@@ -250,17 +265,17 @@ function ManageUsers() {
                       <Th>Action</Th>
                     </tr>
                   </THead>
-                  {loading ? (
-                    <div className="p-6 text-center text-gray-500">
-                      Loading questions...
-                    </div>
-                  ) : users.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
-                      No questions found.
-                    </div>
-                  ) : (
-                    <TBody>
-                      {users.map((u, idx) => (
+                  <TBody>
+                    {loading ? (
+                      <Tr className="p-6 text-center text-gray-500">
+                        <Td colSpan={6}>Loading Users...</Td>
+                      </Tr>
+                    ) : users.length === 0 ? (
+                      <Tr className="p-6 text-center text-gray-500">
+                        <Td colSpan={6}>No Users were found.</Td>
+                      </Tr>
+                    ) : (
+                      users.map((u, idx) => (
                         <Tr key={u.partyId}>
                           <Td>
                             <Checkbox
@@ -306,9 +321,9 @@ function ManageUsers() {
                             </IconButton>
                           </Td>
                         </Tr>
-                      ))}
-                    </TBody>
-                  )}
+                      ))
+                    )}
+                  </TBody>
                 </StyledTable>
               </TableCard>
               {paginationInfo && (
@@ -361,10 +376,17 @@ function ManageUsers() {
                   </ButtonGroup> */}
                   <div>
                     <Pagination
-                      total={Math.ceil(
-                        paginationInfo.totalRecords / paginationInfo.viewSize,
-                      )}
-                      onChange={setPage}
+                      // total=
+                      // total={Math.ceil(
+                      //   paginationInfo.totalRecords ||
+                      //     10 / paginationInfo.viewSize ||
+                      //     10,
+                      // )}
+                      total={1}
+                      onChange={(pageNumber) => {
+                        nextPageNumber.current = pageNumber - 1;
+                        getAllUsers();
+                      }}
                     />
                   </div>
                 </div>

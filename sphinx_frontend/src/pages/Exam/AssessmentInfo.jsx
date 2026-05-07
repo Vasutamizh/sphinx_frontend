@@ -5,6 +5,7 @@ import {
   Group,
   NumberInput,
   Stack,
+  Text,
   TextInput,
   Textarea,
   Title,
@@ -13,7 +14,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
 import { failureToast, successToast } from "../../utils/toast";
@@ -23,9 +24,8 @@ export function AssessmentInfoStep({
   updateAssessment,
   navProps = {},
 }) {
-  const navigate = useNavigate();
   const location = useLocation();
-  assessment = assessment || location.state?.exam;
+  assessment = location.state?.exam || assessment;
   const dispatch = useDispatch();
   const { handleBack, handleNext, isLastStep, isFirstStep } = navProps;
   // console.log("ASSESSMENT => ", assessment);
@@ -56,8 +56,8 @@ export function AssessmentInfoStep({
       description: (value) => {
         if (!value) {
           return "This field is required";
-        } else if (value.trim().length < 5 || value.trim().length > 180) {
-          return "Assessment description Should be 10 - 200 Character long!";
+        } else if (value.trim().length < 5 || value.trim().length > 255) {
+          return "Assessment description Should be 5 - 255 Character long!";
         }
       },
 
@@ -95,8 +95,17 @@ export function AssessmentInfoStep({
   });
 
   useEffect(() => {
-    if (!assessment) form.setInitialValues(assessment);
-  }, []);
+    if (assessment) {
+      form.setValues({
+        examName: assessment.examName || "",
+        description: assessment.description || "",
+        duration: assessment.duration || 20,
+        passPercentage: assessment.passPercentage || 75,
+        noOfQuestions: assessment.noOfQuestions || 0,
+        answersMust: assessment.answersMust || 0,
+      });
+    }
+  }, [assessment]);
 
   const handleForm = async (formValues) => {
     try {
@@ -125,13 +134,20 @@ export function AssessmentInfoStep({
       if (isError(response)) {
         failureToast(response.errorMessage || response.error);
         return;
+      } else {
+        if (!assessment.examId) {
+          payload.examId = response.examId;
+        }
       }
 
-      formValues.examId = response.examId;
-      successToast(response.successMessage);
-      if (updateAssessment) {
-        updateAssessment(payload);
-      }
+      successToast(
+        response.successMessage || assessment.examId
+          ? "Assessment updated successfully!"
+          : "Assessment created successfully!",
+      );
+      // if (updateAssessment) {
+      updateAssessment(payload);
+      // }
       // if (location.state?.exam) {
       //   navigate("/");
       //   return;
@@ -182,6 +198,9 @@ export function AssessmentInfoStep({
               label="Description"
               rows={5}
             />
+            <Text size="sm" c="dimmed" ta="right">
+              {form.values.description?.length || 0}/255 characters
+            </Text>
           </Grid.Col>
           <Grid.Col span={6}>
             <NumberInput

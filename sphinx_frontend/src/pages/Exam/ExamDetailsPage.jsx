@@ -174,11 +174,12 @@ export default function ExamDetailsPage() {
             {[
               [
                 "Negative marking",
-                data.allowNegativeMarks ? "Enabled" : "Disabled",
+                // data.allowNegativeMarks === 1 ? "Enabled" : "Disabled",
+                "Disabled",
               ],
               ["Allowed attempts", `${data.allowedAttempts} attempt`],
               ["Auto-timeout", `${data.timeoutDays} days`],
-              ["Validity", "No expiry"],
+
               ["Party ID", data.partyId],
             ].map(([k, v]) => (
               <div

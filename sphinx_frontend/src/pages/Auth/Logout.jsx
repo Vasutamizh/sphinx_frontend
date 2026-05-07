@@ -11,7 +11,7 @@ function Logout() {
   const { apiGet } = useAPI();
 
   const logout = async () => {
-    await apiGet("/api/auth/logout");
+    await apiGet("/auth/logout");
   };
 
   useEffect(() => {

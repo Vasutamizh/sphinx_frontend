@@ -78,7 +78,12 @@ export default function ExamResult() {
                     <span className="text-3xl font-bold text-slate-800">
                       {/* {examResult.scorePercentage  ||
                       (examResult.score / examResult.noOfQuestions) * 100} */}
-                      {Math.round(examResult.scorePercentage * 100) / 100}%
+                      {Math.round(examResult.scorePercentage * 100) / 100 ||
+                        Math.round(
+                          (examResult.totalCorrect / examResult.noOfQuestions) *
+                            100,
+                        )}
+                      %
                     </span>
                     <span className="text-xs text-slate-400 mt-0.5">score</span>
                   </div>

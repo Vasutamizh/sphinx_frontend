@@ -311,7 +311,7 @@ export const LoaderBackdrop = styled.div`
   width: 100%;
   min-height: 100%;
   position: fixed;
-  z-index: 999999;
+  z-index: 10000000000;
   display: flex;
   justify-content: center;
   align-items: center;

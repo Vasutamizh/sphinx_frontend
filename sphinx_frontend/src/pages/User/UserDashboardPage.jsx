@@ -120,10 +120,10 @@ function UserDashboardPage() {
               <div class="num">{completedExams?.length}</div>
               <div class="lbl">Completed</div>
             </StatusBox>
-            <StatusBox>
+            {/* <StatusBox>
               <div class="num">82%</div>
               <div class="lbl">Avg. Score</div>
-            </StatusBox>
+            </StatusBox> */}
           </div>
         </HeroSection>
 

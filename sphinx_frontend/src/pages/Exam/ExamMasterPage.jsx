@@ -41,7 +41,7 @@ import {
   SubContainer,
 } from "../../styles/ExamMasterPage.styles";
 
-import { Flex } from "@mantine/core";
+import { Badge, Flex } from "@mantine/core";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
@@ -53,7 +53,7 @@ function ExamMasterPage() {
   const partyId = useSelector((state) => state.auth.partyId);
 
   const [examList, setExamList] = useState([]);
-  const [examSearchList, setExamSearchList] = useState([]);
+  const [examSearchTerm, setExamSearchTerm] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [examCount, setExamCount] = useState(0);
   const [topicCount, setTopicCount] = useState(0);
@@ -62,6 +62,17 @@ function ExamMasterPage() {
   const [popupMessage, setPopupMessage] = useState("");
   const currentIdRef = useRef();
   const currentFuncRef = useRef();
+
+  // debounce search input
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (examSearchTerm) {
+        searchExam(examSearchTerm);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [examSearchTerm]);
 
   const getAllExam = async () => {
     dispatch(loaderActions.loaderOn());
@@ -88,6 +99,7 @@ function ExamMasterPage() {
       successToast(
         response.successMessage || "Exam Setup Successfully Completed!",
       );
+      getAllExam();
     }
     dispatch(loaderActions.loaderOff());
   };
@@ -116,14 +128,13 @@ function ExamMasterPage() {
     getCounts();
   }, []);
 
-  const searchExam = async (e) => {
-    const response = await apiGet(
-      `/exam/search-exam?examName=${e.target.value}`,
-    );
+  const searchExam = async (searchTerm) => {
+    const response = await apiGet(`/exam/search-exam?examName=${searchTerm}`);
     if (response.responseMessage === "success") {
       setExamList(response.examList);
     } else {
-      failureToast(response.errorMessage);
+      // failureToast(response.errorMessage);
+      setExamList([]);
     }
   };
 
@@ -169,7 +180,7 @@ function ExamMasterPage() {
           <StatsValue>{examCount}</StatsValue>
         </StatsCard>
 
-        <StatsCard color="#059669">
+        <StatsCard color="#059669" onClick={() => navigate("/manageUsers")}>
           <StatsHeader>
             <StatsIcon color="#059669" bg="#ECFDF5">
               <Users size={20} />
@@ -196,7 +207,9 @@ function ExamMasterPage() {
             </StatsIcon>
           </StatsHeader>
           <StatsTitle>Launched Assessments</StatsTitle>
-          <StatsValue>{examList.length}</StatsValue>
+          <StatsValue>
+            {examList.filter((exam) => exam.isExamAlreadySetUp).length}
+          </StatsValue>
         </StatsCard>
       </StatsWrapper>
 
@@ -205,7 +218,8 @@ function ExamMasterPage() {
           type="text"
           placeholder="Search Assessments ..."
           className="bg-white p-5 w-100"
-          onChange={searchExam}
+          // onChange={searchExam}
+          onChange={(e) => setExamSearchTerm(e.target.value)}
         />
       </Flex>
 
@@ -230,6 +244,7 @@ function ExamMasterPage() {
                 <Tr>
                   <Th>S.No</Th>
                   <Th>Exam Name</Th>
+                  <Th>Setup Details</Th>
                   <Th>Duration (min)</Th>
                   <Th>Total Questions</Th>
                   <Th>Pass %</Th>
@@ -251,6 +266,17 @@ function ExamMasterPage() {
                     <Tr key={exam.examId} $index={index}>
                       <Td>{index + 1}</Td>
                       <Td>{exam.examName}</Td>
+                      <Td>
+                        {exam.isExamAlreadySetUp ? (
+                          <Badge bg="#ECFDF5" color="#4e504c">
+                            Already Set Up
+                          </Badge>
+                        ) : (
+                          <Badge bg="#2ECB82" color="#f5fbf7">
+                            Not Set Up
+                          </Badge>
+                        )}
+                      </Td>
                       <Td>{exam.duration} Mins</Td>
                       <Td>{exam.noOfQuestions}</Td>
                       <Td>{exam.passPercentage}%</Td>
@@ -330,19 +356,21 @@ function ExamMasterPage() {
                               <UserPlus2 size={18} />
                               <span>Assign Users</span>
                             </li>
-                            <li
-                              onClick={() => {
-                                // navigate("/createExam", { state: { exam } });
-                                navigate("/create-assessment", {
-                                  state: { exam },
-                                });
-                              }}
-                              role="menuitem"
-                              class="cursor-pointer gap-3 text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"
-                            >
-                              <Pencil size={18} />
-                              <span>Edit</span>
-                            </li>
+                            {exam.isExamAlreadySetUp === false && (
+                              <li
+                                onClick={() => {
+                                  // navigate("/createExam", { state: { exam } });
+                                  navigate("/create-assessment", {
+                                    state: { exam },
+                                  });
+                                }}
+                                role="menuitem"
+                                class="cursor-pointer gap-3 text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"
+                              >
+                                <Pencil size={18} />
+                                <span>Edit</span>
+                              </li>
+                            )}
                             <li
                               onClick={() => {
                                 currentIdRef.current = exam.examId;
@@ -358,21 +386,23 @@ function ExamMasterPage() {
                               <Trash2 size={18} color="#ED1C24" />
                               <span>Delete Exam</span>
                             </li>
-                            <li
-                              onClick={() => {
-                                currentIdRef.current = exam.examId;
-                                currentFuncRef.current = "setupExam";
-                                setIsPopupOpen(true);
-                                setPopupMessage(
-                                  "Are You sure want to setup this Assessment, All the assigned will recieve notification and cannot be revoked!",
-                                );
-                              }}
-                              role="menuitem"
-                              class="cursor-pointer gap-3 text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"
-                            >
-                              <Cog size={18} color="#228B22" />
-                              <span>Setup Exam</span>
-                            </li>
+                            {exam.isExamAlreadySetUp === false && (
+                              <li
+                                onClick={() => {
+                                  currentIdRef.current = exam.examId;
+                                  currentFuncRef.current = "setupExam";
+                                  setIsPopupOpen(true);
+                                  setPopupMessage(
+                                    "Are You sure want to setup this Assessment, All the assigned will recieve notification and cannot be revoked!",
+                                  );
+                                }}
+                                role="menuitem"
+                                class="cursor-pointer gap-3 text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100"
+                              >
+                                <Cog size={18} color="#228B22" />
+                                <span>Setup Exam</span>
+                              </li>
+                            )}
                           </ul>
                         )}
                         {/* <Ellipsis size={18} /> */}

@@ -166,17 +166,15 @@ export default function QuestionAttendPage() {
     }
 
     // Update global status for this question
-    if (procAnswer && procAnswer !== "") {
-      setQuestionStatus((prev) => {
-        const updated = [...prev];
-        updated[questionNumber - 1] = {
-          ...updated[questionNumber - 1],
-          answered: true,
-          answer: procAnswer,
-        };
-        return updated;
-      });
-    }
+    setQuestionStatus((prev) => {
+      const updated = [...prev];
+      updated[questionNumber - 1] = {
+        ...updated[questionNumber - 1],
+        answered: procAnswer && procAnswer !== "" ? true : false,
+        answer: procAnswer,
+      };
+      return updated;
+    });
   };
 
   // Load first question on mount
@@ -228,14 +226,12 @@ export default function QuestionAttendPage() {
     });
   };
 
-  const toggleFlag = async () => {
+  const toggleFlag = () => {
     setQuestionStatus((prev) => {
       const updated = [...prev];
       updated[current - 1].flagged = !updated[current - 1].flagged;
       return updated;
     });
-    // Optionally call an API to persist flag status
-    // await apiPost("/userExam/flagQuestion", { ... });
   };
 
   const handleFinishExam = async () => {
@@ -364,16 +360,23 @@ export default function QuestionAttendPage() {
                   const status = questionStatus[idx];
                   const isCurrent = qNum === current;
                   let bgClass = "bg-white border-gray-200";
-                  if (status.answered) bgClass = "bg-green-50 border-green-300";
-                  if (isCurrent)
+                  if (status.flagged && status.answered) {
+                    bgClass = "bg-emerald-50 border-emerald-300";
+                  } else if (status.flagged && !status.answered) {
+                    bgClass = "bg-amber-50 border-amber-300";
+                  } else if (status.answered) {
+                    bgClass = "bg-green-50 border-green-300";
+                  }
+                  if (isCurrent) {
                     bgClass =
                       "bg-blue-100 border-blue-500 ring-2 ring-blue-200";
+                  }
                   return (
                     <button
                       key={qNum}
                       onClick={() => handleJumpToQuestion(qNum)}
                       className={cn(
-                        "w-10 h-10 rounded-xl text-sm font-medium transition-all duration-150 border",
+                        "w-10 h-10 rounded-xl text-sm font-medium transition-all duration-150 border relative",
                         bgClass,
                         status.answered
                           ? "text-green-700 hover:bg-green-100"
@@ -383,25 +386,33 @@ export default function QuestionAttendPage() {
                     >
                       {qNum}
                       {status.flagged && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full"></span>
+                        <span
+                          className={cn(
+                            `absolute -top-1 -right-1 w-2 h-2 ${status.answered ? "bg-green-500" : "bg-yellow-400"} rounded-full`,
+                          )}
+                        ></span>
                       )}
                     </button>
                   );
                 })}
               </div>
               {/* Optional legend */}
-              <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
+              <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500 grid grid-cols-2 gap-2">
                 <span className="flex items-center gap-1">
                   <span className="w-3 h-3 rounded-full bg-green-500"></span>{" "}
                   Answered
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-blue-400"></span>{" "}
-                  Current
+                  <span className="w-3 h-3 rounded-full bg-emerald-500"></span>{" "}
+                  Flagged Answered
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-gray-200 border"></span>{" "}
-                  Unanswered
+                  <span className="w-3 h-3 rounded-full bg-amber-500"></span>{" "}
+                  Flagged Unanswered
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-blue-400"></span>{" "}
+                  Current
                 </span>
               </div>
             </div>

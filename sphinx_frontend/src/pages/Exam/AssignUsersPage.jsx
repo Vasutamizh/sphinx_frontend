@@ -12,9 +12,11 @@ import {
   Stack,
   Table,
   Text,
+  Title,
+  Tooltip,
 } from "@mantine/core";
 
-import { IconTrash } from "@tabler/icons-react";
+import { IconUserMinus } from "@tabler/icons-react";
 import { ShieldCheck } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
@@ -206,6 +208,7 @@ export default function AssignUsers({
         // });
         setAlreadyAssignedUsers((prev) => [...prev, ...newlyAssigned]);
         setSelectedUnassignedIds([]);
+        setSelectedUsers({});
         setBulkAssignValues({});
         fetchUsers();
       } else {
@@ -234,6 +237,8 @@ export default function AssignUsers({
           );
           return newArr;
         });
+        setSelectedAssignedUsers([]);
+        fetchUsers();
       } else {
         failureToast(res.errorMessage || "Remove failed");
       }
@@ -360,8 +365,7 @@ export default function AssignUsers({
         message={
           <>
             <p>Are You Sure want to Remove these Users from the Assessment!</p>
-            <br /> Total Users for Deletion :{" "}
-            {selectedAssignedUsers.length}{" "}
+            <br /> Total Users for Removal : {selectedAssignedUsers.length}{" "}
           </>
         }
         onCancel={() => setRemoveConfirmOpen(false)}
@@ -370,6 +374,10 @@ export default function AssignUsers({
         type="warning"
       />
       <Stack>
+        {exam?.examId && (
+          <Title order={3}>Assign Users for {exam.examName}</Title>
+        )}
+
         {/* Already Assigned Users */}
 
         <Group justify="space-between">
@@ -378,14 +386,21 @@ export default function AssignUsers({
             <Text fw={600}>
               Already Assigned Users ({alreadyAssignedUsers.length})
             </Text>
+            {exam?.examId && exam?.isExamAlreadySetUp === true && (
+              <Text size="sm" c="dimmed">
+                * Users cannot be removed as the Assessment is already set up.
+              </Text>
+            )}
           </Group>
-
           <Button
-            disabled={selectedAssignedUsers.length === 0}
+            disabled={
+              selectedAssignedUsers.length === 0 ||
+              (exam?.examId && exam?.isExamAlreadySetUp === true)
+            }
             // onClick={() => onSubmit(selectedUsers)}
             onClick={() => setRemoveConfirmOpen(true)}
           >
-            Delete Selected ({selectedAssignedUsers.length})
+            Remove Selected Users ({selectedAssignedUsers.length})
           </Button>
         </Group>
 
@@ -452,14 +467,19 @@ export default function AssignUsers({
                   <Table.Td>{user.timeoutDays}</Table.Td>
                   <Table.Td>
                     <ActionIcon
+                      disabled={
+                        exam?.examId && exam?.isExamAlreadySetUp === true
+                      }
                       variant="subtle"
                       color="red"
-                      // onClick = {() => {
-                      //   setQuestionToDelete(question.id);
-                      //   openDeleteModal();
-                      // }}
+                      onClick={() => {
+                        setRemoveConfirmOpen(true);
+                        setSelectedAssignedUsers([user.partyId]);
+                      }}
                     >
-                      <IconTrash size={18} />
+                      <Tooltip label="Remove User from Assessment">
+                        <IconUserMinus size={18} />
+                      </Tooltip>
                     </ActionIcon>
                   </Table.Td>
                 </Table.Tr>

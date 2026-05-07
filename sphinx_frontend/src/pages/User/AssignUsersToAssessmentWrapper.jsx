@@ -27,9 +27,9 @@ function AssignUsersToAssessmentWrapper({ navProps, assessmentId }) {
       successToast(
         response.successMessage || "Exam Setup Successfully Completed!",
       );
+      navigate("/");
     }
     dispatch(loaderActions.loaderOff());
-    navigate("/");
   };
 
   return (

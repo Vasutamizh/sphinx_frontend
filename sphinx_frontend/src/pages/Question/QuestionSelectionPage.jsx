@@ -1,5 +1,4 @@
 import {
-  ActionIcon,
   Badge,
   Box,
   Button,
@@ -19,7 +18,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconDeviceFloppy, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconDeviceFloppy } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ConfimationModal from "../../components/Modal_Components/ConfimationModal";
 import useAPI from "../../hooks/useAPI";
@@ -63,10 +62,10 @@ export default function QuestionSelectionPage({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const viewIndex = useRef(0);
-  const viewSize = useRef(10);
+  const viewSize = useRef(5);
   const totalQuestionsCount = useRef(0);
 
-  const { apiPost, apiGet, isError } = useAPI();
+  const { apiPost, apiGet, isError, apiDelete } = useAPI();
 
   // get all questions for current topic
   async function getQuestionsByTopic() {
@@ -118,6 +117,7 @@ export default function QuestionSelectionPage({
 
   // Total selected questions
   const totalSelected = selectedQuestionIds.size;
+  // console.log("selectedQUestionsIds => ", selectedQuestionIds);
   const completionPercentage = Math.min(
     100,
     (totalSelected / targetTotalQuestions) * 100,
@@ -253,7 +253,9 @@ export default function QuestionSelectionPage({
       const response = await apiPost("/examTopics/mandatoryQuestions", {
         examId: assessmentId,
         topicId: currentTopicId,
-        questionIds: Array.from(selectedQuestionIds).join(","),
+        questionIds: Array.from(selectedQuestionIds)
+          .filter((id) => id && id.trim() !== "")
+          .join(","),
       });
       if (isError(response)) {
         failureToast(response.errorMessage);
@@ -321,6 +323,29 @@ export default function QuestionSelectionPage({
   //     }
   //   }, [questionToDelete, closeDeleteModal]);
 
+  const handleDelete = async () => {
+    if (
+      !selectedQuestionIds ||
+      (Array.from(selectedQuestionIds) &&
+        Array.from(selectedQuestionIds).length === 0)
+    )
+      return;
+
+    const response = await apiDelete("/questions", {
+      questionIds: Array.from(selectedQuestionIds).filter(
+        (id) => id && id.trim() !== "",
+      ),
+    });
+    if (isError(response)) {
+      failureToast(response.errorMessage || "Failed to delete the Question!");
+    } else {
+      successToast(response.successMessage || "Question deleted Successfully!");
+      // Refresh questions list after deletion
+      getQuestionsByTopic();
+    }
+    setSelectedQuestionIds(new Set());
+  };
+
   // Clear all selections
   const handleClearAllSelections = useCallback(() => {
     setSelectedQuestionIds(new Set());
@@ -330,6 +355,35 @@ export default function QuestionSelectionPage({
       color: "blue",
     });
   }, []);
+
+  const getSelectedQuestions = async () => {
+    try {
+      const response = await apiGet(
+        `/questions/getAllMandatoryQuestionsForExam?examId=${assessmentId}&topicId=${currentTopicId}`,
+      );
+      if (isError(response)) {
+        failureToast(
+          response.errorMessage || "Failed to fetch selected questions!",
+        );
+      } else {
+        const selectedIds = new Set(
+          response.data.filter((q) => q !== null && q !== "null"),
+        );
+        console.log("Mandatory Questions Ids => ", selectedIds);
+        setSelectedQuestionIds(selectedIds);
+        // successToast("Selected questions loaded successfully!");
+      }
+    } catch (err) {
+      console.error("Error fetching selected questions => ", err);
+      failureToast("Failed to fetch selected questions!");
+    }
+  };
+
+  useEffect(() => {
+    if (assessmentId && currentTopicId) {
+      getSelectedQuestions();
+    }
+  }, [currentTopicId]);
 
   // Render edit modal
   //   const renderEditModal = () => (
@@ -398,6 +452,10 @@ export default function QuestionSelectionPage({
     viewIndex.current = pageNumber - 1; // 0 based page number
     getQuestionsByTopic();
   };
+
+  useEffect(() => {
+    console.log("Selected Question Ids => ", selectedQuestionIds);
+  }, [selectedQuestionIds]);
 
   return (
     <Stack p="md" style={{ maxWidth: "1400px", margin: "0 auto" }}>
@@ -542,7 +600,7 @@ export default function QuestionSelectionPage({
                       <Table.Th>Question</Table.Th>
                       <Table.Th style={{ width: 140 }}>Type</Table.Th>
                       <Table.Th style={{ width: 160 }}>Last Updated</Table.Th>
-                      <Table.Th style={{ width: 80 }}>Actions</Table.Th>
+                      {/* <Table.Th style={{ width: 80 }}>Actions</Table.Th> */}
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
@@ -578,7 +636,7 @@ export default function QuestionSelectionPage({
                               question.lastUpdatedStamp,
                             ).toLocaleDateString()}
                           </Table.Td>
-                          <Table.Td>
+                          {/* <Table.Td>
                             <Group gap="xs" wrap="nowrap">
                               <ActionIcon
                                 variant="subtle"
@@ -601,7 +659,7 @@ export default function QuestionSelectionPage({
                                 <IconTrash size={18} />
                               </ActionIcon>
                             </Group>
-                          </Table.Td>
+                          </Table.Td> */}
                         </Table.Tr>
                       ))
                     )}

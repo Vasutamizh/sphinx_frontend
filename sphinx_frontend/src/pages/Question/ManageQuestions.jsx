@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Command,
   CommandDialog,
@@ -243,7 +242,7 @@ function ManageQuestions() {
                 Manage multiple types of questions
               </span>
             </div>
-            <div>
+            {/* <div>
               <ButtonGroup>
                 <Button
                   onClick={() => navigate("/addQuestion")}
@@ -258,7 +257,7 @@ function ManageQuestions() {
                   Upload Question
                 </Button>
               </ButtonGroup>
-            </div>
+            </div> */}
           </div>
           <div className="my-3">
             <div className="flex justify-end gap-5 items-center">
@@ -292,7 +291,7 @@ function ManageQuestions() {
                             return (
                               <CommandItem
                                 key={topic.topicId}
-                                value={topic.topicName}
+                                value={topic.topicId}
                                 onSelect={(changedValue) => {
                                   handleSelect("topic", topic.topicId);
                                 }}
@@ -303,7 +302,7 @@ function ManageQuestions() {
                                   //   handleSelect("topic", topic.topicId)
                                   // }
                                 />
-                                {topic.topicName}
+                                {topic.topicId}
                               </CommandItem>
                             );
                           })}
@@ -424,6 +423,7 @@ function ManageQuestions() {
                       <Th>
                         <Checkbox
                           checked={
+                            questions.length > 0 &&
                             questions.length === selectParticulars.length
                           }
                           onChange={(e) => handleSelectAll(e.target.checked)}
@@ -438,17 +438,17 @@ function ManageQuestions() {
                       <Th>Action</Th>
                     </tr>
                   </THead>
-                  {loading ? (
-                    <div className="p-6 text-center text-gray-500">
-                      Loading questions...
-                    </div>
-                  ) : questions.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
-                      No questions found.
-                    </div>
-                  ) : (
-                    <TBody>
-                      {questions.map((q, idx) => (
+                  <TBody>
+                    {loading ? (
+                      <Tr className="p-6 text-center text-gray-500">
+                        <Td colspan="8">Loading questions...</Td>
+                      </Tr>
+                    ) : questions.length === 0 ? (
+                      <Tr className="p-6 text-center text-gray-500">
+                        <Td colspan="8"> No Questions found on Records.</Td>
+                      </Tr>
+                    ) : (
+                      questions.map((q, idx) => (
                         <Tr key={q.questionId}>
                           <Td>
                             <Checkbox
@@ -513,9 +513,9 @@ function ManageQuestions() {
                             </IconButton>
                           </Td>
                         </Tr>
-                      ))}
-                    </TBody>
-                  )}
+                      ))
+                    )}
+                  </TBody>
                 </StyledTable>
               </TableCard>
               {paginationInfo && (

@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
 import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
+import { failureToast } from "../../utils/toast";
 
 function AddQuestionPage({ assessmentId }) {
   console.log("STEP 4 - AddQuestionPage assessmentId => ", assessmentId);
@@ -31,7 +32,8 @@ function AddQuestionPage({ assessmentId }) {
     (state) => state.question.DEFAULT_OPTIONS_COUNT,
   );
   const location = useLocation();
-  const questionForUpdate = location.state;
+  // const questionForUpdate = location.state;
+  const questionForUpdate = location.state?.questionForUpdate;
 
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -84,19 +86,18 @@ function AddQuestionPage({ assessmentId }) {
 
     const getTopicList = async () => {
       try {
-        const response = await apiGet(`/exam/examtopics/${assessmentId}`);
+        const response = await apiGet(
+          `/exam/examTopics?examId=${assessmentId}`,
+        );
         if (!isError(response) && response.examTopicList) {
-          console.log("first topic fields => ", response.examTopicList[0]);
+          // console.log("first topic fields => ", response.examTopicList[0]);
           setTopics(response.examTopicList);
         } else {
-          notifications.show({
-            title: "Error",
-            message: response.errorMessage || "Failed to load topics!",
-            color: "red",
-          });
+          failureToast(response.errorMessage || "Failed to load topics!");
         }
       } catch (err) {
         console.error("Error fetching topics:", err);
+        failureToast("Error while loading topics!");
       }
     };
 

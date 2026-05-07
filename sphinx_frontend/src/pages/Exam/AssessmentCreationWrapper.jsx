@@ -1,6 +1,7 @@
 // AssessmentCreationWizard.tsx
 import {
   ActionIcon,
+  Badge,
   Card,
   Flex,
   Grid,
@@ -9,7 +10,6 @@ import {
   ScrollArea,
   Stack,
   Stepper,
-  Switch,
   Text,
   Title,
   Tooltip,
@@ -20,8 +20,10 @@ import { useEffect, useMemo, useState } from "react";
 // Child components (import your actual implementations)
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { ShieldCheck } from "lucide-react";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAPI from "../../hooks/useAPI";
+import { assessmentActions } from "../../store/AssessmentReducer";
 import { failureToast, successToast } from "../../utils/toast";
 import AddQuestionPage from "../Question/AddQuestionPage";
 import AddQuestionToAssessmentWrapper from "../Question/AddQuestionToAssessmentWrapper";
@@ -39,10 +41,11 @@ export function AssessmentCreationWizard() {
   const [topicForEdit, setTopicForEdit] = useState("");
   const { apiDelete, apiGet, isError } = useAPI();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Central state for the whole assessment
   const [assessment, setAssessment] = useState({
-    examId: exam?.examId || assessment?.examId || "",
+    examId: exam?.examId || "",
     examName: exam?.examName || "",
     description: exam?.description || "",
     duration: exam?.duration || 0,
@@ -56,6 +59,14 @@ export function AssessmentCreationWizard() {
   const updateAssessment = (updates) => {
     setAssessment(updates);
   };
+
+  useEffect(() => {
+    if (assessment && assessment.examId) {
+      dispatch(assessmentActions.setAssessment({ assessment }));
+    }
+
+    console.log("Assement Updated !", assessment);
+  }, [assessment]);
 
   // Step definitions (visible labels)
   const steps = [
@@ -135,8 +146,10 @@ export function AssessmentCreationWizard() {
     <Paper shadow="sm" radius="md" p="xl" withBorder>
       <Grid>
         <Grid.Col span={9}>
-          <Title order={2} mb="md">
-            Create New Assessment
+          <Title order={3} mb="md">
+            {assessment.examId
+              ? `Edit Assessment: ${assessment.examName}`
+              : "Create New Assessment"}
           </Title>
 
           {/* Mantine Progress Bar – shows completion percentage */}
@@ -198,7 +211,7 @@ export function AssessmentCreationWizard() {
           {/* style={{ height: "80vh" }} */}
           <ScrollArea type="always" style={{ height: "100%" }}>
             <Stack my={10}>
-              {assessment.examName && (
+              {assessment.examName ? (
                 <Card shadow="sm" padding="lg" radius="md" withBorder>
                   <Title order={4} mb="sm">
                     Assessment Info
@@ -227,6 +240,20 @@ export function AssessmentCreationWizard() {
                     Answers Must: {assessment.answersMust}
                   </Text>
                 </Card>
+              ) : (
+                // <Flex
+                //   align="center"
+                //   justify={"center"}
+                //   gap="xs"
+                //   direction="column"
+                //   style={{ height: "100%" }}
+                // >
+                <Card shadow="xs" padding="lg" radius="md" withBorder>
+                  <Text size="sm" c="dimmed">
+                    Fill in the assessment info to see details here.
+                  </Text>
+                </Card>
+                // </Flex>
               )}
               {topics && topics.length > 0 && (
                 <>
@@ -294,12 +321,21 @@ export function AssessmentCreationWizard() {
                         Pass Percentage: {topic.topicPassPercentage}%
                       </Text>
 
-                      <Switch
+                      {/* <Switch
                         checked={topic.savePermanently}
                         label="Save Permanently"
                         mt="md"
                         readOnly
-                      />
+                      /> */}
+                      <Badge
+                        mt="md"
+                        color={topic.savePermanently ? "green" : "red"}
+                        variant="light"
+                      >
+                        {topic.savePermanently
+                          ? "Saved Permanently"
+                          : "Not Saved Permanently"}
+                      </Badge>
                     </Card>
                   ))}
                 </>
