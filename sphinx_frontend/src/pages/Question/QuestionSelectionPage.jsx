@@ -25,20 +25,6 @@ import useAPI from "../../hooks/useAPI";
 import { failureToast, successToast } from "../../utils/toast";
 
 // Helper functions
-const getTypeCounts = (questions, selectedIds) => {
-  const typeMap = new Map();
-  questions.forEach((q) => {
-    const existing = typeMap.get(q.questionType) || { total: 0, selected: 0 };
-    existing.total++;
-    if (selectedIds.has(q.questionId)) existing.selected++;
-    typeMap.set(q.questionType, existing);
-  });
-  return Array.from(typeMap.entries()).map(([type, counts]) => ({
-    type,
-    total: counts.total,
-    selected: counts.selected,
-  }));
-};
 
 export default function QuestionSelectionPage({
   assessment,
@@ -51,8 +37,9 @@ export default function QuestionSelectionPage({
   const theme = useMantineTheme();
   const [topics, setTopics] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [currentTopicId, setCurrentTopicId] = useState(null);
-  const [selectedQuestionIds, setSelectedQuestionIds] = useState(new Set());
+  // const [currentTopicId, setCurrentTopicId] = useState(null);
+  const currentTopicId = useRef("");
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState({});
   const [targetTotalQuestions, setTargetTotalQuestions] = useState(
     noOfQuestions || 0,
   );
@@ -67,11 +54,27 @@ export default function QuestionSelectionPage({
 
   const { apiPost, apiGet, isError, apiDelete } = useAPI();
 
+  const getTypeCounts = (questions, selectedIds) => {
+    const typeMap = new Map();
+    questions.forEach((q) => {
+      const existing = typeMap.get(q.questionType) || { total: 0, selected: 0 };
+      existing.total++;
+      if (selectedIds[currentTopicId.current]?.has(q.questionId))
+        existing.selected++;
+      typeMap.set(q.questionType, existing);
+    });
+    return Array.from(typeMap.entries()).map(([type, counts]) => ({
+      type,
+      total: counts.total,
+      selected: counts.selected,
+    }));
+  };
+
   // get all questions for current topic
   async function getQuestionsByTopic() {
     if (!currentTopicId) return [];
     const response = await apiGet(
-      `/questions?topicId=${currentTopicId}&viewIndex=${viewIndex.current}&viewSize=${viewSize.current}`,
+      `/questions?topicId=${currentTopicId.current}&viewIndex=${viewIndex.current}&viewSize=${viewSize.current}`,
     );
     if (isError(response)) {
       failureToast(response.errorMessage || "Failed to load Questions!");
@@ -84,7 +87,7 @@ export default function QuestionSelectionPage({
   }
 
   async function getAllTopics() {
-    console.log("Assessment => ", assessment, assessmentId);
+    // console.log("Assessment => ", assessment, assessmentId);
     const response = await apiGet(
       `/examTopics?examId=${assessmentId || assessment.examId}`,
     );
@@ -92,16 +95,20 @@ export default function QuestionSelectionPage({
       failureToast(response.errorMessage || "Failed to load Questions!");
     } else {
       if (response.data && response.data.length > 0) {
-        setCurrentTopicId(response.data[0].topicId);
+        // setCurrentTopicId(response.data[0].topicId);
+        currentTopicId.current = response.data[0].topicId;
+        // console.info("Defaulting to first topic => ", response.data[0].topicId);
       }
       setTopics(response.data || []);
+
+      getQuestionsByTopic();
     }
   }
 
-  useEffect(() => {
-    if (!currentTopicId) return;
-    getQuestionsByTopic();
-  }, [currentTopicId]);
+  // useEffect(() => {
+  //   if (!currentTopicId) return;
+  //   getQuestionsByTopic();
+  // }, [currentTopicId]);
 
   useEffect(() => {
     // get all topics
@@ -110,14 +117,21 @@ export default function QuestionSelectionPage({
 
   // Selected questions count from current topic
   const selectedCountFromCurrentTopic = useMemo(() => {
-    if (!currentTopicId) return 0;
-    return questions.filter((q) => selectedQuestionIds.has(q.questionId))
-      .length;
-  }, [questions, selectedQuestionIds, currentTopicId]);
+    if (!currentTopicId.current) return 0;
+    // eslint-disable-next-line react-hooks/refs
+    return questions.filter((q) =>
+      selectedQuestionIds[currentTopicId.current]?.has(q.questionId),
+    ).length;
+  }, [questions, selectedQuestionIds]);
 
   // Total selected questions
-  const totalSelected = selectedQuestionIds.size;
-  // console.log("selectedQUestionsIds => ", selectedQuestionIds);
+  const totalSelected = Object.keys(selectedQuestionIds).reduce(
+    (sum, topicId) => {
+      return sum + (selectedQuestionIds[topicId]?.size || 0);
+    },
+    0,
+  );
+
   const completionPercentage = Math.min(
     100,
     (totalSelected / targetTotalQuestions) * 100,
@@ -132,14 +146,37 @@ export default function QuestionSelectionPage({
 
   // Toggle question selection
   const toggleQuestionSelection = useCallback((questionId) => {
+    console.log(questionId, currentTopicId.current);
+    if (!questionId) {
+      console.error("Question Id is required for selection!");
+      return;
+    }
+    if (!currentTopicId) {
+      console.error("Please Select A Topic!");
+      return;
+    }
+
+    if (selectedQuestionIds.size >= targetTotalQuestions) {
+      failureToast(
+        "You have already selected the target number of questions. Please deselect some questions before adding new ones.",
+      );
+      return;
+    }
+
     setSelectedQuestionIds((prev) => {
-      const newSet = new Set(prev);
+      const newSet = prev[currentTopicId.current?.toUpperCase()] || new Set();
       if (newSet.has(questionId)) {
         newSet.delete(questionId);
       } else {
         newSet.add(questionId);
       }
-      return newSet;
+      console.log(
+        "Updated Set for topic ",
+        currentTopicId.current,
+        " => ",
+        newSet,
+      );
+      return { ...prev, [currentTopicId.current]: newSet };
     });
   }, []);
 
@@ -161,87 +198,6 @@ export default function QuestionSelectionPage({
     });
   }, []);
 
-  //   // Random selection from current topic
-  //   const handleRandomSelectFromTopic = useCallback(() => {
-  //     if (!currentTopicId) return;
-  //     const availableQuestions = currentQuestions.filter(
-  //       (q) => !selectedQuestionIds.has(q.id),
-  //     );
-  //     if (availableQuestions.length === 0) {
-  //       notifications.show({
-  //         title: "Info",
-  //         message: "No more questions available in this topic",
-  //         color: "blue",
-  //       });
-  //       return;
-  //     }
-  //     const countToSelect = Math.min(randomCount, availableQuestions.length);
-  //     const shuffled = [...availableQuestions];
-  //     for (let i = shuffled.length - 1; i > 0; i--) {
-  //       const j = Math.floor(Math.random() * (i + 1));
-  //       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  //     }
-  //     const selected = shuffled.slice(0, countToSelect).map((q) => q.id);
-  //     selectMultipleQuestions(selected);
-  //     notifications.show({
-  //       title: "Success",
-  //       message: `Randomly selected ${countToSelect} questions from ${currentTopicId}`,
-  //       color: "green",
-  //     });
-  //   }, [
-  //     currentQuestions,
-  //     selectedQuestionIds,
-  //     randomCount,
-  //     currentTopicId,
-  //     selectMultipleQuestions,
-  //   ]);
-
-  // Random fill remaining needed questions from all topics
-  //   const handleRandomFillRemaining = useCallback(() => {
-  //     if (remainingNeeded <= 0) {
-  //       notifications.show({
-  //         title: "Info",
-  //         message: "Target already reached!",
-  //         color: "blue",
-  //       });
-  //       return;
-  //     }
-
-  //     const allAvailableQuestions = questions.filter(
-  //       (q) => !selectedQuestionIds.has(q.id),
-  //     );
-
-  //     if (allAvailableQuestions.length === 0) {
-  //       notifications.show({
-  //         title: "Info",
-  //         message: "No more questions available in any topic",
-  //         color: "blue",
-  //       });
-  //       return;
-  //     }
-  //     const countToSelect = Math.min(
-  //       remainingNeeded,
-  //       allAvailableQuestions.length,
-  //     );
-  //     const shuffled = [...allAvailableQuestions];
-  //     for (let i = shuffled.length - 1; i > 0; i--) {
-  //       const j = Math.floor(Math.random() * (i + 1));
-  //       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  //     }
-  //     const selected = shuffled.slice(0, countToSelect).map((q) => q.id);
-  //     selectMultipleQuestions(selected);
-  //     notifications.show({
-  //       title: "Success",
-  //       message: `Randomly selected ${countToSelect} questions to reach target`,
-  //       color: "green",
-  //     });
-  //   }, [
-  //     allQuestions,
-  //     selectedQuestionIds,
-  //     remainingNeeded,
-  //     selectMultipleQuestions,
-  //   ]);
-
   // Save assessment to DB
   const handleSaveAssessment = async () => {
     if (selectedQuestionIds.size === 0) {
@@ -250,12 +206,16 @@ export default function QuestionSelectionPage({
     }
 
     try {
+      const processedMap = {};
+      Object.keys(selectedQuestionIds).forEach((topicId) => {
+        processedMap[topicId] = Array.from(selectedQuestionIds[topicId]).filter(
+          (id) => id && id.trim() !== "",
+        );
+      });
       const response = await apiPost("/examTopics/mandatoryQuestions", {
         examId: assessmentId,
-        topicId: currentTopicId,
-        questionIds: Array.from(selectedQuestionIds)
-          .filter((id) => id && id.trim() !== "")
-          .join(","),
+        topicId: currentTopicId.current,
+        questionIds: processedMap, // send the whole map of topicId to questionIds set
       });
       if (isError(response)) {
         failureToast(response.errorMessage);
@@ -346,6 +306,20 @@ export default function QuestionSelectionPage({
     setSelectedQuestionIds(new Set());
   };
 
+  const updateSelectedQuestionIds = useCallback((newSelectedIds) => {
+    if (!newSelectedIds) return;
+
+    setSelectedQuestionIds((prev) => {
+      const currentSet = prev[currentTopicId] || new Set();
+      for (const id of newSelectedIds) {
+        if (id && id.trim() !== "" && !currentSet.has(id)) {
+          currentSet.add(id);
+        }
+      }
+      return { ...prev, [currentTopicId]: currentSet };
+    });
+  }, []);
+
   // Clear all selections
   const handleClearAllSelections = useCallback(() => {
     setSelectedQuestionIds(new Set());
@@ -359,18 +333,31 @@ export default function QuestionSelectionPage({
   const getSelectedQuestions = async () => {
     try {
       const response = await apiGet(
-        `/questions/getAllMandatoryQuestionsForExam?examId=${assessmentId}&topicId=${currentTopicId}`,
+        `/questions/getAllMandatoryQuestionsForExam?examId=${assessmentId}&topicId=${currentTopicId.current}`,
       );
-      if (isError(response)) {
+      if (isError(response) || !response.data) {
         failureToast(
           response.errorMessage || "Failed to fetch selected questions!",
         );
       } else {
-        const selectedIds = new Set(
-          response.data.filter((q) => q !== null && q !== "null"),
-        );
-        console.log("Mandatory Questions Ids => ", selectedIds);
-        setSelectedQuestionIds(selectedIds);
+        // new code when data comes as Map with each topicId.
+        console.log("Response Data => ", response.data);
+        const selectedIdsMap = {};
+        Object.keys(response.data).forEach((key) => {
+          // const savedMandyQuestionIds = response.data[key];
+          //  old
+          // updateSelectedQuestionIds(savedMandyQuestionIds);
+
+          // new store directly the json to the state as we change it to the state.
+          selectedIdsMap[key] = new Set(response.data[key]);
+        });
+        setSelectedQuestionIds(selectedIdsMap);
+        // old code when data comes as array of question ids
+        // const selectedIds = new Set(
+        //   response.data.filter((q) => q !== null && q !== "null"),
+        // );
+        // console.log("Mandatory Questions Ids => ", selectedIds);
+        // updateSelectedQuestionIds(selectedIds);
         // successToast("Selected questions loaded successfully!");
       }
     } catch (err) {
@@ -380,10 +367,12 @@ export default function QuestionSelectionPage({
   };
 
   useEffect(() => {
-    if (assessmentId && currentTopicId) {
-      getSelectedQuestions();
-    }
-  }, [currentTopicId]);
+    // if (assessmentId && currentTopicId) {
+    //   getSelectedQuestions();
+    // }
+    getSelectedQuestions();
+    // }, [currentTopicId]);
+  }, []);
 
   // Render edit modal
   //   const renderEditModal = () => (
@@ -542,8 +531,12 @@ export default function QuestionSelectionPage({
                     label: t.topicId,
                   }))
                 }
-                value={currentTopicId}
-                onChange={setCurrentTopicId}
+                // value={currentTopicId}
+                onChange={(topic) => {
+                  // console.log("Onchange value => ", topic);
+                  currentTopicId.current = topic;
+                  getQuestionsByTopic();
+                }}
                 clearable={false}
               />
               <Divider />
@@ -611,13 +604,14 @@ export default function QuestionSelectionPage({
                         </Table.Td>
                       </Table.Tr>
                     ) : (
+                      // eslint-disable-next-line react-hooks/refs
                       questions.map((question) => (
                         <Table.Tr key={question.questionId}>
                           <Table.Td>
                             <Checkbox
-                              checked={selectedQuestionIds.has(
-                                question.questionId,
-                              )}
+                              checked={selectedQuestionIds[
+                                currentTopicId.current
+                              ].has(question.questionId)}
                               onChange={() =>
                                 toggleQuestionSelection(question.questionId)
                               }

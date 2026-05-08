@@ -82,7 +82,7 @@ export default function ExamDetailsPage() {
           "Failed to verify Security code!",
       );
     } else {
-      successToast(response.successMessage);
+      // successToast(response.successMessage);
     }
   };
 

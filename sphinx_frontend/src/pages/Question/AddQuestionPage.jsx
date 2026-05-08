@@ -16,6 +16,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -34,6 +35,8 @@ function AddQuestionPage({ assessmentId }) {
   const location = useLocation();
   // const questionForUpdate = location.state;
   const questionForUpdate = location.state?.questionForUpdate;
+  console.log("Question For Update => ", location.state);
+  useEffect(() => {}, []);
 
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -370,6 +373,13 @@ function AddQuestionPage({ assessmentId }) {
         return null;
     }
   };
+
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues:{
+
+    }
+  });
 
   return (
     <Container size="lg" py="xl">

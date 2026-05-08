@@ -18,6 +18,8 @@ import ManageQuestions from "./pages/Question/ManageQuestions";
 import QuestionAttendPage from "./pages/Question/QuestionAttendPage";
 import QuestionSelectionPage from "./pages/Question/QuestionSelectionPage";
 import QuestionUploadPage from "./pages/Question/QuestionUploadPage";
+import AdminUserDetailedReport from "./pages/User/AdminUserDetailedReport";
+import AdminUserReport from "./pages/User/AdminUserReport";
 import ManageUsers from "./pages/User/ManageUsers";
 import UserDashboardPage from "./pages/User/UserDashboardPage";
 import UserExamDashboard from "./pages/User/UserWiseExamPage";
@@ -66,6 +68,11 @@ function App() {
                 Component={AssessmentCreationWizard}
               />
               <Route path="/select" Component={QuestionSelectionPage} />
+              <Route path="/reports" Component={AdminUserReport} />
+              <Route
+                path="/detailedReport"
+                Component={AdminUserDetailedReport}
+              />
             </Routes>
           </Layout>
         </BrowserRouter>

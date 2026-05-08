@@ -1,12 +1,16 @@
-import { Paper } from "@mantine/core";
+import { Button, Flex, Group, Paper } from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { StyledButton } from "../../styles/common.styles";
+import useAPI from "../../hooks/useAPI";
 
 export default function ExamResult() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const { exam, examResult } = location.state;
+
+  const { apiFileGet, isError } = useAPI();
 
   console.log("EXAM RESULT => ", examResult);
 
@@ -17,30 +21,69 @@ export default function ExamResult() {
   const dash = (examResult.scorePercentage / 100) * circ;
   const passed = examResult.userPassed === 1;
 
+  const certificateDownload = async () => {
+    const response = await apiFileGet(
+      `/certificate/download?examId=${exam.examId}`,
+    );
+
+    const url = window.URL.createObjectURL(response);
+
+    // 3. Create a hidden <a> tag to trigger the download
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "certificate.pdf"); // Force download with a name
+
+    // 4. Append to body, click, and clean up
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       <Paper shadow="md" radius="md" withBorder>
-        <div className="max-w-4xl mx-auto">
+        {/* <div className="max-w-4xl mx-auto">
           <div className="titleText">
             <span className="text-2xl  block">Assessment Result</span>
             <span className="text-gray-500 text-sm">
               Manage Your Assessments & Your Perfomance
             </span>
           </div>
-        </div>
+        </div> */}
+        <Group mb="lg">
+          <Button
+            variant="subtle"
+            leftSection={<IconArrowLeft size={16} />}
+            onClick={() => navigate(-1)}
+          >
+            Back to Dashboard
+          </Button>
+        </Group>
         <div className="min-h-screen font-sans">
-          <div className="max-w-4xl mx-auto px-6 py-10">
+          <div className=" px-6 py-2">
             {/* Page title */}
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-widest text-slate-400 mb-1">
-                Attempt {examResult.attemptNo}
-              </p>
-              <h1 className="text-2xl font-bold text-slate-800">
-                {exam.examName}
-              </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Here's a detailed breakdown of your performance.
-              </p>
+              <Flex mt="20px" justify="space-between" align="center">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-slate-400 mb-1">
+                    Attempt {examResult.attemptNo}
+                  </p>
+                  <h1 className="text-2xl font-bold text-slate-800">
+                    {exam.examName}
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Here's a detailed breakdown of your performance.
+                  </p>
+                </div>
+                <Button onClick={certificateDownload}>
+                  Download Certificate
+                </Button>
+              </Flex>
             </div>
 
             {/* Top row */}
@@ -209,15 +252,6 @@ export default function ExamResult() {
                       "% to pass."}
                 </p>
               </div>
-            </div>
-            <div className="flex mt-5">
-              <StyledButton
-                onClick={() => {
-                  navigate("/userDashboard");
-                }}
-              >
-                Back to Dashboard
-              </StyledButton>
             </div>
           </div>
         </div>

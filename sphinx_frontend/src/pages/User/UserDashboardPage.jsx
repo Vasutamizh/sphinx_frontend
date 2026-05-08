@@ -39,11 +39,12 @@ function UserDashboardPage() {
         partyId,
       });
       if (isError(response)) {
-        failureToast(
-          response.errorMessage ||
-            response.error ||
-            "Failed to load Assessments!",
-        );
+        // failureToast(
+        //   response.errorMessage ||
+        //     response.error ||
+        //     "Failed to load Assessments!",
+        // );
+        console.error(response.errorMessage || response.error);
       } else {
         if (response.data) {
           setCompletedExams(
