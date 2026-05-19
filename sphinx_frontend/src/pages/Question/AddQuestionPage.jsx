@@ -16,7 +16,6 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -26,33 +25,35 @@ import { validateQuestionForm } from "../../utils/ValidateQuestionForm";
 import { failureToast } from "../../utils/toast";
 
 function AddQuestionPage({ assessmentId }) {
-  console.log("STEP 4 - AddQuestionPage assessmentId => ", assessmentId);
-
   const { apiGet, apiPost, apiPut, isError } = useAPI();
+
   const DEFAULT_OPTIONS_COUNT = useSelector(
     (state) => state.question.DEFAULT_OPTIONS_COUNT,
   );
+
   const location = useLocation();
-  // const questionForUpdate = location.state;
   const questionForUpdate = location.state?.questionForUpdate;
-  console.log("Question For Update => ", location.state);
-  useEffect(() => {}, []);
 
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [questionTypes, setQuestionTypes] = useState([]);
+
   const [questionType, setQuestionType] = useState(
     questionForUpdate?.questionType || "",
   );
+
   const [questionDetail, setQuestionDetail] = useState(
     questionForUpdate?.questionDetail || "",
   );
+
   const [selectedTopic, setSelectedTopic] = useState(
     questionForUpdate?.topicId || "",
   );
+
   const [difficultyLevel, setDifficultyLevel] = useState(
     questionForUpdate?.difficultyLevel || "Easy",
   );
+
   const [options, setOptions] = useState(
     questionForUpdate
       ? [
@@ -72,73 +73,75 @@ function AddQuestionPage({ assessmentId }) {
 
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (questionForUpdate) {
-      if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
-        setMultipleChoiceAnswer(questionForUpdate.answer.split(","));
-      } else if (questionForUpdate.questionType === "SINGLE_CHOICE") {
-        setSingleChoiceAnswer(questionForUpdate.answer);
-      } else if (questionForUpdate.questionType === "FILL_UP") {
-        setFillUpAnswer(questionForUpdate.answer);
-      } else if (questionForUpdate.questionType === "TRUE_FALSE") {
-        setTrueFalseAnswer(questionForUpdate.answer);
-      } else if (questionForUpdate.questionType === "DETAILED_ANSWER") {
-        setDetailedAnswer(questionForUpdate.answer);
+  const getTopicList = async () => {
+    try {
+      const response = await apiGet(`/exam/examTopics?examId=${assessmentId}`);
+
+      if (!isError(response) && response.examTopicList) {
+        setTopics(response.examTopicList);
+      } else {
+        failureToast(response.errorMessage || "Failed to load topics!");
       }
+    } catch (err) {
+      console.error("Error fetching topics:", err);
+      failureToast("Error while loading topics!");
     }
+  };
 
-    const getTopicList = async () => {
-      try {
-        const response = await apiGet(
-          `/exam/examTopics?examId=${assessmentId}`,
-        );
-        if (!isError(response) && response.examTopicList) {
-          // console.log("first topic fields => ", response.examTopicList[0]);
-          setTopics(response.examTopicList);
-        } else {
-          failureToast(response.errorMessage || "Failed to load topics!");
-        }
-      } catch (err) {
-        console.error("Error fetching topics:", err);
-        failureToast("Error while loading topics!");
+  const getTypes = async () => {
+    try {
+      const response = await apiGet("/questions/questionTypes");
+
+      if (!isError(response) && response.data) {
+        setQuestionTypes(response.data);
+      } else {
+        failureToast(response.errorMessage || "Failed to Load Question Types!");
       }
-    };
+    } catch (err) {
+      console.error(err);
+      failureToast("Something Went Wrong! Try Again Later!");
+    }
+  };
 
-    const getTypes = async () => {
-      try {
-        const response = await apiGet("/questions/questionTypes");
-        if (!isError(response) && response.data) {
-          setQuestionTypes(response.data);
-        } else {
-          notifications.show({
-            title: "Error",
-            message: response.errorMessage || "Failed to Load Question Types!",
-            color: "red",
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        notifications.show({
-          title: "Error",
-          message: "Something Went Wrong! Try Again Later!",
-          color: "red",
-        });
-      }
-    };
-
+  useEffect(() => {
     getTopicList();
     getTypes();
+
+    if (!questionForUpdate) return;
+
+    setQuestionDetail(questionForUpdate.questionDetail || "");
+    setQuestionType(questionForUpdate.questionType || "");
+    setDifficultyLevel(questionForUpdate.difficultyLevel || "Easy");
+    setSelectedTopic(questionForUpdate.topicId || "");
+
+    if (
+      questionForUpdate.questionType === "MULTIPLE_CHOICE" ||
+      questionForUpdate.questionType === "SINGLE_CHOICE"
+    ) {
+      setOptions([
+        questionForUpdate.optionA || "",
+        questionForUpdate.optionB || "",
+        questionForUpdate.optionC || "",
+        questionForUpdate.optionD || "",
+      ]);
+    }
+
+    if (questionForUpdate.questionType === "MULTIPLE_CHOICE") {
+      setMultipleChoiceAnswer(
+        questionForUpdate.answer ? questionForUpdate.answer.split(",") : [],
+      );
+    } else if (questionForUpdate.questionType === "SINGLE_CHOICE") {
+      setSingleChoiceAnswer(questionForUpdate.answer || "");
+    } else if (questionForUpdate.questionType === "FILL_UP") {
+      setFillUpAnswer(questionForUpdate.answer || "");
+    } else if (questionForUpdate.questionType === "TRUE_FALSE") {
+      setTrueFalseAnswer(questionForUpdate.answer || "");
+    } else if (questionForUpdate.questionType === "DETAILED_ANSWER") {
+      setDetailedAnswer(questionForUpdate.answer || "");
+    }
   }, [assessmentId]);
 
   const validate = () => {
-    let currentAnswer = "";
-    if (questionType === "SINGLE_CHOICE") currentAnswer = singleChoiceAnswer;
-    else if (questionType === "MULTIPLE_CHOICE")
-      currentAnswer = multipleChoiceAnswer;
-    else if (questionType === "FILL_UP") currentAnswer = fillUpAnswer;
-    else if (questionType === "TRUE_FALSE") currentAnswer = trueFalseAnswer;
-    else if (questionType === "DETAILED_ANSWER") currentAnswer = detailedAnswer;
-
     const answerObj = {
       SINGLE_CHOICE: singleChoiceAnswer,
       MULTIPLE_CHOICE: multipleChoiceAnswer,
@@ -157,7 +160,9 @@ function AddQuestionPage({ assessmentId }) {
     };
 
     const validationErrors = validateQuestionForm(stateObj, answerObj);
+
     setErrors(validationErrors);
+
     return Object.keys(validationErrors).length === 0;
   };
 
@@ -166,17 +171,21 @@ function AddQuestionPage({ assessmentId }) {
     setQuestionType("");
     setSelectedTopic("");
     setDifficultyLevel("Easy");
+
     setOptions(Array(DEFAULT_OPTIONS_COUNT).fill(""));
+
     setSingleChoiceAnswer("");
     setMultipleChoiceAnswer([]);
     setFillUpAnswer("");
     setTrueFalseAnswer("");
     setDetailedAnswer("");
+
     setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     let finalAnswer = "";
@@ -199,10 +208,12 @@ function AddQuestionPage({ assessmentId }) {
       questionDetail,
       questionType,
       topicId: selectedTopic,
+
       optionA: options[0],
       optionB: options[1],
       optionC: options[2],
       optionD: options[3],
+
       answer: finalAnswer,
       numAnswers: numOfAnswers,
       difficultyLevel,
@@ -211,8 +222,10 @@ function AddQuestionPage({ assessmentId }) {
     };
 
     setLoading(true);
+
     try {
       let res;
+
       if (questionForUpdate) {
         payload.questionId = questionForUpdate.questionId;
         res = await apiPut("/questions", payload);
@@ -236,9 +249,12 @@ function AddQuestionPage({ assessmentId }) {
               : "Question Created Successfully!"),
           color: "green",
         });
+
         resetForm();
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
+
       notifications.show({
         title: "Error",
         message: "Something went wrong",
@@ -253,23 +269,6 @@ function AddQuestionPage({ assessmentId }) {
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
-  };
-
-  const getCurrentAnswer = () => {
-    switch (questionType) {
-      case "SINGLE_CHOICE":
-        return singleChoiceAnswer;
-      case "MULTIPLE_CHOICE":
-        return multipleChoiceAnswer;
-      case "FILL_UP":
-        return fillUpAnswer;
-      case "TRUE_FALSE":
-        return trueFalseAnswer;
-      case "DETAILED_ANSWER":
-        return detailedAnswer;
-      default:
-        return "";
-    }
   };
 
   const renderQuestionTypeForm = () => {
@@ -289,7 +288,9 @@ function AddQuestionPage({ assessmentId }) {
                   <Radio
                     key={idx}
                     value={opt}
-                    label={`${String.fromCharCode(65 + idx)}. ${opt || "Empty option"}`}
+                    label={`${String.fromCharCode(65 + idx)}. ${
+                      opt || "Empty option"
+                    }`}
                     disabled={!opt.trim()}
                   />
                 ))}
@@ -313,7 +314,9 @@ function AddQuestionPage({ assessmentId }) {
                   <Checkbox
                     key={idx}
                     value={opt}
-                    label={`${String.fromCharCode(65 + idx)}. ${opt || "Empty option"}`}
+                    label={`${String.fromCharCode(65 + idx)}. ${
+                      opt || "Empty option"
+                    }`}
                     disabled={!opt.trim()}
                   />
                 ))}
@@ -374,13 +377,6 @@ function AddQuestionPage({ assessmentId }) {
     }
   };
 
-  const form = useForm({
-    mode: "uncontrolled",
-    initialValues:{
-
-    }
-  });
-
   return (
     <Container size="lg" py="xl">
       <LoadingOverlay visible={loading} overlayBlur={2} />
@@ -399,7 +395,10 @@ function AddQuestionPage({ assessmentId }) {
                   value={selectedTopic}
                   onChange={(e) => setSelectedTopic(e.currentTarget.value)}
                   data={[
-                    { value: "", label: "Choose a topic" },
+                    {
+                      value: "",
+                      label: "Choose a topic",
+                    },
                     ...(topics ?? [])
                       .filter((t) => t.topicId && t.topicName)
                       .map((t) => ({
@@ -407,19 +406,28 @@ function AddQuestionPage({ assessmentId }) {
                         label: t.topicName,
                       })),
                   ]}
-                  error={errors.topic}
                   required
                 />
               </Grid.Col>
+
               <Grid.Col span={{ base: 12, sm: 4 }}>
                 <Select
                   label="Difficulty Level"
                   value={difficultyLevel}
                   onChange={setDifficultyLevel}
                   data={[
-                    { value: "Easy", label: "Easy" },
-                    { value: "Medium", label: "Medium" },
-                    { value: "Hard", label: "Hard" },
+                    {
+                      value: "Easy",
+                      label: "Easy",
+                    },
+                    {
+                      value: "Medium",
+                      label: "Medium",
+                    },
+                    {
+                      value: "Hard",
+                      label: "Hard",
+                    },
                   ]}
                 />
               </Grid.Col>
@@ -443,18 +451,14 @@ function AddQuestionPage({ assessmentId }) {
               </Group>
             </Radio.Group>
 
-            <Grid>
-              <Grid.Col span={{ base: 12, md: 12 }}>
-                <Textarea
-                  label="Question"
-                  placeholder="Enter your question here..."
-                  value={questionDetail}
-                  onChange={(e) => setQuestionDetail(e.target.value)}
-                  error={errors.questionDetail}
-                  resize="vertical"
-                />
-              </Grid.Col>
-            </Grid>
+            <Textarea
+              label="Question"
+              placeholder="Enter your question here..."
+              value={questionDetail}
+              onChange={(e) => setQuestionDetail(e.target.value)}
+              error={errors.questionDetail}
+              resize="vertical"
+            />
 
             {(questionType === "SINGLE_CHOICE" ||
               questionType === "MULTIPLE_CHOICE") && (
@@ -462,18 +466,22 @@ function AddQuestionPage({ assessmentId }) {
                 <Title order={4} mb="sm">
                   Answer Options
                 </Title>
+
                 <SimpleGrid cols={{ base: 1, sm: 2 }}>
                   {options.map((opt, idx) => (
                     <TextInput
                       key={idx}
                       label={`Option ${String.fromCharCode(65 + idx)}`}
-                      placeholder={`Enter option ${String.fromCharCode(65 + idx)}`}
+                      placeholder={`Enter option ${String.fromCharCode(
+                        65 + idx,
+                      )}`}
                       value={opt}
                       onChange={(e) => updateOption(idx, e.target.value)}
                       error={errors[`option${String.fromCharCode(65 + idx)}`]}
                     />
                   ))}
                 </SimpleGrid>
+
                 {errors.options && (
                   <Alert color="red" mt="sm" variant="light">
                     {errors.options}
@@ -488,11 +496,15 @@ function AddQuestionPage({ assessmentId }) {
               <Button variant="outline" onClick={resetForm} type="button">
                 Clear
               </Button>
+
               <Button
                 type="submit"
                 loading={loading}
                 variant="gradient"
-                gradient={{ from: "blue", to: "cyan" }}
+                gradient={{
+                  from: "blue",
+                  to: "cyan",
+                }}
               >
                 {questionForUpdate ? "Update Question" : "Add Question"}
               </Button>

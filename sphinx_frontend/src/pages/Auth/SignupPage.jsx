@@ -1,3 +1,4 @@
+import { IconArrowRight } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import EyeClosedIcon from "../../components/EyeCloseIcon";
@@ -79,11 +80,12 @@ export default function SignupPage() {
         role: "admin",
       };
       try {
-        const response = await apiPost("/user/signup", payload);
+        const response = await apiPost("/auth/signup", payload);
         if (!isError(response)) {
           successToast(
             response.successMessage || "Account Created Successfully!",
           );
+          clearForm();
         } else {
           failureToast(
             response.errorMessage ||
@@ -93,7 +95,6 @@ export default function SignupPage() {
         }
       } finally {
         setIsLoading(false);
-        clearForm();
       }
     } else {
       setFormErrors(errors);
@@ -299,10 +300,12 @@ export default function SignupPage() {
           <div className="flex-1 h-px bg-slate-800" />
         </div>
 
-        <p className="text-center text-sm text-slate-400">
-          Already have an account? <Link to="/">Login here</Link>
-          {/* <StyledLink to="#">Login here.</StyledLink> */}
-        </p>
+        <Link to="/" className="font-semibold">
+          <p className="text-[#7b38ef] text-center text-sm tracking-[1px] flex justify-center gap-2 items-center">
+            Already have an account? Sign In here
+            <IconArrowRight size={18} />
+          </p>
+        </Link>
       </FormDiv>
     </div>
   );

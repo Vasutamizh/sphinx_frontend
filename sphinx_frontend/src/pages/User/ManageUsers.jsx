@@ -70,6 +70,7 @@ function ManageUsers() {
       setUsers((prev) =>
         prev.filter((u) => !selectParticulars.includes(u.partyId)),
       );
+      setSelectParticulars([]);
     }
   };
 
@@ -141,32 +142,53 @@ function ManageUsers() {
   //   }
   // };
 
-  useEffect(() => {
-    console.log("User for Edit => ", userForEdit);
-  }, [userForEdit]);
+  // useEffect(() => {
+  //   console.log("User for Edit => ", userForEdit);
+  // }, [userForEdit]);
 
   const updateUsers = (user) => {
     if (!user) return false;
-    setUsers((prev) => [...prev, user]);
+    const procUsers = users.filter((u) => u.partyId !== user.partyId);
+    procUsers.push(user);
+    setUsers(procUsers);
     return true;
   };
 
+  useEffect(() => {
+    if (!(userForEdit && Object.keys(userForEdit).length > 0)) return;
+
+    setUserModalOpen(true);
+  }, [userForEdit]);
+
   return (
     <>
-      <UserAddUpdateModal
-        isOpen={userModalOpen}
-        onClose={() => {
-          setUserModalOpen(false);
-        }}
-        user={userForEdit}
-        updateUsers={updateUsers}
-      />
+      {userModalOpen && (
+        <UserAddUpdateModal
+          isOpen={userModalOpen}
+          onClose={() => {
+            setUserForEdit({});
+            setUserModalOpen(false);
+          }}
+          user={userForEdit}
+          updateUsers={updateUsers}
+        />
+      )}
 
       <ConfimationModal
         isOpen={isPopupOpen}
         onOk={handleDelete}
-        onClose={() => setIsPopupOpen(false)}
-        onCancel={() => setIsPopupOpen(false)}
+        onClose={() => {
+          if (selectParticulars.length === 1) {
+            setSelectParticulars([]);
+          }
+          setIsPopupOpen(false);
+        }}
+        onCancel={() => {
+          if (selectParticulars.length === 1) {
+            setSelectParticulars([]);
+            setIsPopupOpen(false);
+          }
+        }}
         message={popupMessage}
       />
 
@@ -261,7 +283,7 @@ function ManageUsers() {
                       <Th>S.No</Th>
                       <Th>FirstName</Th>
                       <Th>LastName</Th>
-                      <Th>Status</Th>
+                      <Th>Email Address</Th>
                       <Th>Action</Th>
                     </tr>
                   </THead>
@@ -289,11 +311,10 @@ function ManageUsers() {
                           <Td> {u.firstName} </Td>
                           <Td> {u.lastName}</Td>
                           <Td>
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              {u.statusId === "PARTY_ENABLED"
-                                ? "Active"
-                                : "In-Active"}
-                            </span>
+                            {/* <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                              Active
+                            </span> */}
+                            {u.infoString}
                           </Td>
                           <Td className="text-center flex gap-2">
                             <IconButton
@@ -301,7 +322,6 @@ function ManageUsers() {
                               title="Edit"
                               onClick={() => {
                                 setUserForEdit(u);
-                                setUserModalOpen(true);
                               }}
                             >
                               <Pencil size={14} strokeWidth={2} />

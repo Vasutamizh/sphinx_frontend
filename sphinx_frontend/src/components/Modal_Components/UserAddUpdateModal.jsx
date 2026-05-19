@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useAPI from "../../hooks/useAPI";
 import { loaderActions } from "../../store/LoaderReducer";
@@ -13,13 +13,14 @@ import Modal from "../Modal";
 import ButtonWithLoading from "../StyledButton";
 
 function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
-  //   console.log("User => ", user);
+  // console.log("User => ", user);
+  const isUpdate = Object.keys(user).length > 0;
   const { apiPost, apiPut } = useAPI();
   const dispatch = useDispatch();
   const [state, setState] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.infoString || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -60,6 +61,7 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
 
     let payload = {
       ...state,
+      partyId: user?.partyId,
       role: "user",
     };
 
@@ -67,11 +69,11 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
       dispatch(loaderActions.loaderOn());
       const addUser = async () => {
         let response;
-        if (user) {
+        if (isUpdate) {
+          response = await apiPut("/user", payload);
+        } else {
           payload.partyId = user.partyId;
           response = await apiPost("/auth/signup", payload);
-        } else {
-          response = await apiPut("/user", payload);
         }
 
         if (
@@ -89,12 +91,25 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
 
       addUser();
     } catch (err) {
+      console.error("Error while performing user Operation ! => ", err);
       failureToast("Someting went wrong!", { position: "top-right" });
     } finally {
-      // setLoading(false);
       dispatch(loaderActions.loaderOff());
     }
   };
+
+  useEffect(() => {
+    if (!(user && Object.keys(user).length > 0)) return;
+    setState({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.infoString,
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log("State =>", state);
+  }, [state]);
 
   return (
     <div>
@@ -102,7 +117,7 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
         isOpen={isOpen}
         type={"create"}
         onClose={onClose}
-        title={"Create A New User"}
+        title={isUpdate ? "Update User Information" : "Create A New User"}
         subtitle={"Please Enter all the Mandatory Details!"}
       >
         <form>
@@ -160,7 +175,7 @@ function UserAddUpdateModal({ isOpen, onClose, user, updateUsers }) {
                 type="button"
                 loading={false}
                 onAction={handleSubmit}
-                buttonText={"Add User +"}
+                buttonText={isUpdate ? "Update User Info" : "Add User +"}
               />
             </div>
           </div>

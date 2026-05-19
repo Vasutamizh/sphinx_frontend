@@ -1,6 +1,7 @@
+import { IconArrowRight } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import EyeClosedIcon from "../../components/EyeCloseIcon";
 import EyeOpenIcon from "../../components/EyeOpen";
 import useAPI from "../../hooks/useAPI";
@@ -231,17 +232,20 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* <div className="flex items-center gap-3 my-6">
+        <div className="flex items-center gap-3 my-6">
           <div className="flex-1 h-px bg-slate-800" />
           <span className="text-xs text-slate-500 uppercase tracking-wider">
             or
           </span>
           <div className="flex-1 h-px bg-slate-800" />
-        </div> */}
+        </div>
 
-        {/* <p className="text-center text-sm text-slate-400">
-          Don't have an account? <Link to="/signup">Create one</Link>
-        </p> */}
+        <Link to="/signup" className="font-semibold">
+          <p className="text-[#7b38ef] text-center text-sm tracking-[1px] flex justify-center gap-2 items-center">
+            Don't have an account? Create one
+            <IconArrowRight size={18} />
+          </p>
+        </Link>
       </FormDiv>
     </div>
   );
